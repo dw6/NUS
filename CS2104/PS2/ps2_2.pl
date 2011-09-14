@@ -1,3 +1,5 @@
+% Benjamin Tan Wei Hao
+% U077129N
 % Problem Set 2, Exercise 2
 
 /*derive((x+2)*(a-x),x,D).*/
