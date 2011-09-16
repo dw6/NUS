@@ -17,23 +17,29 @@ subterm("") :- !.
 subterm(S):-
 	constrain(S,S2,[O],[S1,S2,[O]],["*","/"]),
 	!,subterm(S1),factor(S2).
+	
 
+% Added
 factor(S) :-
-	append([S1,"!"],S), !, expr(S1),!,base(S1), !.
+	% append([S1, S2, "!"],S), base(S1), restexp(S2), !.
+	constrain(S,S1,[],[S1,S2, "!"],["!"]),
+	!,base(S1), restexp(S2).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 factor(S) :-
 	constrain(S,S1,[],[S1,S2],["^"]),
 	!,base(S1), restexp(S2).
 
-% Edit
-restexp("!") :- !.
 restexp("") :- !.
 
 base(S) :- append(["(",S1,")"],S), !, expr(S1).
 
-
-% Edit
+% Added
 base(S) :- append([S1, "!"], S), base(S1), !.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 base([S]) :- 97 =< S, S =< 122.
 
