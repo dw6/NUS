@@ -1,12 +1,16 @@
 % Benjamin Tan Wei Hao
-% U077129N
-
-% Problem Set 3, Exercise 1
+% Problem Set 3, Exercise 2
 
 /*******************************************************************************/
 % Sample Run:
-% montage(beside(rotate(beside(a,rotate(b))),rotate(beside(rotate(a),b))), out).
+
+% ma(x=rotate(beside(a,rotate(b)));y=rotate(beside(rotate(a),b));o=beside(x,y)).
 /*******************************************************************************/
+
+
+% Montage with assignment
+ma(X=Expr; RestExpr) :- montage(Expr, X), ma(RestExpr), !.
+ma(X=Expr) :- montage(Expr, X), !.
 
 % Prog  : The series of graphics commands
 % Output: The supplied output file name. ("out" -> "out.jpg") 
