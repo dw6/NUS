@@ -1,4 +1,5 @@
 *.out
 *.pyc
 *.o
+*.jpg
 .DS_Store
