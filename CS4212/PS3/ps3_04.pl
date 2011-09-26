@@ -376,18 +376,6 @@ compileHL(Stmt,Code) :- compile(Stmt,Code,_Res,_,_).
             x = 10 ;
             a = 0 ;
             while ( x > 0 ) do {
-              y = 10 ;
-              break ;
-              while ( y > 0 ) do {
-                z = 10 ;
-                while ( z > 0 ) do {
-                   a = a + 1 ;
-                   z = z - 1 ;
-                   continue ;
-                } ;
-                y = y - 1 ;
-                break ;
-              } ;
               x = x - 1 ;
             } ;
           ), isStmt(Code),
@@ -396,3 +384,29 @@ compileHL(Stmt,Code) :- compile(Stmt,Code,_Res,_,_).
           compileHL(Code,Tac),
           writeln('Object code'),
           writeTac(Tac).
+
+% :- resetnewvar, resetnewlabel.
+
+% :- Code = ( % Showcasing 'break' and 'continue'
+%             x = 10 ;
+%             a = 0 ;
+%             while ( x > 0 ) do {
+%               y = 10 ;
+%               while ( y > 0 ) do {
+%                 z = 10 ;
+%                 break ;
+%                 while ( z > 0 ) do {
+%                    a = a + 1 ;
+%                    continue ;
+%                 } ;
+%                 y = y - 1 ;
+%                 break ;
+%               } ;
+%               x = x - 1 ;
+%             } ;
+%           ), isStmt(Code),
+%           writeln('======================================='),
+%           writeln('Code tested:'), writeln(Code),
+%           compileHL(Code,Tac),
+%           writeln('Object code'),
+%           writeTac(Tac).
