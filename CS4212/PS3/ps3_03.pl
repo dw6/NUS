@@ -1,11 +1,9 @@
 /*
   Benjamin Tan Wei Hao (U077129N)
   Problem Set 3 , Execise 3
-*/
 
-/*
- *  Arithmetic expressions as in 02.pl
- */
+  My additions are enclosed in '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
+*/
 
 % Operator declarations
 :- op(800,yfx,and).
@@ -241,12 +239,9 @@ execObj(EnvIn,IP,Code,EnvOut,IPnext) :-
                     ;  IPnext is IP + 1 )
         ;   execTai(EnvIn,Instr,EnvOut), IPnext is IP+1 ).
 
-
-
-
 execTAC(EnvIn,Code,EnvOut) :- tacToObj(Code,Obj), execObj(EnvIn,0,Obj,EnvOut,_).
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /********************************************
  * Compiler from HL language to TAC
@@ -347,28 +342,7 @@ compileHL(Stmt,Code) :-
 % Test compiler
 :- resetnewvar, resetnewlabel.
 
-% :- Code = (
-%           x = 144 ;
-%           y = 60 ;
-%           while ( x \= y ) do {
-%              if ( x < y ) then {
-%                 y = y - x ;
-%              } else {
-%                 x = x - y ;
-%              } ;
-%           } ;
-%           ), isStmt(Code),
-%           writeln('======================================='),
-%           % writeln('Code tested:'), writeln(Code),
-%           compileHL(Code,Tac),
-%           % writeln('TAC code'),
-%           % writeTac(Tac),
-%           empty_assoc(Empty),
-%           execHL(Code,Empty,Rexec),
-%           tacToObj(Tac,Obj),
-%           execObj(Empty,0,Obj,Robj),
-%           writeObjectcode(Obj, 0).
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 debug(Code) :- 
   isStmt(Code),
@@ -378,9 +352,9 @@ debug(Code) :-
   empty_assoc(Empty),
   execHL(Code,Empty,_),
   tacToObj(Tac,Obj),
-  writeObjectcode(Obj, 0), % Write the first line of object code
+  writeObjectcode(Obj, 0),                         % Write the first line of object code
   write('Debugger cmd: '), read(Command),
-  debug(Obj, Command, Empty, 0, []).
+  debug(Obj, Command, Empty, 0, []).               % Handle the command
 
 % Handle step command
 debug(Obj,step,EnvIn,IP,HistList) :- 
@@ -389,27 +363,30 @@ debug(Obj,step,EnvIn,IP,HistList) :-
   write('Debugger cmd: '), read(NextCommand),      % Wait for input
   append([HistList, [IP]], HistListNew),           % Save the instruction history
   (length(HistListNew,Len), Len > 5 ->             % Make sure only 5 instructions kept
-    (HistListNew = [_|T], debug(Obj,NextCommand,EnvOut,IPNext,T)) ; 
+    (
+      HistListNew = [_|T], 
+      debug(Obj,NextCommand,EnvOut,IPNext,T)
+    ) ; 
     debug(Obj,NextCommand,EnvOut,IPNext,HistListNew)).
   
 % Handle inspect command
 debug(Obj,inspect(E),EnvIn,IP,HistList) :- 
   get_assoc(E,EnvIn,Val),                          % Get the association
-  write(E),write('='),writeln(Val),
+  write(E),write('='),writeln(Val),                % Print the association
   write('Debugger cmd: '), read(NextCommand),      % Wait for input
   debug(Obj,NextCommand,EnvIn,IP,HistList).        % Environment doesn't change
 
-% Handle continue command - Simply executes the remaining on the function
+% Handle continue command - Simply 
 debug(Obj,continue,EnvIn,IP, _) :- 
-  execObj(EnvIn,IP,Obj,EnvOut),
+  execObj(EnvIn,IP,Obj,EnvOut),                    % Executes the rest of the function
   writeln(EnvOut).
 
 % Handle list
 debug(Obj,list,EnvIn,IP, HistList) :- 
-  print_down(Obj,IP,HistList),
-  writeObjectcode(Obj,IP),
+  print_down(Obj,IP,HistList),                     % Print 5 instructions before
+  writeObjectcode(Obj,IP),                         % Print current instruction
   IPNext is IP+1,
-  print_up(Obj,IPNext,5),
+  print_up(Obj,IPNext,5),                          % Print 5 instructions after
   write('Debugger cmd: '), read(NextCommand),      % Wait for input
   debug(Obj,NextCommand,EnvIn,IP,HistList).        % Environment doesn't change
 
@@ -422,18 +399,17 @@ debug(Obj,InvalidCmd,EnvIn,IP, HistList) :-
 
 print_down(_,_,[]).
 
+% Simply print the list containing the history of instructions
 print_down(Obj,IP,[H|T]) :-
   writeObjectcode(Obj,H),
   print_down(Obj,IP,T).
   
-
 print_up(_, _, 0).
 print_up(Obj, IP, N) :-
   N1 is N-1, N1 >= 0,
   IPNext is IP+1,
   writeObjectcode(Obj, IP),!,
   print_up(Obj, IPNext, N1), !.
-
 
 
 :- Code = (
@@ -448,9 +424,7 @@ print_up(Obj, IP, N) :-
           } ;
           ),
   debug(Code).
-
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
