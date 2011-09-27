@@ -213,20 +213,8 @@ execTai(Env0,(X=Y),Env1) :-
 execObj(Env,IP,Code,Env) :-
         max_assoc(Code,K,_), IP > K, !.
 
-execObj(Env,IP,Code,Env,_) :-
-        max_assoc(Code,K,_), IP > K, !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% execObj modified to process one instruction
-
-execObj(EnvIn,IP,Code,EnvOut,IPnext) :-
-        get_assoc(IP,Code,Instr),
-        (   Instr = (goto L), !, evalExpr(L,IPnext,EnvIn), EnvOut = EnvIn
-        ;   Instr = (if E goto L), evalExpr(E,Val,EnvIn), EnvOut = EnvIn,
-                  ( Val = 1
-                    -> evalExpr(L,IPnext,EnvIn)
-                    ;  IPnext is IP + 1 )
-        ;   execTai(EnvIn,Instr,EnvOut), IPnext is IP+1 ).
 
 % execObj to process all instructions starting from IP
 execObj(EnvIn,IP,Code,EnvOut) :-
@@ -238,6 +226,22 @@ execObj(EnvIn,IP,Code,EnvOut) :-
                     ;  IPnext is IP + 1 )
         ;   execTai(EnvIn,Instr,EnvAux), IPnext is IP+1 ),
         execObj(EnvAux,IPnext,Code,EnvOut).        
+
+execObj(Env,IP,Code,Env,_) :-
+        max_assoc(Code,K,_), IP > K, !.
+
+% execObj modified to process one instruction
+
+execObj(EnvIn,IP,Code,EnvOut,IPnext) :-
+        get_assoc(IP,Code,Instr),
+        (   Instr = (goto L), !, evalExpr(L,IPnext,EnvIn), EnvOut = EnvIn
+        ;   Instr = (if E goto L), evalExpr(E,Val,EnvIn), EnvOut = EnvIn,
+                  ( Val = 1
+                    -> evalExpr(L,IPnext,EnvIn)
+                    ;  IPnext is IP + 1 )
+        ;   execTai(EnvIn,Instr,EnvOut), IPnext is IP+1 ).
+
+
 
 
 execTAC(EnvIn,Code,EnvOut) :- tacToObj(Code,Obj), execObj(EnvIn,0,Obj,EnvOut,_).
@@ -372,44 +376,63 @@ debug(Code) :-
   writeln('Code tested:'), writeln(Code),
   compileHL(Code,Tac), writeTac(Tac),
   empty_assoc(Empty),
-  execHL(Code,Empty,Rexec),
+  execHL(Code,Empty,_),
   tacToObj(Tac,Obj),
   writeObjectcode(Obj, 0), % Write the first line of object code
   write('Debugger cmd: '), read(Command),
-  debug(Obj, Command, Empty, 0).
+  debug(Obj, Command, Empty, 0, []).
 
 % Handle step command
-debug(Obj, step,EnvIn,IP) :- 
+debug(Obj,step,EnvIn,IP,HistList) :- 
   execObj(EnvIn,IP,Obj,EnvOut,IPNext),             % Execute the line before
   writeObjectcode(Obj, IPNext),                    % Write the line before it is executed
   write('Debugger cmd: '), read(NextCommand),      % Wait for input
-  debug(Obj, NextCommand, EnvOut, IPNext).
+  append([HistList, [IP]], HistListNew),           % Save the instruction history
+  (length(HistListNew,Len), Len > 5 ->             % Make sure only 5 instructions kept
+    (HistListNew = [_|T], debug(Obj,NextCommand,EnvOut,IPNext,T)) ; 
+    debug(Obj,NextCommand,EnvOut,IPNext,HistListNew)).
   
 % Handle inspect command
-debug(Obj,inspect(E),EnvIn,IP) :- 
+debug(Obj,inspect(E),EnvIn,IP,HistList) :- 
   get_assoc(E,EnvIn,Val),                          % Get the association
   write(E),write('='),writeln(Val),
   write('Debugger cmd: '), read(NextCommand),      % Wait for input
-  debug(Obj, NextCommand, EnvIn, IP).              % Environment doesn't change
+  debug(Obj,NextCommand,EnvIn,IP,HistList).        % Environment doesn't change
 
 % Handle continue command - Simply executes the remaining on the function
-debug(Obj,continue,EnvIn,IP) :- 
+debug(Obj,continue,EnvIn,IP, _) :- 
   execObj(EnvIn,IP,Obj,EnvOut),
   writeln(EnvOut).
 
-
-
-
-
-
 % Handle list
-% debug(Obj,list,EnvIn,IP) :- 
-%   get_assoc(E,EnvIn,Val),                          % Get the association
-%   write(E),write('='),writeln(Val),
-%   write('Debugger cmd: '), read(NextCommand),      % Wait for input
-%   debug(Obj, NextCommand, EnvIn, IP).              % Environment doesn't change 
+debug(Obj,list,EnvIn,IP, HistList) :- 
+  print_down(Obj,IP,HistList),
+  writeObjectcode(Obj,IP),
+  IPNext is IP+1,
+  print_up(Obj,IPNext,5),
+  write('Debugger cmd: '), read(NextCommand),      % Wait for input
+  debug(Obj,NextCommand,EnvIn,IP,HistList).        % Environment doesn't change
+
+% Handle all other commands
+debug(Obj,InvalidCmd,EnvIn,IP, HistList) :- 
+  write('Invalid Command: '), writeln(InvalidCmd),
+  write('Debugger cmd: '), read(NextCommand),      % Wait for input
+  debug(Obj,NextCommand,EnvIn,IP,HistList).        % Environment doesn't change
 
 
+print_down(_,_,[]).
+
+print_down(Obj,IP,[H|T]) :-
+  writeObjectcode(Obj,H),
+  print_down(Obj,IP,T).
+  
+
+print_up(_, _, 0).
+print_up(Obj, IP, N) :-
+  N1 is N-1, N1 >= 0,
+  IPNext is IP+1,
+  writeObjectcode(Obj, IP),!,
+  print_up(Obj, IPNext, N1), !.
 
 
 
