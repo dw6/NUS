@@ -24,28 +24,15 @@ fractal(X, X;Ee, Level, Length, StoredExpr) :-
 
 fractal(X, E;Ee, Level, Length, StoredExpr) :-
 	Level > 1, 
-	E =.. [left, Angle],
-	write('left('), write(Angle), writeln(')'),
-	fractal(X, Ee, Level, Length, StoredExpr).
-
-
-fractal(X, E;Ee, Level, Length, StoredExpr) :-
-	Level > 1, 
-	E =.. [right, Angle], 
-	write('right('), write(Angle), writeln(')'),
+	E =.. [Cmd, Angle], member(Cmd,[left,right]), 
+	write(Cmd), write('('), write(Angle), writeln(')'),
 	fractal(X, Ee, Level, Length, StoredExpr).
 
 
 fractal(_X, E, Level, _Length, _StoredExpr) :-
 	Level > 1, 
-	E =.. [left, Angle],
-	write('left('), write(Angle), writeln(')').
-
-
-fractal(_X, E, Level, _Length, _StoredExpr) :-
-	Level > 1, 
-	E =.. [right, Angle], 
-	write('right('), write(Angle), writeln(')').
+	E =.. [Cmd, Angle], member(Cmd,[left,right]), 
+	write(Cmd), write('('), write(Angle), writeln(')').
 
 
 fractal(X, X, Level, Length, StoredExpr) :-
@@ -66,22 +53,13 @@ fractal_helper(X, X;Ss, Length) :-
 	fractal_helper(X, Ss, Length).
 
 fractal_helper(X, S;Ss, Length) :-
-	S =.. [left, Angle], 
-	write('left('), write(Angle), writeln(')'),
-	fractal_helper(X, Ss, Length).
-
-fractal_helper(X, S;Ss, Length) :-
-	S =.. [right, Angle], 
-	write('right('), write(Angle), writeln(')'),
+	S =.. [Cmd, Angle], member(Cmd,[left,right]), 
+	write(Cmd), write('('), write(Angle), writeln(')'),
 	fractal_helper(X, Ss, Length).
 
 fractal_helper(_X, S, _Length) :-
-	S =.. [left, Angle], 
-	write('left('), write(Angle), writeln(')').
-
-fractal_helper(_X, S, _Length) :-
-	S =.. [right, Angle], 
-	write('right('), write(Angle), writeln(')').
+	S =.. [Cmd, Angle], member(Cmd,[left,right]), 
+	write(Cmd), write('('), write(Angle), writeln(')').
 
 fractal_helper(X, X, Length) :-
 	write('forward('), write(Length), writeln(')').
@@ -92,10 +70,10 @@ fractal_helper(X, X, Length) :-
 %    writeln('time.sleep(1000)'), told.
 
 
-:- tell('run.py'),
-   fractal(g = (left(120);g;right(60);g;right(60);g;right(60);g;g;left(60)),2,10), 
-   writeln('time.sleep(1000)'), told.
-
 % :- tell('run.py'),
-%    fractal(g = (g; left(45);g;right(90);g;left(45);g),4,5), 
+%    fractal(g = (left(120);g;right(60);g;right(60);g;right(60);g;g;left(60)),10,10), 
 %    writeln('time.sleep(1000)'), told.
+
+:- tell('run.py'),
+   fractal(g = (g; left(45);g;right(90);g;left(45);g),4,5), 
+   writeln('time.sleep(1000)'), told.
