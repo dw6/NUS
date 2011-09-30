@@ -150,31 +150,32 @@ outputVars([(V->Addr)|T]) :-
 	outputVars(T).
 
 
-:- P = (
-          % Test Case 1
-          x = 3 ;
-          y = 4 ;
-          (x,y) = (y,x) ;
-
-          % Test Case 2
-          % (x,y) = (3+4,5+3) ;
-
-          % Test Case 3
-          % x = 3 ;
-          % y = 4 ;
-          % (x,y) = (x+y,y-x) ;
-       ),
-	compileProg(P).
-
 % :- P = (
-%           x = 144 ;
-%           y = 60 ;
-%           while ( x \= y ) do {
-%              if ( x < y ) then {
-%                 y = y - x ;
-%              } else {
-%                 x = x - y ;
-%              } ;
-%           } ;
+%           % Test Case 1
+%           x = 3 ;
+%           y = 4 ;
+%           (x,y) = (y,x) ;
+
+%           % Test Case 2
+%           % (x,y) = (3+4,5+3) ;
+
+%           % Test Case 3
+%           % x = 3 ;
+%           % y = 4 ;
+%           % (x,y) = (x+y,y-x) ;
 %        ),
 % 	compileProg(P).
+
+:- P = (
+
+          (x,y) = (144,60) ;
+
+          while ( x \= y ) do {
+             if ( x < y ) then {
+                y = y - x ;
+             } else {
+                x = x - y ;
+             } ;
+          } ;
+       ),
+	compileProg(P).
