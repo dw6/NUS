@@ -149,6 +149,7 @@ outputVars([(V->Addr)|T]) :-
 	write('*(int*)&M['),write(Addr),writeln(']);'),
 	outputVars(T).
 
+% These examples work ! :)
 
 % :- P = (
 %           % Test Case 1
