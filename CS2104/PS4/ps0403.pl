@@ -1,6 +1,6 @@
 % Benjamin Tan Wei Hao
 % U077129N
-% Problem Set 4 : Exercise 2
+% Problem Set 4 : Exercise 3
 
 :- op(1099,yf,;).
 :- op(960,fx,if).
@@ -39,7 +39,6 @@ compileExpr(Exp,Ein,Eout,Tin,Tout) :-
 	writeln(O).
 
 
-
 % Assignments
 compile(V=E,Ein,Eout,Tin,Tout,L,L) :-
 	compileExpr(E,Ein,Eaux,Tin,Taux),
@@ -68,6 +67,7 @@ compile(if B then S1 else S2,Ein,Eout,Tin,Tout,Lin,Lout) :- !,
 	compile(S1,Ea3,Eout,Ta3,Tout,La2,Lout),
 	write('Lendif'),write(Lin),writeln(':').
 
+
 % if ... then 	
 compile(if B then S,Ein,Eout,Tin,Tout,Lin,Lout) :- !,
 	B =.. [O,X,Y], La1 is Lin+1,
@@ -85,7 +85,8 @@ compile(if B then S,Ein,Eout,Tin,Tout,Lin,Lout) :- !,
 	write('Lendif'),write(Lin),writeln(':').
 
 
-% for
+% for ... do loop
+% Translate for loops into while loops, and make use of program translations
 compile(for(Stmt1;Stmt2;Stmt3) do S,Ein,Eout,Tin,Tout,Lin,Lout) :- !,
 	compile(Stmt1;while Stmt2 do {S;Stmt3;},Ein,Eout,Tin,Tout,Lin,Lout).
 
@@ -138,9 +139,19 @@ outputVars([(V->Addr)|T]) :-
 	outputVars(T).
 
 
+% Showcasing 3 for-loops
 :- P = (
 			s=0 ;
-			for(i=0;i<10;i=i+1) do { s = s + i; }
-
+			w=0 ;
+			t=0 ;
+			for(i=0;i<10;i=i+1) do { 
+				for(j=0;j<10;j=j+1) do {
+					for(k=0;k<10;k=k+1) do { 
+						t = t + k; 
+					} ;
+					w = w + j; 
+				} ;
+				s = s + i; 
+			} ;
        ),
 	compileProg(P).
