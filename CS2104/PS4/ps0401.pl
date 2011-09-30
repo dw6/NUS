@@ -9,8 +9,8 @@
 fractal(X = (Expr), Level, Length) :-
 	writeln('from turtle import *'),
 	writeln('import time'),
-	% writeln('s = Screen()'),
-	% writeln('s.setworldcoordinates(0,-500, 1500, 1000)'),
+	writeln('s = Screen()'),
+	writeln('s.setworldcoordinates(0,-500, 1500, 1000)'),
 	writeln('delay(0)'),
 	fractal(X, Expr, Level, Length, Expr).
 
