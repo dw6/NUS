@@ -685,21 +685,22 @@ compileStmt( (return P#Args), Code,Procs,Glob,TG,Glob,TG,
 	     Loc,TL,Loc,TL,MaxTop,MaxTop,
 	     _Lev,RetLbl) :-
 
-	compileExpr(P#Args,Code,R,Procs,Glob,Loc),
+	compileExpr(P#Args,C1,R,Procs,Glob,Loc),
 
 	% Move stackpointer back up to free up local variables. 
 	% This effectively reuses the stack activation record
 	% of the calling function.
 
+	% Before the function is called again recursively:
+	% 1. Make space by using the previous activation record
+	% 2. Call the function
+	% 3. Assign the result
 	CX = (  stackPtr = stackPtr + MaxTop ), 	
 	C = ( returnResult = R ; goto RetLbl ),
-	Code = (CX ; C ).
+	Code = (CX ; C1; C).
 
-
-compileStmt( (return X), Code,Procs,Glob,TG,Glob,TG,
-	     Loc,TL,Loc,TL,MaxTop,MaxTop,
+compileStmt( (return X), Code,Procs,Glob,TG,Glob,TG,Loc,TL,Loc,TL,MaxTop,MaxTop,
 	     _Lev,RetLbl) :-
-
 	compileExpr(X,CX,R,Procs,Glob,Loc),
 	C = ( returnResult = R ; goto RetLbl ),
 	Code = (CX ; C ).
