@@ -441,10 +441,6 @@ compileExpr(E,Code,Result,Env) :-
 	Code = (CodeA ; CodeB; F).
 
 
-
-
-
-
 % -----------------------------
 
 % compileExpr((X ? Y : Z),Code,R,Env) :- !,
@@ -496,16 +492,16 @@ compileStmt((if B then {S1} else {S2}),Code,Env,Top,Env,Top) :-
 	compileStmt({S2},CS2,Env,Top,_,_),
 	Code = (push LblS2 ; push LblS1 ;
 		    CB ; sel ; jmp ; 
-		  	LblS1:: ; CS1 ; push LblOut ; 
-		  	LblS2:: ; CS2 ; push LblOut ; 
-		  	jmp ; LblOut::).
+		  	LblS2:: ; CS2 ; push LblOut ; jmp ;
+		  	LblS1:: ; CS1 ; push LblOut ; jmp ;
+		  	LblOut::).
+
 
 compileStmt((if B then S),Code,Env,Top,Env,Top) :- !,
         newlabel(Lout),
         compileExpr(B,CodeB,R,Env),
        	compileStmt(S,CodeS,Env,Top,_,_),  
-       	Code = ( push Lout ; CodeB ; cjmp ; CodeS ; Lout:: ),
-       	writeln(CodeB).
+       	Code = ( push Lout ; CodeB ; cjmp ; CodeS ; Lout:: ).
 
 compileStmt((while B do { S }),Code,Env,Top,Env,Top) :-
 	newlabel(LblTop), newlabel(LblOut),
@@ -527,23 +523,62 @@ compileHL((S;),Code,Env,Top,NewEnv,NewTop) :-
 	compileStmt(S,Code,Env,Top,NewEnv,NewTop).
 
 % Compiler test
-:- resetnewreg, resetnewlabel.
+% :- resetnewreg, resetnewlabel.
+
+% :- Program = (
+% 				% Factorial
+% 				int y ;
+% 				y = 1 ;
+%     			int x ;
+%     			x = 1 ;
+%     			while ( x =< 5 ) do {
+%     				y = y * x ;
+%     				x = x + 1 ;
+%     			} ;
+% 		    ),		   	
+% 	expandEnv([],Env0),
+% 	compileHL(Program,Tac,Env0,0,Env1,_),
+% 	writeln('==================================='),
+% 	writeln('Testing compilation of program:'), 
+% 	writeln('Compiled into s|T.A.C|k.:'),
+% 	writeTac(Tac),
+% 	tacToObj(Tac,Obj),
+% 	writeln('Translation into object code:'),
+% 	writeObj(Obj,0),
+% 	empty_assoc(Empty),
+% 	writeln(Env1),
+% 	execObj(0,Obj,Empty,Empty,_,HeapOut,[],StackOut),
+% 	writeln('Resulting StackOut: '),
+% 	writeln(StackOut),
+% 	writeln('Resulting HeapOut: '),
+% 	writeln(HeapOut),
+% 	% writeln('Interpretation of program:'),
+% 	% execHL(Program,Env0,EnvInterp,firstTime),
+% 	% write('x='), getEnv(x,EnvInterp,Valx), writeln(Valx),
+% 	% write('y='), getEnv(y,EnvInterp,Valy), writeln(Valy),
+%     write('Address of x:'), getEnv(x,Env1,Addrx), write(Addrx),
+% 	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx),
+%  	write('Address of y:'), getEnv(y,Env1,Addry), write(Addry),
+% 	write(', value = '), get_assoc(Addry,HeapOut,Valy), writeln(Valy).
+
 
 :- Program = (
-				int x ; 
-				x = 70 ;
-				if (x > 60) then {
-					x = 90 ;
-					if ( x == 90 ) then {
-						x = 100 ;
-					} ;
-				} ;
+				% GCD
+				int a, b, t;
+    			a = 1071 ;
+    			b = 462 ;
+
+  				while (b \= 0) do {
+       				t = b ;
+      		 		b = a mod b ;
+       				a = t ;
+       			} ;
 		    ),		   	
 	expandEnv([],Env0),
 	compileHL(Program,Tac,Env0,0,Env1,_),
 	writeln('==================================='),
-	writeln('Testing compilation of program:'), writeln(Program),
-	writeln('Compiled into S.T.A.C.K.:'),
+	writeln('Testing compilation of program:'), 
+	writeln('Compiled into s|T.A.C|k.:'),
 	writeTac(Tac),
 	tacToObj(Tac,Obj),
 	writeln('Translation into object code:'),
@@ -555,15 +590,56 @@ compileHL((S;),Code,Env,Top,NewEnv,NewTop) :-
 	writeln(StackOut),
 	writeln('Resulting HeapOut: '),
 	writeln(HeapOut),
-
 	% writeln('Interpretation of program:'),
 	% execHL(Program,Env0,EnvInterp,firstTime),
 	% write('x='), getEnv(x,EnvInterp,Valx), writeln(Valx),
 	% write('y='), getEnv(y,EnvInterp,Valy), writeln(Valy),
-    write('Address of x:'), getEnv(x,Env1,Addrx), write(Addrx),
+    write('Address of a:'), getEnv(a,Env1,Addrx), write(Addrx),
+	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx),
+ 	write('Address of b:'), getEnv(b,Env1,Addry), write(Addry),
+	write(', value = '), get_assoc(Addry,HeapOut,Valy), writeln(Valy).
+
+
+  % int a = 1, b = 1;
+  %   for (int i = 3; i <= n; i++) {
+  %       int c = a + b;
+  %       a = b;
+  %       b = c;
+  %   }           
+  %   return b;
+
+  :- Program = (
+				% Fibonacci
+				int a, b, c, i;
+    			a = 1 ;
+    			b = 1 ;
+    			i = 3 ;
+  				while (i =< 10) do {
+       				c = a + b ;
+      		 		a = b ;
+       				b = c ;
+       				i = i + 1 ;
+       			} ;
+		    ),		   	
+	expandEnv([],Env0),
+	compileHL(Program,Tac,Env0,0,Env1,_),
+	writeln('==================================='),
+	writeln('Testing compilation of program:'), 
+	writeln('Compiled into s|T.A.C|k.:'),
+	writeTac(Tac),
+	tacToObj(Tac,Obj),
+	writeln('Translation into object code:'),
+	writeObj(Obj,0),
+	empty_assoc(Empty),
+	writeln(Env1),
+	execObj(0,Obj,Empty,Empty,_,HeapOut,[],StackOut),
+	writeln('Resulting StackOut: '),
+	writeln(StackOut),
+	writeln('Resulting HeapOut: '),
+	writeln(HeapOut),
+	% writeln('Interpretation of program:'),
+	% execHL(Program,Env0,EnvInterp,firstTime),
+	% write('x='), getEnv(x,EnvInterp,Valx), writeln(Valx),
+	% write('y='), getEnv(y,EnvInterp,Valy), writeln(Valy),
+    write('Address of c:'), getEnv(c,Env1,Addrx), write(Addrx),
 	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx).
- %    write('Address of y:'), getEnv(y,Env1,Addry), write(Addry),
-	% write(', value = '), get_assoc(Addry,HeapOut,Valy), writeln(Valy).
-
-
-
