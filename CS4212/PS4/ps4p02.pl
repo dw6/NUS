@@ -2,12 +2,17 @@
 % U077129N
 % Problem Set 4 Ex 2
 
+%  ---=== [ Benjamin Tan presents ....] ====---
+%
 %       /\__  _\/\  _  \/\  _`\  /\ \        
 %   ____\/_/\ \/\ \ \L\ \ \ \/\_\\ \ \/'\    
 %  /',__\  \ \ \ \ \  __ \ \ \/_/_\ \ , <    
 % /\__, `\  \ \ \ \ \ \/\ \ \ \L\ \\ \ \\`\  
 % \/\____/   \ \_\ \ \_\ \_\ \____/ \ \_\ \_\
 %  \/___/     \/_/  \/_/\/_/\/___/   \/_/\/_/
+%
+% ... because TAC is too complicated. :)
+% ==============================================
                                            
 
 % All operator declarations at the top
@@ -194,7 +199,7 @@ execHL((S;),EnvIn,EnvOut,Flag) :- !,
 taiNLtoObj(push X,P,P,push X) :- integer(X),!.
 taiNLtoObj(push X,P,[X:Z|P],push Z) :- atom(X), !. % Map 'push lbl' --> 'push addr'
 taiNLtoObj(I,P,P,I) :- member(I, [nop,pop,store,jmp,cjmp,sel,load]), !.
-taiNLtoObj(Op,P,P,Op) :- !, member(Op,[+,-,*,/,mod,/\,\/,xor,<<,>>]).
+taiNLtoObj(Op,P,P,Op) :- !, member(Op,[+,-,*,/,mod,/\,\/,xor,<<,>>,<,>,=<,>=,==,\=]).
 
 % Three address instruction (possibly labelled) --> Object instruction
 %    -- add pair (Label,IP) to symbol table
@@ -279,20 +284,7 @@ writeObj(Obj,IP) :-
         get_assoc(IP,Obj,I), alignIP(IP,X),write(X), write(' :: '), writeln(I),
         IPnext is IP + 1, writeObj(Obj,IPnext).
 
-
-%%%%%%%%%%% <----------- Progress ! ------------>         
-
-% % Operational semantics of object code -- enhanced with references
-% %    -- New instructions : [Addr] = Expr; Reg = [Addr],
-% evalTaiRhs(X,Env,Val) :- atom(X), !, get_assoc(X,Env,Val).
-
-% evalTaiRhs(X,_,X) :- integer(X), !.
-
-% evalTaiRhs(E,Env,Val) :-
-% 	E =.. [F,A,B], member(F,[+,-,*,/,mod,<<,>>,and,or,xor,/\,\/]),
-% 	(atom(A),!;integer(A) ), (atom(B),!;integer(B)),
-% 	evalTaiRhs(A,Env,ValA), evalTaiRhs(B,Env,ValB),
-% 	(   F == / -> C = ValA // ValB ; C =.. [F,ValA,ValB]), Val is C.
+% % Operational semantics of object code 
 
 getHeap(E,Env,Heap,Addr,Val) :-
 	evalTaiRhs(E,Env,Addr),
@@ -305,7 +297,8 @@ getHeap(E,Env,Heap,Addr,Val) :-
 % 'push' instruction : 
 %	- pushes an element on top of the stack
 %	- environment and heap does not change
-execTai(push X,Env,Heap,Env,Heap,StackIn,StackOut) :- append([X],StackIn,StackOut), !.
+execTai(push X,Env,Heap,Env,Heap,StackIn,StackOut) :- 
+	append([X],StackIn,StackOut), !.
 
 
 % 'pop' instruction : 
@@ -340,7 +333,16 @@ execTai(F,Env,Heap,Env,Heap,StackIn,StackOut) :-
 	append([Val],StackAux2,StackOut).
 
 
-% select
+execTai(F,Env,Heap,Env,Heap,StackIn,StackOut) :-
+	member(F,[<,>,=<,>=,==,\=]),	
+	append([B],StackAux,StackIn),
+	append([A],StackAux2,StackAux),
+	Op =.. [F,A,B], 
+	(Op -> Result = 1 ; Result = 0),
+	append([Result],StackAux2,StackOut).
+
+
+% 'select' instruction :
 %	- pop 3 times
 % 	- 1 : Not Zero ? Push 2 : Push 3
 execTai(sel,Env,Heap,Env,Heap,StackIn,StackOut) :- 
@@ -352,31 +354,10 @@ execTai(sel,Env,Heap,Env,Heap,StackIn,StackOut) :-
 			append([B],StackAux3,StackOut) 
  	).
 
-execTai(I,Env,Heap,NewEnv,NewHeap,StackIn,StackOut) :- 
-	member(I, [jmp,cjmp]), !.
 
+	
 
-
-
-execTai(push X,Env,Heap,NewEnv,NewHeap,StackIn,[X|StackIn]) :- !.
-
-
-% Won't need this, .... eventually! 
-execTai((LHS=RHS),Env,Heap,NewEnv,NewHeap,StackIn,StackOut) :-
-	(   atom(LHS)
-	->  (   RHS = [AddrExpr]
-	    ->  
-	    getHeap(AddrExpr,Env,Heap,_Addr,Val), put_assoc(LHS,Env,Val,NewEnv), Heap=NewHeap
-	    ; evalTaiRhs(RHS,Env,Val), put_assoc(LHS,Env,Val,NewEnv), Heap=NewHeap 
-	    )
-
-	;   LHS = [LhsAddr], getHeap(LhsAddr,Env,Heap,Addr,_Val), NewEnv = Env,
-	    (	atom(RHS)
-	    ->	get_assoc(RHS,Env,Val)
-	    ;	(   integer(RHS)
-		->  Val = RHS
-		;   write('Incorrect instruction : '), writeln(LHS=RHS), abort )),
-	    put_assoc(Addr,Heap,Val,NewHeap)).
+%%%%%%%%%%% <----------- Progress  -----------> %%%%%%%%%%%
 
 % :- dynamic counter/1.
 % :- retractall(counter(_)).
@@ -384,17 +365,22 @@ execTai((LHS=RHS),Env,Heap,NewEnv,NewHeap,StackIn,StackOut) :-
 % counter(0).
 
 execObj(IP,Code,Env,Heap,Env,Heap,Stack,Stack) :- max_assoc(Code,K,_), IP > K, !.
+
 execObj(IP,Code,EnvIn,HeapIn,EnvOut,HeapOut,StackIn,StackOut) :-
         get_assoc(IP,Code,Instr),
-
-        (   Instr = (goto L), !, evalExpr(L,[EnvIn],IPnext), EnvAux = EnvIn, HeapAux = HeapIn
-        ;   Instr = (if E goto L), !, evalExpr(E,[EnvIn],Val), EnvAux = EnvIn, HeapAux = HeapIn,
-                  ( Val = 1
-                    -> evalExpr(L,[EnvIn],IPnext)
-                    ;  IPnext is IP + 1 )
-        ;   execTai(Instr,EnvIn,HeapIn,EnvAux,HeapAux,StackIn,StackAux), IPnext is IP+1 ),
+        (   
+        	Instr = jmp, !, 
+        	append([IPnext],StackAux,StackIn), 
+			EnvAux = EnvIn, HeapAux = HeapIn
+        ;   
+        	Instr = cjmp, !, 
+        	append([Value],StackAux1,StackIn), append([Addr],StackAux,StackAux1),
+        	(Value is 0 -> IPnext = Addr; IPnext is IP+1),
+			EnvAux = EnvIn, HeapAux = HeapIn
+		;	
+        	execTai(Instr,EnvIn,HeapIn,EnvAux,HeapAux,StackIn,StackAux), IPnext is IP+1 
+        ),
         execObj(IPnext,Code,EnvAux,HeapAux,EnvOut,HeapOut,StackAux,StackOut).
-
 
 /********************************************
  * Compiler from HL language to TO S|TAC|K
@@ -449,48 +435,14 @@ compileExpr(X, push Addr ; load ,Addr,Env) :-
 compileExpr(E,Code,Result,Env) :-
 	% Binary Operators.
 	% First push both operands into the stack
-	E =.. [F,A,B], member(F,[+,-,*,/,mod,<<,>>,/\,\/,and,or,xor]), !,
-	compileExpr(A,CodeA,RA,Env),	% push RA
-	compileExpr(B,CodeB,RB,Env),    % push RB
-	Op =.. [F,RA,RB], 
-	(
-		number(A) -> CodeC = (CodeA ; CodeB) ; CodeC = (CodeA ; CodeB)
-	), 
-	(
-		number(B) -> Code = (CodeC ; F) ; Code = (CodeC ; F)		
-	),
-	Result is Op.
+	E =.. [F,A,B], member(F,[+,-,*,/,mod,<<,>>,/\,\/,and,or,xor,<,>,=<,>=,==,\=]), !,
+	compileExpr(A,CodeA,RA,Env), write('A: '), writeln(CodeA),	% push RA
+	compileExpr(B,CodeB,RB,Env), write('B: '), writeln(CodeB),   % push RB
+	Code = (CodeA ; CodeB; F).
 
 
-compileExpr(E,Code,Result,Env) :-
-	E =.. [<,A,B], !,
-	compileExpr(A-B,Code,R,Env),
-	(R < 0 -> Result = 1 ; Result = 0).
 
-compileExpr(E,Code,Result,Env) :-
-	E =.. [>,A,B], !,
-	compileExpr(A-B,Code,R,Env),
-	(R > 0 -> Result = 1 ; Result = 0).
 
-compileExpr(E,Code,Result,Env) :-
-	E =.. [==,A,B], !,
-	compileExpr(A-B,Code,R,Env),
-	(R = 0 -> Result = 1 ; Result = 0).
-
-compileExpr(E,Code,Result,Env) :-
-	E =.. [\=,A,B], !,
-	compileExpr(A-B,Code,R,Env),
-	(R \= 0 -> Result = 1 ; Result = 0).
-
-compileExpr(E,Code,Result,Env) :-
-	E =.. [=<,A,B], !,
-	compileExpr(A-B,Code,R,Env),
-	((R < 0; R = 0) -> Result = 1 ; Result = 0).
-
-compileExpr(E,Code,Result,Env) :-
-	E =.. [>=,A,B], !,
-	compileExpr(A-B,Code,R,Env),
-	((R > 0; R = 0) -> Result = 1 ; Result = 0).
 
 
 % -----------------------------
@@ -550,9 +502,10 @@ compileStmt((if B then {S1} else {S2}),Code,Env,Top,Env,Top) :-
 
 compileStmt((if B then S),Code,Env,Top,Env,Top) :- !,
         newlabel(Lout),
-        compileExpr(B,CodeB,_R,Env),
-       	compileStmt(S,CodeS,Env,Top,_,_),
-        Code = ( push Lout ; CodeB;  cjmp ; CodeS ; Lout::).
+        compileExpr(B,CodeB,R,Env),
+       	compileStmt(S,CodeS,Env,Top,_,_),  
+       	Code = ( push Lout ; CodeB ; cjmp ; CodeS ; Lout:: ),
+       	writeln(CodeB).
 
 compileStmt((while B do { S }),Code,Env,Top,Env,Top) :-
 	newlabel(LblTop), newlabel(LblOut),
@@ -577,10 +530,13 @@ compileHL((S;),Code,Env,Top,NewEnv,NewTop) :-
 :- resetnewreg, resetnewlabel.
 
 :- Program = (
-				int x, y ; 
-				x = 11 ;
-				if (x < 10) then {
-					y = 666 ;
+				int x ; 
+				x = 70 ;
+				if (x > 60) then {
+					x = 90 ;
+					if ( x == 90 ) then {
+						x = 100 ;
+					} ;
 				} ;
 		    ),		   	
 	expandEnv([],Env0),
@@ -605,9 +561,9 @@ compileHL((S;),Code,Env,Top,NewEnv,NewTop) :-
 	% write('x='), getEnv(x,EnvInterp,Valx), writeln(Valx),
 	% write('y='), getEnv(y,EnvInterp,Valy), writeln(Valy),
     write('Address of x:'), getEnv(x,Env1,Addrx), write(Addrx),
-	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx),
-    write('Address of y:'), getEnv(y,Env1,Addry), write(Addry),
-	write(', value = '), get_assoc(Addry,HeapOut,Valy), writeln(Valy).
+	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx).
+ %    write('Address of y:'), getEnv(y,Env1,Addry), write(Addry),
+	% write(', value = '), get_assoc(Addry,HeapOut,Valy), writeln(Valy).
 
 
 
