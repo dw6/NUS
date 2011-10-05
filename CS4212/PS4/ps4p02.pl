@@ -525,13 +525,19 @@ compileHL((S;),Code,Env,Top,NewEnv,NewTop) :-
 % Compiler test
 % :- resetnewreg, resetnewlabel.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Fibonacci
+%
+% This algorithm calculates the factorial of 'n'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 :- Program = (
-				% Fibonacci
-				int a, b, c, i;
+				int a, b, c, i, n;
     			a = 1 ;
     			b = 1 ;
     			i = 3 ;
-  				while (i =< 10) do {
+    			n = 10 ;
+  				while (i =< n) do {
        				c = a + b ;
       		 		a = b ;
        				b = c ;
@@ -550,15 +556,24 @@ compileHL((S;),Code,Env,Top,NewEnv,NewTop) :-
 	empty_assoc(Empty),
 	execObj(0,Obj,Empty,Empty,_,HeapOut,[],_StackOut),
     write('Address of c:'), getEnv(c,Env1,Addrx), write(Addrx),
-	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx).
+    write('Address of n:'), getEnv(n,Env1,Addrn), write(Addrn),
+	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx),
+	write(', value = '), get_assoc(Addrn,HeapOut,Valn), writeln(Valn),
+	writeln('==================================='),
+	write('Fibonacci('),write(Valn),write(') = '),writeln(Valx).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Factorial
+%
+% This algorithm calculates the factorial of 'n'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
 :- Program = (
-				% Factorial
-				int y ;
+				int x, y, n ;
 				y = 1 ;
-    			int x ;
     			x = 1 ;
-    			while ( x =< 5 ) do {
+    			n = 5 ; 
+    			while ( x =< n ) do {
     				y = y * x ;
     				x = x + 1 ;
     			} ;
@@ -577,11 +592,19 @@ compileHL((S;),Code,Env,Top,NewEnv,NewTop) :-
   	write('Address of x:'), getEnv(x,Env1,Addrx), write(Addrx),
 	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx),
  	write('Address of y:'), getEnv(y,Env1,Addry), write(Addry),
-	write(', value = '), get_assoc(Addry,HeapOut,Valy), writeln(Valy).
+	write(', value = '), get_assoc(Addry,HeapOut,Valy), writeln(Valy),
+	writeln('==================================='),
+	write('Factorial('),write(Valx),write(') = '),writeln(Valy).
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% GCD
+% 
+% This algorithm calculates the greatest common divisor between two 
+% numbers ,a and b. The result is stored in 'a'.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- Program = (
-				% GCD
 				int a, b, t;
     			a = 1071 ;
     			b = 462 ;
@@ -605,13 +628,16 @@ compileHL((S;),Code,Env,Top,NewEnv,NewTop) :-
 	writeln(Env1),
 	execObj(0,Obj,Empty,Empty,_,HeapOut,[],_StackOut),
   	write('Address of a:'), getEnv(a,Env1,Addrx), write(Addrx),
-	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx),
- 	write('Address of b:'), getEnv(b,Env1,Addry), write(Addry),
-	write(', value = '), get_assoc(Addry,HeapOut,Valy), writeln(Valy).
+	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Exponentiation algorithm 
+%
+% This algorithm calculates the value of a^x, and the result is stored in 
+% the variable 'ans'.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   :- Program = (
-				% Exponentiation 
 				int a, x, ans;
 				ans = 1 ;
     			a = 2 ;
@@ -636,5 +662,18 @@ compileHL((S;),Code,Env,Top,NewEnv,NewTop) :-
 	writeObj(Obj,0),
 	empty_assoc(Empty),
 	execObj(0,Obj,Empty,Empty,_,HeapOut,[],_StackOut),
-    write('Address of ans:'), getEnv(ans,Env1,Addrx), write(Addrx),
-	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx).
+	write('Address of a:'), getEnv(a,Env1,Addra), write(Addra),
+	write(', value = '), get_assoc(Addra,HeapOut,Vala), writeln(Vala),
+    write('Address of x:'), getEnv(x,Env1,Addrx), write(Addrx),
+	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx),
+    write('Address of ans:'), getEnv(ans,Env1,AddrA), write(AddrA),
+	write(', value = '), get_assoc(AddrA,HeapOut,ValA), writeln(ValA),
+	writeln('==================================='),
+	write('Result = ' ), writeln(ValA).
+
+
+
+
+
+
+
