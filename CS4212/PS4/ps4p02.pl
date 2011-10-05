@@ -2,6 +2,14 @@
 % U077129N
 % Problem Set 4 Ex 2
 
+%       /\__  _\/\  _  \/\  _`\  /\ \        
+%   ____\/_/\ \/\ \ \L\ \ \ \/\_\\ \ \/'\    
+%  /',__\  \ \ \ \ \  __ \ \ \/_/_\ \ , <    
+% /\__, `\  \ \ \ \ \ \/\ \ \ \L\ \\ \ \\`\  
+% \/\____/   \ \_\ \ \_\ \_\ \____/ \ \_\ \_\
+%  \/___/     \/_/  \/_/\/_/\/___/   \/_/\/_/
+                                           
+
 % All operator declarations at the top
 %
 :- op(800,yfx,and).
@@ -183,73 +191,72 @@ execHL((S;),EnvIn,EnvOut,Flag) :- !,
 % Main predicate is tacToObj(TacCode,ObjCode).
 
 % Three address instruction with no label --> Object instruction
-% taiNLtoObj(nop,P,P,nop) :- !.
-% taiNLtoObj(push _X,P,P,nop) :- !.
-
-% taiNLtoObj(X=Y,P,[L:K|P],X=Z) :-
-% 	Y =.. [F,L,A], atom(L), !, Z =.. [F,K,A].
-% taiNLtoObj(X=Y,P,[Y:Z|P],X=Z) :- atom(Y), !.
-% taiNLtoObj(X=Y,P,P,X=Y) :- !.
-% taiNLtoObj(Iin,P,[X:Y|P],Iout) :-
-%         (   Iin = (goto E), Iout = (goto D)
-%         ;   Iin = (if Expr goto E), Iout = (if Expr goto D) ),
-%         (   E =.. [F,X,Z], D =.. [F,Y,Z]
-%         ;   atom(E), E = X, D = Y ) ,!.
-
-
-
+taiNLtoObj(push X,P,P,push X) :- integer(X),!.
+taiNLtoObj(push X,P,[X:Z|P],push Z) :- atom(X), !. % Map 'push lbl' --> 'push addr'
+taiNLtoObj(I,P,P,I) :- member(I, [nop,pop,store,jmp,cjmp,sel,load]), !.
+taiNLtoObj(Op,P,P,Op) :- !, member(Op,[+,-,*,/,mod,/\,\/,xor,<<,>>]).
+taiNLtoObj(Op,P,P,Op) :- !, member(F,[<,>,=<,>=,==,\=]), !. % << Check this out.
 
 
 % Three address instruction (possibly labelled) --> Object instruction
 %    -- add pair (Label,IP) to symbol table
-% taiToObj(L::nop,IP,Lin,Lout,Pin,Pout,T) :- taiToObj(L::,IP,Lin,Lout,Pin,Pout,T).
-% taiToObj(L::I,IP,Lin,Lout,Pin,Pout,T) :- !,
-%         get_assoc(L,Lin,_)
-%         ->  writeln('Duplicate labels'), abort
-%         ;   put_assoc(L,Lin,IP,Laux),
-%             (   I =.. [(::)|_]
-%              -> taiToObj(I,IP,Laux,Lout,Pin,Pout,T)
-%              ;  Lout=Laux, taiNLtoObj(I,Pin,Pout,T) ).
-% taiToObj((L::),IP,Lin,Lout,P,P,none) :-
-%         get_assoc(L,Lin,_)
-%         -> writeln('Duplicate labels'), abort
-%         ;  put_assoc(L,Lin,IP,Lout).
-% taiToObj(I,_,L,L,Pin,Pout,T) :- taiNLtoObj(I,Pin,Pout,T).
+
+taiToObj(L::nop,IP,Lin,Lout,Pin,Pout,T) :- taiToObj(L::,IP,Lin,Lout,Pin,Pout,T).
+
+taiToObj(L::I,IP,Lin,Lout,Pin,Pout,T) :- !,
+        get_assoc(L,Lin,_)
+        ->  writeln('Duplicate labels'), abort
+        ;   put_assoc(L,Lin,IP,Laux),
+            (   I =.. [(::)|_]
+             -> taiToObj(I,IP,Laux,Lout,Pin,Pout,T
+             ;  Lout=Laux, taiNLtoObj(I,Pin,Pout,T) ).
+
+taiToObj((L::),IP,Lin,Lout,P,P,none) :-
+        get_assoc(L,Lin,_)
+        -> writeln('Duplicate labels'), abort
+        ;  put_assoc(L,Lin,IP,Lout).
+
+
+taiToObj(I,_,L,L,Pin,Pout,T) :- taiNLtoObj(I,Pin,Pout,T).
 
 % % First pass: translate instructions, accumulate labels and
 % % corresponding IPs in symbol table, and create placeholders
 % % for addresses in object code
-% firstPass((C;nop),IPin,IPout,Lin,Lout,Pin,Pout,Tin,Tout) :- !,
-% 	firstPass(C,IPin,IPout,Lin,Lout,Pin,Pout,Tin,Tout).
-% firstPass((nop;C),IPin,IPout,Lin,Lout,Pin,Pout,Tin,Tout) :- !,
-% 	firstPass(C,IPin,IPout,Lin,Lout,Pin,Pout,Tin,Tout).
-% firstPass((C1;C2),IPin,IPout,Lin,Lout,Pin,Pout,Tin,Tout) :- !,
-%         firstPass(C1,IPin,IPaux,Lin,Laux,Pin,Paux,Tin,Taux),
-%         firstPass(C2,IPaux,IPout,Laux,Lout,Paux,Pout,Taux,Tout).
-% firstPass((I;),IPin,IPout,Lin,Lout,Pin,Pout,Tin,Tout) :- !,
-%         taiToObj(I,IPin,Lin,Lout,Pin,Pout,T),
-%         put_assoc(IPin,Tin,T,Tout),
-%         IPout is IPin + 1.
-% firstPass(I,IPin,IPout,Lin,Lout,Pin,Pout,Tin,Tout) :-
-%         taiToObj(I,IPin,Lin,Lout,Pin,Pout,T),
-%         ( T = none
-%           -> IPout = IPin, Tout = Tin
-%           ; put_assoc(IPin,Tin,T,Tout), IPout is IPin + 1 ).
+firstPass((C;nop),IPin,IPout,Lin,Lout,Pin,Pout,Tin,Tout) :- !,
+	firstPass(C,IPin,IPout,Lin,Lout,Pin,Pout,Tin,Tout).
+
+firstPass((nop;C),IPin,IPout,Lin,Lout,Pin,Pout,Tin,Tout) :- !,
+	firstPass(C,IPin,IPout,Lin,Lout,Pin,Pout,Tin,Tout).
+
+firstPass((C1;C2),IPin,IPout,Lin,Lout,Pin,Pout,Tin,Tout) :- !,
+        firstPass(C1,IPin,IPaux,Lin,Laux,Pin,Paux,Tin,Taux),
+        firstPass(C2,IPaux,IPout,Laux,Lout,Paux,Pout,Taux,Tout).
+
+firstPass((I;),IPin,IPout,Lin,Lout,Pin,Pout,Tin,Tout) :- !,
+        taiToObj(I,IPin,Lin,Lout,Pin,Pout,T),
+        put_assoc(IPin,Tin,T,Tout),
+        IPout is IPin + 1.
+        
+firstPass(I,IPin,IPout,Lin,Lout,Pin,Pout,Tin,Tout) :-
+        taiToObj(I,IPin,Lin,Lout,Pin,Pout,T),
+        ( T = none
+          -> IPout = IPin, Tout = Tin
+          ; put_assoc(IPin,Tin,T,Tout), IPout is IPin + 1 ).
 
 % % Second pass: replace the placeholders in code by addresses that
 % % were computed for labels.
-% secondPass([],_).
-% secondPass([Lbl:P|T],L) :-
-%         (   get_assoc(Lbl,L,P)
-% 	->  true
-%         ;   P = Lbl ),
-% 	secondPass(T,L).
+secondPass([],_).
+secondPass([Lbl:P|T],L) :-
+        (   get_assoc(Lbl,L,P)
+	->  true
+        ;   P = Lbl ),
+	secondPass(T,L).
 
 % % Main predicate, applies the two passes to a TAC
-% tacToObj(SourceCode,ObjectCode) :-
-%         empty_assoc(Empty),
-%         firstPass(SourceCode,0,_,Empty,Labels,[],Placeholders,Empty,ObjectCode),
-%         secondPass(Placeholders,Labels).
+tacToObj(SrcCode,ObjCode) :-
+        empty_assoc(Empty),
+        firstPass(SrcCode,0,_,Empty,Labels,[],Plholders,Empty,ObjCode),
+        secondPass(Plholders,Labels).
 
 % % Pretty-printing of TAC
 alignLabel(X,Y) :-
@@ -269,10 +276,13 @@ alignIP(X,Y) :-
         atom_chars(Z,L), append(_,L1,L), length(L1,3),
         atomic_list_concat(L1,Y).
 
-% writeObj(Obj,IP) :- max_assoc(Obj,K,_), IP > K, !.
-% writeObj(Obj,IP) :-
-%         get_assoc(IP,Obj,I), alignIP(IP,X),write(X), write(' :: '), writeln(I),
-%         IPnext is IP + 1, writeObj(Obj,IPnext).
+writeObj(Obj,IP) :- max_assoc(Obj,K,_), IP > K, !.
+writeObj(Obj,IP) :-
+        get_assoc(IP,Obj,I), alignIP(IP,X),write(X), write(' :: '), writeln(I),
+        IPnext is IP + 1, writeObj(Obj,IPnext).
+
+
+%%%%%%%%%%% <----------- Progress ! ------------>         
 
 % % Operational semantics of object code -- enhanced with references
 % %    -- New instructions : [Addr] = Expr; Reg = [Addr],
@@ -286,92 +296,81 @@ alignIP(X,Y) :-
 % 	evalTaiRhs(A,Env,ValA), evalTaiRhs(B,Env,ValB),
 % 	(   F == / -> C = ValA // ValB ; C =.. [F,ValA,ValB]), Val is C.
 
-% getHeap(E,Env,Heap,Addr,Val) :-
-% 	evalTaiRhs(E,Env,Addr),
-% 	(   get_assoc(Addr,Heap,Val)
-% 	->  true
-% 	;   Val = undef
-% 	).
-
-% execTai(nop,Env,Heap,Env,Heap) :- !.
+getHeap(E,Env,Heap,Addr,Val) :-
+	evalTaiRhs(E,Env,Addr),
+	(   get_assoc(Addr,Heap,Val)
+	->  true
+	;   Val = undef
+	).
 
 
-% execTai((LHS=RHS),Env,Heap,NewEnv,NewHeap) :-
-% 	(   atom(LHS)
-% 	->  (   RHS = [AddrExpr]
-% 	    ->  getHeap(AddrExpr,Env,Heap,_Addr,Val),
-% 		put_assoc(LHS,Env,Val,NewEnv), Heap=NewHeap
-% 	    ;	evalTaiRhs(RHS,Env,Val), put_assoc(LHS,Env,Val,NewEnv),
-% 		Heap=NewHeap )
-% 	;   LHS = [LhsAddr], getHeap(LhsAddr,Env,Heap,Addr,_Val), NewEnv = Env,
-% 	    (	atom(RHS)
-% 	    ->	get_assoc(RHS,Env,Val)
-% 	    ;	(   integer(RHS)
-% 		->  Val = RHS
-% 		;   write('Incorrect instruction : '), writeln(LHS=RHS), abort )),
-% 	    put_assoc(Addr,Heap,Val,NewHeap)).
+% 'push' instruction : 
+%	- pushes an element on top of the stack
+%	- environment and heap does not change
+
+execTai(push X,Env,Heap,Env,Heap,[L],[X|L]) :- !.
+
+
+% 'pop' instruction : 
+%	- removes the top-most element from the stack
+%	- environment and heap does not change
+execTai(pop,Env,Heap,Env,Heap,[_H|T],[T]) :- !.
+
+% 'store' instruction :
+% 	- first  pop : address of the variable
+%   - second pop : value to assign to the variable
+execTai(pop,Env,Heap,Env,Heap,[_H|T],[T]) :- !.
+
+
+
+execTai(I,Env,Heap,NewEnv,NewHeap,StackIn,StackOut) :- 
+	member(I, [store,jmp,cjmp,sel,load]), !.
+
+
+
+
+execTai(push X,Env,Heap,NewEnv,NewHeap,StackIn,[X|StackIn]) :- 
+	writeln('push'),
+	writeln(StackIn),
+	writeln(Heap), !.
+
+
+% Won't need this, .... eventually! 
+execTai((LHS=RHS),Env,Heap,NewEnv,NewHeap,StackIn,StackOut) :-
+	(   atom(LHS)
+	->  (   RHS = [AddrExpr]
+	    ->  getHeap(AddrExpr,Env,Heap,_Addr,Val),
+		put_assoc(LHS,Env,Val,NewEnv), Heap=NewHeap
+	    ;	evalTaiRhs(RHS,Env,Val), put_assoc(LHS,Env,Val,NewEnv),
+		Heap=NewHeap )
+	;   LHS = [LhsAddr], getHeap(LhsAddr,Env,Heap,Addr,_Val), NewEnv = Env,
+	    (	atom(RHS)
+	    ->	get_assoc(RHS,Env,Val)
+	    ;	(   integer(RHS)
+		->  Val = RHS
+		;   write('Incorrect instruction : '), writeln(LHS=RHS), abort )),
+	    put_assoc(Addr,Heap,Val,NewHeap)).
 
 % :- dynamic counter/1.
 % :- retractall(counter(_)).
 
 % counter(0).
-% execObj(IP,Code,Env,Heap,Env,Heap) :- max_assoc(Code,K,_), IP > K, !.
-% execObj(IP,Code,EnvIn,HeapIn,EnvOut,HeapOut) :-
-% 	% retract(counter(Cnt)),Cnt1 is Cnt+1,assert(counter(Cnt1)),
-% 	% (   Cnt1 < 10000 -> true ; writeln(HeapIn), abort ),
-%         get_assoc(IP,Code,Instr),
-% 	% writeln(HeapIn), writeln(EnvIn),
-% 	% write(IP),write(::),writeln(Instr),%read(_),
-%         (   Instr = (goto L), !, evalExpr(L,[EnvIn],IPnext), EnvAux = EnvIn, HeapAux = HeapIn
-%         ;   Instr = (if E goto L), !, evalExpr(E,[EnvIn],Val), EnvAux = EnvIn, HeapAux = HeapIn,
-%                   ( Val = 1
-%                     -> evalExpr(L,[EnvIn],IPnext)
-%                     ;  IPnext is IP + 1 )
-%         ;   execTai(Instr,EnvIn,HeapIn,EnvAux,HeapAux), IPnext is IP+1 ),
-%         execObj(IPnext,Code,EnvAux,HeapAux,EnvOut,HeapOut).
 
+execObj(IP,Code,Env,Heap,Env,Heap,Stack,Stack) :- max_assoc(Code,K,_), IP > K, !.
+execObj(IP,Code,EnvIn,HeapIn,EnvOut,HeapOut,StackIn,StackOut) :-
+        get_assoc(IP,Code,Instr),
 
-% Test of TAC and Obj
-
-% :- Code = (
-% 	   [0] = 1 ;
-% 	   [4] = 2 ;
-% 	   r_1 = [0] ;
-% 	   [8] = 4 ;
-% 	   r_2 = 4 ;
-% 	   [0] = r_2 ;
-% lbl:: ;
-% lbl1::
-% current::  if r_2 > 0 goto current+r_2 ;
-% 	   nop ;
-% 	   goto current ;
-% 	   goto current - r_2 ;
-% 	   r_3 = 100 ;
-% 	   goto lbl+7 ;
-% 	   goto lbl1 ;
-% 	  ),
-% 	  writeln('=========================='),
-% 	  writeln('TAC code to be translated and executed:'),
-% 	  writeTac(Code), tacToObj(Code,Obj),
-% 	  writeln('Translation into object code:'),
-% 	  writeObj(Obj,0),
-% 	  empty_assoc(Empty),
-% 	  execObj(0,Obj,Empty,Empty,EnvOut,HeapOut),
-% 	  writeln('Result of execution:'),
-% 	  get_assoc(r_1,EnvOut,Val1),
-% 	  write('r_1 = '),writeln(Val1),
-% 	  get_assoc(r_2,EnvOut,Val2),
-% 	  write('r_2 = '),writeln(Val2),
-% 	  get_assoc(0,HeapOut,Heap0),
-% 	  write('[0] = '),writeln(Heap0),
-% 	  get_assoc(4,HeapOut,Heap4),
-% 	  write('[4] = '),writeln(Heap4),
-% 	  get_assoc(8,HeapOut,Heap8),
-% 	  write('[8] = '),writeln(Heap8).
+        (   Instr = (goto L), !, evalExpr(L,[EnvIn],IPnext), EnvAux = EnvIn, HeapAux = HeapIn
+        ;   Instr = (if E goto L), !, evalExpr(E,[EnvIn],Val), EnvAux = EnvIn, HeapAux = HeapIn,
+                  ( Val = 1
+                    -> evalExpr(L,[EnvIn],IPnext)
+                    ;  IPnext is IP + 1 )
+        ;   execTai(Instr,EnvIn,HeapIn,EnvAux,HeapAux,StackIn,StackAux), IPnext is IP+1 ),
+        execObj(IPnext,Code,EnvAux,HeapAux,EnvOut,HeapOut,StackAux,StackOut).
 
 
 /********************************************
- * Compiler from HL language to TO STACK
+ * Compiler from HL language to TO S|TAC|K
  ********************************************/
 
 :- dynamic auxreg/1.
@@ -380,11 +379,11 @@ alignIP(X,Y) :-
 % generate new register names - same as 02.pl, but renamed predicate
 %  ( the variables of 02.pl are now called registers; variables are
 %    stored in memory, and are allocated addresses )
-newreg(X) :- atom(X),!.
-newreg(X) :-
-        retract(auxreg(Y))
-        ->  Y1 is Y+1, assert(auxreg(Y1)), atomic_concat('r_',Y1,X)
-        ;   assert(auxreg(0)), X = 'r_0' .
+% newreg(X) :- atom(X),!.
+% newreg(X) :-
+%         retract(auxreg(Y))
+%         ->  Y1 is Y+1, assert(auxreg(Y1)), atomic_concat('r_',Y1,X)
+%         ;   assert(auxreg(0)), X = 'r_0' .
 
 resetnewreg :-
         (   retractall(auxreg(_)) -> true ; true ),
@@ -414,6 +413,7 @@ newvars((V,Vs),EnvIn,TopIn,EnvOut,TopOut) :-
 % X is a constant integer :- Push into the stack
 compileExpr(X,push X,X,_Env) :-
 	integer(X), !.
+
 % X is a variable :- Load it's address into the stack	
 compileExpr(X, push Addr ; load ,Addr,Env) :-
 	atom(X), !, getEnv(X,Env,Addr).
@@ -432,15 +432,41 @@ compileExpr(E,Code,Result,Env) :-
 	(
 		number(B) -> Code = (CodeC ; F) ; Code = (CodeC ; F)		
 	),
-	Result = Op.
+	Result is Op.
 
 
-compileExpr(E,Code,R,Env) :-
-	E =.. [F,A,B], member(F,[<,>,=<,>=,==,\=]), !,
-	compileExpr(A-B,Code,R,Env).
+compileExpr(E,Code,Result,Env) :-
+	E =.. [<,A,B], !,
+	compileExpr(A-B,Code,R,Env),
+	(R < 0 -> Result = 1 ; Result = 0).
+
+compileExpr(E,Code,Result,Env) :-
+	E =.. [>,A,B], !,
+	compileExpr(A-B,Code,R,Env),
+	(R > 0 -> Result = 1 ; Result = 0).
+
+compileExpr(E,Code,Result,Env) :-
+	E =.. [==,A,B], !,
+	compileExpr(A-B,Code,R,Env),
+	(R = 0 -> Result = 1 ; Result = 0).
+
+compileExpr(E,Code,Result,Env) :-
+	E =.. [\=,A,B], !,
+	compileExpr(A-B,Code,R,Env),
+	(R \= 0 -> Result = 1 ; Result = 0).
+
+compileExpr(E,Code,Result,Env) :-
+	E =.. [=<,A,B], !,
+	compileExpr(A-B,Code,R,Env),
+	((R < 0; R = 0) -> Result = 1 ; Result = 0).
+
+compileExpr(E,Code,Result,Env) :-
+	E =.. [>=,A,B], !,
+	compileExpr(A-B,Code,R,Env),
+	((R > 0; R = 0) -> Result = 1 ; Result = 0).
+
 
 % -----------------------------
-
 
 % compileExpr((X ? Y : Z),Code,R,Env) :- !,
 %         newreg(R), newlabel(Skip), newlabel(Lout),
@@ -452,12 +478,12 @@ compileExpr(E,Code,R,Env) :-
 %         C3 =  (R = Qz),
 %         Code = (Cx ; C1 ; Cy ; C2 ; Skip::; Cz; C3; Lout::).
 
-% compileExpr(E,Code,R,Env) :-
-% 	E =.. [F,A], member(F,[+,-]), !,
-% 	C =.. [F,0,A], compileExpr(C,Code,R,Env).
+compileExpr(E,Code,R,Env) :-
+	E =.. [F,A], member(F,[+,-]), !,
+	C =.. [F,0,A], compileExpr(C,Code,R,Env).
 
-% compileExpr(\ X,Code,R,Env) :- !,
-% 	compileExpr((-1) xor X, Code, R, Env).
+compileExpr(\ X,Code,R,Env) :- !,
+	compileExpr((-1) xor X, Code, R, Env).
 
 % Compilation of statements
 % Here, we add slight optimization, to avoid instruction of the form
@@ -472,9 +498,6 @@ compileExpr(E,Code,R,Env) :-
 compileStmt((int L),nop,EnvIn,TopIn,EnvOut,TopOut) :-
 	newvars(L,EnvIn,TopIn,EnvOut,TopOut).
 
-
-
-% This instruction should be a 'store'
 compileStmt((X=E),(CE;C),Env,Top,Env,Top) :-
 	compileExpr(E,CE,_R,Env),
 	(   getEnv(X,Env,Addr)
@@ -492,8 +515,11 @@ compileStmt((if B then {S1} else {S2}),Code,Env,Top,Env,Top) :-
 	compileExpr(B,CB,RB,Env), 		
 	compileStmt({S1},CS1,Env,Top,_,_), 
 	compileStmt({S2},CS2,Env,Top,_,_),
-	Code = (push LblS2 ; push LblS1 ; CB ; sel ; jmp ; 
-		  	LblS1:: ; CS1 ; push LblOut ; LblS2:: ; CS2 ; push LblOut ; jmp ; LblOut::).
+	Code = (push LblS2 ; push LblS1 ;
+		    CB ; sel ; jmp ; 
+		  	LblS1:: ; CS1 ; push LblOut ; 
+		  	LblS2:: ; CS2 ; push LblOut ; 
+		  	jmp ; LblOut::).
 
 compileStmt((if B then S),Code,Env,Top,Env,Top) :- !,
         newlabel(Lout),
@@ -524,22 +550,24 @@ compileHL((S;),Code,Env,Top,NewEnv,NewTop) :-
 :- resetnewreg, resetnewlabel.
 
 :- Program = (
-			int x ; 
-		    x = 1 ;
-            while ( x > 0 ) do {
-              x = x + 10 ;
-            } ;
-	),
+				int x ; 
+		    	x = 1 ;
+		    ),		   	
 	expandEnv([],Env0),
-	compileHL(Program,Tac,Env0,0,_Env1,_),
+	compileHL(Program,Tac,Env0,0,Env1,_),
 	writeln('==================================='),
 	writeln('Testing compilation of program:'), writeln(Program),
 	writeln('Compiled into S.T.A.C.K.:'),
-	writeTac(Tac).
-	% tacToObj(Tac,Obj),
-	% writeln('Translation into object code:'),
-	% writeObj(Obj,0),
-	% empty_assoc(Empty),
+	writeTac(Tac),
+	tacToObj(Tac,Obj),
+	writeln('Translation into object code:'),
+	writeObj(Obj,0),
+	empty_assoc(Empty),
+	writeln(Env1),
+	execObj(0,Obj,Empty,Empty,_,HeapOut,[],StackOut),
+	writeln('Resulting StackOut: '),
+	writeln(StackOut).
+
 	% writeln('Interpretation of program:'),
 	% execHL(Program,Env0,EnvInterp,firstTime),
 	% write('x='), getEnv(x,EnvInterp,Valx), writeln(Valx),
