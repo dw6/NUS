@@ -13,6 +13,10 @@
 %
 % ... because TAC is too complicated. :)
 % ==============================================
+
+% This code only showcases the execution engine of s|TAC|k.
+% The test cases show the direction translation of the TAC code from 
+% compilation of the HLL programs.
                                            
 
 % All operator declarations at the top
@@ -284,7 +288,9 @@ writeObj(Obj,IP) :-
         get_assoc(IP,Obj,I), alignIP(IP,X),write(X), write(' :: '), writeln(I),
         IPnext is IP + 1, writeObj(Obj,IPnext).
 
-% % Operational semantics of object code 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % Operational semantics of object code %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 getHeap(E,Env,Heap,Addr,Val) :-
 	evalTaiRhs(E,Env,Addr),
@@ -297,19 +303,19 @@ getHeap(E,Env,Heap,Addr,Val) :-
 % 'push' instruction : 
 %	- pushes an element on top of the stack
 %	- environment and heap does not change
-execTai(push X,Env,Heap,Env,Heap,StackIn,StackOut) :- 
+execSi(push X,Env,Heap,Env,Heap,StackIn,StackOut) :- 
 	append([X],StackIn,StackOut), !.
 
 
 % 'pop' instruction : 
 %	- removes the top-most element from the stack
 %	- environment and heap does not change
-execTai(pop,Env,Heap,Env,Heap,[_H|T],[T]) :- !.
+execSi(pop,Env,Heap,Env,Heap,[_H|T],[T]) :- !.
 
 % 'store' instruction :
 % 	- first  pop : address of the variable
 %   - second pop : value to assign to the variable
-execTai(store,Env,Heap,Env,NewHeap,StackIn,StackOut) :- 
+execSi(store,Env,Heap,Env,NewHeap,StackIn,StackOut) :- 
 	append([Addr],StackAux,StackIn),
 	append([Value],StackOut,StackAux),
 	put_assoc(Addr,Heap,Value,NewHeap), !.
@@ -317,7 +323,7 @@ execTai(store,Env,Heap,Env,NewHeap,StackIn,StackOut) :-
 % 'load' instruction :
 % 	- pop : address of the variable to load	
 % 	- push : the value of the variable pointed by the address
-execTai(load,Env,Heap,Env,Heap,StackIn,StackOut) :- 
+execSi(load,Env,Heap,Env,Heap,StackIn,StackOut) :- 
 	append([Addr],StackAux,StackIn),
 	get_assoc(Addr,Heap,Value),
 	append([Value],StackAux,StackOut).
@@ -325,7 +331,7 @@ execTai(load,Env,Heap,Env,Heap,StackIn,StackOut) :-
 
 % operators :
 %	- pop B, pop A, perform operation, push in result
-execTai(F,Env,Heap,Env,Heap,StackIn,StackOut) :- 
+execSi(F,Env,Heap,Env,Heap,StackIn,StackOut) :- 
 	append([B],StackAux,StackIn),
 	append([A],StackAux2,StackAux),
 	member(F,[+,-,*,/,mod,<<,>>,/\,\/,and,or,xor]),	
@@ -333,7 +339,7 @@ execTai(F,Env,Heap,Env,Heap,StackIn,StackOut) :-
 	append([Val],StackAux2,StackOut).
 
 
-execTai(F,Env,Heap,Env,Heap,StackIn,StackOut) :-
+execSi(F,Env,Heap,Env,Heap,StackIn,StackOut) :-
 	member(F,[<,>,=<,>=,==,\=]),	
 	append([B],StackAux,StackIn),
 	append([A],StackAux2,StackAux),
@@ -345,7 +351,7 @@ execTai(F,Env,Heap,Env,Heap,StackIn,StackOut) :-
 % 'select' instruction :
 %	- pop 3 times
 % 	- 1 : Not Zero ? Push 2 : Push 3
-execTai(sel,Env,Heap,Env,Heap,StackIn,StackOut) :- 
+execSi(sel,Env,Heap,Env,Heap,StackIn,StackOut) :- 
 	append([A],StackAux,StackIn),
 	append([B],StackAux2,StackAux),
 	append([C],StackAux3,StackAux2),
@@ -353,11 +359,6 @@ execTai(sel,Env,Heap,Env,Heap,StackIn,StackOut) :-
 			append([C],StackAux3,StackOut); 
 			append([B],StackAux3,StackOut) 
  	).
-
-
-	
-
-%%%%%%%%%%% <----------- Progress  -----------> %%%%%%%%%%%
 
 % :- dynamic counter/1.
 % :- retractall(counter(_)).
@@ -378,7 +379,7 @@ execObj(IP,Code,EnvIn,HeapIn,EnvOut,HeapOut,StackIn,StackOut) :-
         	(Value is 0 -> IPnext = Addr; IPnext is IP+1),
 			EnvAux = EnvIn, HeapAux = HeapIn
 		;	
-        	execTai(Instr,EnvIn,HeapIn,EnvAux,HeapAux,StackIn,StackAux), IPnext is IP+1 
+        	execSi(Instr,EnvIn,HeapIn,EnvAux,HeapAux,StackIn,StackAux), IPnext is IP+1 
         ),
         execObj(IPnext,Code,EnvAux,HeapAux,EnvOut,HeapOut,StackAux,StackOut).
 
@@ -388,15 +389,6 @@ execObj(IP,Code,EnvIn,HeapIn,EnvOut,HeapOut,StackIn,StackOut) :-
 
 :- dynamic auxreg/1.
 :- dynamic auxvar/1.
-
-% generate new register names - same as 02.pl, but renamed predicate
-%  ( the variables of 02.pl are now called registers; variables are
-%    stored in memory, and are allocated addresses )
-% newreg(X) :- atom(X),!.
-% newreg(X) :-
-%         retract(auxreg(Y))
-%         ->  Y1 is Y+1, assert(auxreg(Y1)), atomic_concat('r_',Y1,X)
-%         ;   assert(auxreg(0)), X = 'r_0' .
 
 resetnewreg :-
         (   retractall(auxreg(_)) -> true ; true ),
@@ -531,36 +523,103 @@ compileHL((S;),Code,Env,Top,NewEnv,NewTop) :-
 % This algorithm calculates the factorial of 'n'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- Program = (
-				int a, b, c, i, n;
-    			a = 1 ;
-    			b = 1 ;
-    			i = 3 ;
-    			n = 10 ;
-  				while (i =< n) do {
-       				c = a + b ;
-      		 		a = b ;
-       				b = c ;
-       				i = i + 1 ;
-       			} ;
-		    ),		   	
-	expandEnv([],Env0),
-	compileHL(Program,Tac,Env0,0,Env1,_),
-	writeln('==================================='),
-	writeln('Testing compilation of program:'), 
-	writeln('Compiled into s|T.A.C|k.:'),
-	writeTac(Tac),
+% :- Program = (
+% 				int a, b, c, i, n;
+%     			a = 1 ;
+%     			b = 1 ;
+%     			i = 3 ;
+%     			n = 10 ;
+%   				while (i =< n) do {
+%        				c = a + b ;
+%       		 		a = b ;
+%        				b = c ;
+%        				i = i + 1 ;
+%        			} ;
+% 		    ),		   	
+% 	expandEnv([],Env0),
+% 	compileHL(Program,Tac,Env0,0,Env1,_),
+% 	writeln('==================================='),
+% 	writeln('Testing compilation of program:'), 
+% 	writeln('Compiled into s|T.A.C|k.:'),
+% 	writeTac(Tac),
+% 	tacToObj(Tac,Obj),
+% 	writeln('Translation into object code:'),
+% 	writeObj(Obj,0),
+% 	empty_assoc(Empty),
+% 	execObj(0,Obj,Empty,Empty,_,HeapOut,[],_StackOut),
+%     write('Address of c:'), getEnv(c,Env1,Addrx), write(Addrx),
+%     write('Address of n:'), getEnv(n,Env1,Addrn), write(Addrn),
+% 	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx),
+% 	write(', value = '), get_assoc(Addrn,HeapOut,Valn), writeln(Valn),
+% 	writeln('==================================='),
+% 	write('Fibonacci('),write(Valn),write(') = '),writeln(Valx).
+
+
+:- Tac = (
+			nop     ;
+            push 1  ;
+            push 0  ; 
+            store   ;
+            push 1  ;
+            push 4  ;	
+            store   ;
+            push 3  ;
+            push 12 ;
+            store   ;
+            push 10 ;		% Change 'n' in fibonacci(n) here
+            push 16 ;
+            store   ;
+			l_2::	;
+            push l_3;
+            push 12 ;
+            load    ;
+            push 16 ;
+            load    ;
+            =<      ;
+            cjmp    ;
+            push 0  ;
+            load    ;
+            push 4  ;
+            load    ;
+            +       ;
+            push 8  ;
+            store   ;
+            push 4  ;
+            load    ;
+            push 0  ;
+            store   ;
+            push 8  ;
+            load    ;
+            push 4  ;
+            store   ;
+            push 12 ;
+            load    ;
+            push 1  ;
+            +       ;
+            push 12 ;
+            store   ;
+            push l_2;
+            jmp     ;
+			l_3:: 	  		
+		 ),
 	tacToObj(Tac,Obj),
 	writeln('Translation into object code:'),
 	writeObj(Obj,0),
 	empty_assoc(Empty),
-	execObj(0,Obj,Empty,Empty,_,HeapOut,[],_StackOut),
-    write('Address of c:'), getEnv(c,Env1,Addrx), write(Addrx),
-    write('Address of n:'), getEnv(n,Env1,Addrn), write(Addrn),
-	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx),
-	write(', value = '), get_assoc(Addrn,HeapOut,Valn), writeln(Valn),
-	writeln('==================================='),
+	writeln('Yay'),
+	execObj(0,Obj,Empty,Empty,_,HeapOut,[],StackOut),
+	writeln('======================================='),
+	writeln('	Contents of Heap'),
+	writeln('======================================='),
+	writeln(HeapOut),
+	writeln('======================================='),
+	writeln('	Contents of Stack'),
+	writeln('======================================='),
+	writeln(StackOut),
+	get_assoc(8,HeapOut,Valx), 
+	get_assoc(16,HeapOut,Valn), 
 	write('Fibonacci('),write(Valn),write(') = '),writeln(Valx).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Factorial
@@ -568,33 +627,90 @@ compileHL((S;),Code,Env,Top,NewEnv,NewTop) :-
 % This algorithm calculates the factorial of 'n'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	
-:- Program = (
-				int x, y, n ;
-				y = 1 ;
-    			x = 1 ;
-    			n = 5 ; 
-    			while ( x =< n ) do {
-    				y = y * x ;
-    				x = x + 1 ;
-    			} ;
-		    ),		   	
-	expandEnv([],Env0),
-	compileHL(Program,Tac,Env0,0,Env1,_),
-	writeln('==================================='),
-	writeln('Testing compilation of program:'), 
-	writeln('Compiled into s|T.A.C|k.:'),
-	writeTac(Tac),
+% :- Program = (
+% 				int x, y, n ;
+% 				y = 1 ;
+%     			x = 1 ;
+%     			n = 5 ; 
+%     			while ( x =< n ) do {
+%     				y = y * x ;
+%     				x = x + 1 ;
+%     			} ;
+% 		    ),		   	
+% 	expandEnv([],Env0),
+% 	compileHL(Program,Tac,Env0,0,Env1,_),
+% 	writeln('==================================='),
+% 	writeln('Testing compilation of program:'), 
+% 	writeln('Compiled into s|T.A.C|k.:'),
+% 	writeTac(Tac),
+% 	tacToObj(Tac,Obj),
+% 	writeln('Translation into object code:'),
+% 	writeObj(Obj,0),
+% 	empty_assoc(Empty),
+% 	execObj(0,Obj,Empty,Empty,_,HeapOut,[],_StackOut),
+%   write('Address of x:'), getEnv(x,Env1,Addrx), write(Addrx),
+% 	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx),
+%  	write('Address of y:'), getEnv(y,Env1,Addry), write(Addry),
+% 	write(', value = '), get_assoc(Addry,HeapOut,Valy), writeln(Valy),
+% 	writeln('==================================='),
+% 	write('Factorial('),write(Valx),write(') = '),writeln(Valy).
+
+:- Tac = (
+
+            nop      ;
+            push 1   ;
+            push 4   ;
+            store    ;
+            push 1   ;
+            push 0   ;
+            store    ;
+            push 10  ;		% Change 'n' in factorial(n) here
+            push 8   ;
+            store    ;
+			l_4::    ;
+            push l_5 ;
+            push 0   ;
+            load     ;
+            push 8   ;
+            load     ;
+            =<       ;
+            cjmp     ;
+            push 4   ;
+            load     ;
+            push 0   ;
+            load     ;
+            *        ;
+            push 4   ;
+            store    ;
+            push 0   ; 
+            load     ;
+            push 1   ;
+            +        ;
+            push 0   ;
+            store    ;
+            push l_4 ;
+            jmp      ;
+			l_5::
+		),
 	tacToObj(Tac,Obj),
 	writeln('Translation into object code:'),
 	writeObj(Obj,0),
 	empty_assoc(Empty),
-	execObj(0,Obj,Empty,Empty,_,HeapOut,[],_StackOut),
-  	write('Address of x:'), getEnv(x,Env1,Addrx), write(Addrx),
-	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx),
- 	write('Address of y:'), getEnv(y,Env1,Addry), write(Addry),
-	write(', value = '), get_assoc(Addry,HeapOut,Valy), writeln(Valy),
+	execObj(0,Obj,Empty,Empty,_,HeapOut,[],StackOut),
+	writeln('======================================='),
+	writeln('	Contents of Heap'),
+	writeln('======================================='),
+	writeln(HeapOut),
+	writeln('======================================='),
+	writeln('	Contents of Stack'),
+	writeln('======================================='),
+	writeln(StackOut),
+	get_assoc(8,HeapOut,Valx), 
+	get_assoc(4,HeapOut,Valy),
 	writeln('==================================='),
 	write('Factorial('),write(Valx),write(') = '),writeln(Valy).
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -604,31 +720,83 @@ compileHL((S;),Code,Env,Top,NewEnv,NewTop) :-
 % numbers ,a and b. The result is stored in 'a'.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- Program = (
-				int a, b, t;
-    			a = 1071 ;
-    			b = 462 ;
+% :- Program = (
+% 				int a, b, t;
+%     			a = 1071 ;
+%     			b = 462 ;
 
-  				while (b \= 0) do {
-       				t = b ;
-      		 		b = a mod b ;
-       				a = t ;
-       			} ;
-		    ),		   	
-	expandEnv([],Env0),
-	compileHL(Program,Tac,Env0,0,Env1,_),
-	writeln('==================================='),
-	writeln('Testing compilation of program:'), 
-	writeln('Compiled into s|T.A.C|k.:'),
-	writeTac(Tac),
+%   				while (b \= 0) do {
+%        				t = b ;
+%       		 		b = a mod b ;
+%        				a = t ;
+%        			} ;
+% 		    ),		   	
+% 	expandEnv([],Env0),
+% 	compileHL(Program,Tac,Env0,0,Env1,_),
+% 	writeln('==================================='),
+% 	writeln('Testing compilation of program:'), 
+% 	writeln('Compiled into s|T.A.C|k.:'),
+% 	writeTac(Tac),
+% 	tacToObj(Tac,Obj),
+% 	writeln('Translation into object code:'),
+% 	writeObj(Obj,0),
+% 	empty_assoc(Empty),
+% 	writeln(Env1),
+% 	execObj(0,Obj,Empty,Empty,_,HeapOut,[],_StackOut),
+%   	write('Address of a:'), getEnv(a,Env1,Addrx), write(Addrx),
+% 	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx).
+
+:- Tac = (
+			nop       ;
+            push 1071 ;		% First Number ...
+            push 0    ;		% Result will be stored to this address
+            store     ;
+            push 462  ;		% Second Number ...
+            push 4    ;
+            store     ;
+			l_6::	  ;
+            push l_7  ;
+            push 4    ;
+            load      ;
+            push 0    ;
+            \=        ;
+            cjmp      ;
+            push 4    ;
+            load      ;
+            push 8    ;
+            store     ;
+            push 0    ; 
+            load      ;
+            push 4    ;
+            load      ; 
+            mod       ;
+            push 4    ;
+            store     ;
+            push 8    ;
+            load      ;
+            push 0    ;
+            store     ;
+            push l_6  ;
+            jmp       ;
+			l_7::
+		),
 	tacToObj(Tac,Obj),
 	writeln('Translation into object code:'),
 	writeObj(Obj,0),
 	empty_assoc(Empty),
-	writeln(Env1),
-	execObj(0,Obj,Empty,Empty,_,HeapOut,[],_StackOut),
-  	write('Address of a:'), getEnv(a,Env1,Addrx), write(Addrx),
-	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx).
+	execObj(0,Obj,Empty,Empty,_,HeapOut,[],StackOut),
+	writeln('======================================='),
+	writeln('	Contents of Heap'),
+	writeln('======================================='),
+	writeln(HeapOut),
+	writeln('======================================='),
+	writeln('	Contents of Stack'),
+	writeln('======================================='),
+	writeln(StackOut),
+	get_assoc(0,HeapOut,Valx), 
+	writeln('==================================='),
+	write('Result = '),writeln(Valx).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Exponentiation algorithm 
@@ -637,43 +805,108 @@ compileHL((S;),Code,Env,Top,NewEnv,NewTop) :-
 % the variable 'ans'.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  :- Program = (
-				int a, x, ans;
-				ans = 1 ;
-    			a = 2 ;
-    			x = 31 ;
-    			if (x == 0) then {
-    				ans = 1 ;
-    			} else {
-    				while ( x > 0 )	do {
-    					ans = a * ans ;
-    					x = x - 1 ;
-    				} ;
-       			} ;
-		    ),		   	
-	expandEnv([],Env0),
-	compileHL(Program,Tac,Env0,0,Env1,_),
-	writeln('==================================='),
-	writeln('Testing compilation of program:'), 
-	writeln('Compiled into s|T.A.C|k.:'),
-	writeTac(Tac),
+ %  :- Program = (
+	% 			int a, x, ans;
+	% 			ans = 1 ;
+ %    			a = 2 ;
+ %    			x = 31 ;
+ %    			if (x == 0) then {
+ %    				ans = 1 ;
+ %    			} else {
+ %    				while ( x > 0 )	do {
+ %    					ans = a * ans ;
+ %    					x = x - 1 ;
+ %    				} ;
+ %       			} ;
+	% 	    ),		   	
+	% expandEnv([],Env0),
+	% compileHL(Program,Tac,Env0,0,Env1,_),
+	% writeln('==================================='),
+	% writeln('Testing compilation of program:'), 
+	% writeln('Compiled into s|T.A.C|k.:'),
+	% writeTac(Tac),
+	% tacToObj(Tac,Obj),
+	% writeln('Translation into object code:'),
+	% writeObj(Obj,0),
+	% empty_assoc(Empty),
+	% execObj(0,Obj,Empty,Empty,_,HeapOut,[],_StackOut),
+	% write('Address of a:'), getEnv(a,Env1,Addra), write(Addra),
+	% write(', value = '), get_assoc(Addra,HeapOut,Vala), writeln(Vala),
+ %    write('Address of x:'), getEnv(x,Env1,Addrx), write(Addrx),
+	% write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx),
+ %    write('Address of ans:'), getEnv(ans,Env1,AddrA), write(AddrA),
+	% write(', value = '), get_assoc(AddrA,HeapOut,ValA), writeln(ValA),
+	% writeln('==================================='),
+	% write('Result = ' ), writeln(ValA).
+
+:- Tac = (
+		
+		    nop       ;
+            push 1    ;
+            push 8    ;	% Address where the result is stored
+            store     ;
+            push 2    ;	% The Base value
+            push 0    ;
+            store     ;
+            push 31   ; % The Exponent value 
+            push 4    ;
+            store     ;
+            push l_13 ;
+            push l_12 ;
+            push 4    ;
+            load      ;
+            push 0    ;
+            ==        ;
+            sel       ;
+            jmp       ;
+			l_13::	  ; 
+			l_15::    ;
+            push l_16 ;
+            push 4    ;
+            load      ;
+            push 0    ;
+            >         ;
+            cjmp      ;
+            push 0    ;
+            load      ;
+            push 8    ;
+            load      ;
+            *         ;
+            push 8    ;
+            store     ;
+            push 4    ;
+            load      ;
+            push 1    ;
+            -         ;
+            push 4    ;
+            store     ;
+            push l_15 ;
+            jmp       ;
+			l_16::    ;
+            push l_14 ;
+            jmp       ;
+			l_12::    ;
+            push 1    ;
+            push 8    ;
+            store     ;
+            push l_14 ;
+            jmp       ;
+			l_14::    
+	),
 	tacToObj(Tac,Obj),
 	writeln('Translation into object code:'),
 	writeObj(Obj,0),
 	empty_assoc(Empty),
-	execObj(0,Obj,Empty,Empty,_,HeapOut,[],_StackOut),
-	write('Address of a:'), getEnv(a,Env1,Addra), write(Addra),
-	write(', value = '), get_assoc(Addra,HeapOut,Vala), writeln(Vala),
-    write('Address of x:'), getEnv(x,Env1,Addrx), write(Addrx),
-	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx),
-    write('Address of ans:'), getEnv(ans,Env1,AddrA), write(AddrA),
-	write(', value = '), get_assoc(AddrA,HeapOut,ValA), writeln(ValA),
-	writeln('==================================='),
-	write('Result = ' ), writeln(ValA).
-
-
-
-
-
-
+	execObj(0,Obj,Empty,Empty,_,HeapOut,[],StackOut),
+	writeln('======================================='),
+	writeln('	Contents of Heap'),
+	writeln('======================================='),
+	writeln(HeapOut),
+	writeln('======================================='),
+	writeln('	Contents of Stack'),
+	writeln('======================================='),
+	writeln(StackOut),
+	get_assoc(8,HeapOut,ValAns), 
+	writeln('======================================='),
+	write('Result = '), writeln(ValAns).
 
