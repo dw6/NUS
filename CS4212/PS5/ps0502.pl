@@ -1,4 +1,5 @@
-
+% Benjamin Tan Wei Hao
+% U077129N
 %  ____     ____    __ __       ___       _      ___     
 % /\  _`\  /\  _`\ /\ \\ \    /'___`\   /' \   /'___`\   
 % \ \ \/\_\\ \,\L\_\ \ \\ \  /\_\ /\ \ /\_, \ /\_\ /\ \  
@@ -834,7 +835,7 @@ compileHLP(P,Code,Pin,_,GlobsOut) :-
 :- resetnewreg, resetnewlabel.
 
 % Compiler test
-% :- resetnewreg, resetnewlabel.
+:- resetnewreg, resetnewlabel.
 
 :- Program = (
 			int min, a, a1, a2, a3, a4, i, j, k ;
