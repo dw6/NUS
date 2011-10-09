@@ -1,3 +1,22 @@
+
+%  ____     ____    __ __       ___       _      ___     
+% /\  _`\  /\  _`\ /\ \\ \    /'___`\   /' \   /'___`\   
+% \ \ \/\_\\ \,\L\_\ \ \\ \  /\_\ /\ \ /\_, \ /\_\ /\ \  
+%  \ \ \/_/_\/_\__ \\ \ \\ \_\/_/// /__\/_/\ \\/_/// /__ 
+%   \ \ \L\ \ /\ \L\ \ \__ ,__\ // /_\ \  \ \ \  // /_\ \
+%    \ \____/ \ `\____\/_/\_\_//\______/   \ \_\/\______/
+%     \/___/   \/_____/  \/_/  \/_____/     \/_/\/_____/ 
+%                                             
+%  ____    ____    ______     __      _     
+% /\  _`\ /\  _`\ /\  ___\  /'__`\  /' \    
+% \ \ \L\ \ \,\L\_\ \ \__/ /\ \/\ \/\_, \   
+%  \ \ ,__/\/_\__ \\ \___``\ \ \ \ \/_/\ \  
+%   \ \ \/   /\ \L\ \/\ \L\ \ \ \_\ \ \ \ \ 
+%    \ \_\   \ `\____\ \____/\ \____/  \ \_\
+%     \/_/    \/_____/\/___/  \/___/    \/_/
+                                          
+                                        
+
 /*
  * Compilation of HL language with basic programming constructs,
  * scopes and procedures. Derived from 05.pl
@@ -34,6 +53,8 @@
 :- op(969,xf,::).
 :- op(100,xfx,#).
 :- op(950,fx,return).
+:- op(100,xfx,@).
+
 
 % For convenience, we add 'and' and 'or' to 'is'.
 % Try help(arithmetic_function) at Prolog prompt for full docs.
@@ -292,165 +313,11 @@ execHLP(P,Pin,_,EnvOut) :-
 	expandEnv([],Empty), % execute main program starting with empty env
 	execHL(P,Pin,Empty,EnvOut,firstTime,_ReturnEncountered).
 
-% Test high level interpreter
-/*
-:- Code = (
-	  int add#[x,y]::{
-	     return x+y ;
-	  } ;
-	  int i, j;
-	  j = 3 ;
-	  i = add#[j,4] ;
-	  ),
-	empty_assoc(Empty),
-	execHLP(Code,Empty,_,Env1),
-	getEnv(i,Env1,Vali),
-	writeln('==========================='),
-	writeln('Interpreting program:'),
-	writeln(Code),
-	writeln('Results:'),
-	write('i='),writeln(Vali),
-	getEnv(j,Env1,Valj),
-	write('j='),writeln(Valj).
-
-:- Code = (
-	  int i,j ;
-	  i = 10 ;
-	  while ( i > 0 ) do {
-	     int x ;
-	     x = i ;
-	     x = x - 1 ;
-	     i = x ;
-	     if ( x < 5 ) then {
-		j = ((x < 4) ? 20 : 10) ;
-	     };
-	  };
-	  ),
-	empty_assoc(Empty),
-	execHLP(Code,Empty,_,Env1),
-	getEnv(i,Env1,Vali),
-	writeln('==========================='),
-	writeln('Interpreting program:'),
-	writeln(Code),
-	writeln('Results:'),
-	write('i='),writeln(Vali),
-	getEnv(j,Env1,Valj),
-	write('j='),writeln(Valj).
-
-:- Code = (
-	  int i,j ;
-	  i = 10 ;
-	  j = 20 ;
-	  {
-	   int x ;
-	   x = i ;
-	   i = j ;
-	   j = x ;
-	  };
-	  ),
-	empty_assoc(Empty),
-	execHLP(Code,Empty,_,Env1),
-	getEnv(i,Env1,Vali),
-	writeln('==========================='),
-	writeln('Interpreting program:'),
-	writeln(Code),
-	writeln('Results:'),
-	write('i='),writeln(Vali),
-	getEnv(j,Env1,Valj),
-	write('j='),writeln(Valj).
-
-:- Code = (
-	  int fact#[x]::{
-            if ( x == 0 ) then { int i ; j=10 ; i = 3 ; return 1 ; j=0 ; }
-	    else { return x*fact#[x-1] ; } ;
-	  } ;
-	  int i, j;
-	  j = 5 ;
-	  i = fact#[j] ;
-	  ),
-	empty_assoc(Empty),
-	execHLP(Code,Empty,_,Env1),
-	getEnv(i,Env1,Vali),
-	writeln('==========================='),
-	writeln('Interpreting program:'),
-	writeln(Code),
-	writeln('Results:'),
-	write('i='),writeln(Vali),
-	getEnv(j,Env1,Valj),
-	write('j='),writeln(Valj).
-
-:- Code = (
-	  int fib#[x]::{
-            if ( x =< 1 ) then { return x ; }
-	    else { return fib#[x-1]+fib#[x-2] ; } ;
-	  } ;
-	  int i, j;
-	  j = 10 ;
-	  i = fib#[j] ;
-	  ),
-	empty_assoc(Empty),
-	execHLP(Code,Empty,_,Env1),
-	getEnv(i,Env1,Vali),
-	writeln('==========================='),
-	writeln('Interpreting program:'),
-	writeln(Code),
-	writeln('Results:'),
-	write('i='),writeln(Vali),
-	getEnv(j,Env1,Valj),
-	write('j='),writeln(Valj).
-
-:- Code = (
-	  gcd#[]::{
-	    if ( i == j ) then { return ; } ;
-            if ( i > j ) then { i = i - j ; gcd#[] ; return ;}
-	    else { j = j - i ; gcd#[] ; return ; } ;
-	  } ;
-	  int i, j;
-	  j = 144 ;
-	  i = 240 ;
-	  gcd#[] ;
-	  ),
-	empty_assoc(Empty),
-	execHLP(Code,Empty,_,Env1),
-	getEnv(i,Env1,Vali),
-	writeln('==========================='),
-	writeln('Interpreting program:'),
-	writeln(Code),
-	writeln('Results:'),
-	write('i='),writeln(Vali),
-	getEnv(j,Env1,Valj),
-	write('j='),writeln(Valj).
-
-:- Code = (
-	  f1#[x,y]::{
-	    if ( x == y ) then { return 1+f2#[x]; } ;
-            if ( x > y ) then { return 1+f1#[x-1,y];}
-	    else { return f1#[x,y-1]; } ;
-	  } ;
-	  f2#[x]::{
-	    if (x =< 0) then { j = x ; return 1 ; }
-	    else { return f1#[x/2,x/2] ; } ;
-	  } ;
-	  int i, j;
-	  j = 144 ;
-	  i = f1#[j,200] ;
-	  ),
-	empty_assoc(Empty),
-	execHLP(Code,Empty,_,Env1),
-	getEnv(i,Env1,Vali),
-	writeln('==========================='),
-	writeln('Interpreting program:'),
-	writeln(Code),
-	writeln('Results:'),
-	write('i='),writeln(Vali),
-	getEnv(j,Env1,Valj),
-	write('j='),writeln(Valj).
-*/
 % Three address code and object code
 %   -- enhanced to handle references
 %   -- new instructions: [Addr] = reg ; reg = [Addr]
 %        where Addr is an address expression
-%   -- contents of address Addr is transferred to/from register
+%   -- contents of address Addr is transferred to/from 
 %   -- memory (or "heap", in most PL) is modelled as association list
 %          with mappings Address -> Value
 %          - addresses are multiples of 4 for holding integer values
@@ -657,6 +524,20 @@ newvars((V,Vs),EnvIn,TopIn,EnvOut,TopOut) :-
 %   - identifiers are searched in local environment first, and then in
 %     the global environment
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+compileExpr(A@I,Code,Reg,Procs,Globs,Locs) :- !,
+	% 1. Make sure array exists
+	(	atom(A)	 -> true ; write('Array not declared:'),writeln(A), abort ),
+	% 2. Get the base address of the array 	
+	(	varInEnv(A,Globs) -> getEnv(A,Globs,BaseAddr) ; (write('Error: '), write(A), writeln( 'not declared!'), abort) ),
+	% 3. Calculate the actual address of the array indexed by 'I'
+	compileExpr(BaseAddr+4*I,CodeI,RI,Procs,Globs,Locs),
+	% 4. Set the value of the register to the value pointed by this address
+	newreg(Reg), Code = (CodeI ; Reg = [RI]).
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 compileExpr(X,Code,Reg,_Procs,Globs,Locs) :-
 	atom(X), !, newreg(Reg),
 	(   varInEnv(X,Locs)
@@ -668,7 +549,9 @@ compileExpr(X,Code,Reg,_Procs,Globs,Locs) :-
 	    ->	C = ( Reg = [Addr] )
 	    ;	write('Undeclared variable: '), writeln(X), abort)
 	), Code = C .
+
 compileExpr(X,nop,X,_Procs,_Globs,_Locs) :- integer(X), !.
+
 compileExpr(E,Code,Result,Procs,Globs,Locs) :-
 	E =.. [F,A,B], member(F,[+,-,*,/,mod,<<,>>,/\,\/,and,or,xor]), !,
 	compileExpr(A,CodeA,RA,Procs,Globs,Locs),
@@ -676,6 +559,7 @@ compileExpr(E,Code,Result,Procs,Globs,Locs) :-
 	Op =.. [F,RA,RB], newreg(Result),
 	C = (Result = Op),
 	Code = (CodeA;CodeB;C).
+
 compileExpr(E,Code,Result,Procs,Globs,Locs) :-
 	E =.. [F,A,B], member(F,[<,>,=<,>=,==,\=]), !,
 	(   B == 0
@@ -688,6 +572,7 @@ compileExpr(E,Code,Result,Procs,Globs,Locs) :-
               Skip::Result = 1;
 	      LblOut :: ),
 	Code = (CodeAB;C).
+
 compileExpr((X ? Y : Z),Code,R,Procs,Globs,Locs) :- !,
         newreg(R), newlabel(Skip), newlabel(Lout),
         compileExpr(X,Cx,Qx,Procs,Globs,Locs),
@@ -697,11 +582,17 @@ compileExpr((X ? Y : Z),Code,R,Procs,Globs,Locs) :- !,
         C2 = (R = Qy ; goto Lout),
         C3 =  (R = Qz),
         Code = (Cx;C1;Cy;C2;Skip::;Cz;C3;Lout::).
+
 compileExpr(E,Code,R,Procs,Globs,Locs) :-
 	E =.. [F,A], member(F,[+,-]), !,
 	C =.. [F,0,A], compileExpr(C,Code,R,Procs,Globs,Locs).
+
 compileExpr(\ X,Code,R,Procs,Globs,Locs) :- !,
 	compileExpr((-1) xor X, Code, R, Procs, Globs, Locs).
+
+
+
+
 compileExpr(P#Args,Code,R,Procs,Globs,Locs) :- !,
 	get_assoc(P,Procs,Pdef), procedureType(Pdef,Type),
 	(   (R == noval, Type == int ; var(R), Type == void)
@@ -749,6 +640,25 @@ compileStmt( (int L), nop,_Procs,GlobIn,TGIn,GlobOut,TGOut,
 	    TLIn = TLOut, MaxTopIn = MaxTopOut
 	;   newvars(L,LocIn,TLIn,LocOut,TLOut), GlobIn = GlobOut,
 	    TGIn = TGOut, MaxTopOut is max(MaxTopIn,TLOut) ).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+compileStmt( (A@I=E),Code,Procs,Globs,TG,Globs,TG,
+	    Locs,TL,Locs,TL,MaxTop,MaxTop,
+	    _Lev,_RetLbl) :- !,
+	    % 1. Compile the expression.
+	    compileExpr(E,CE,RE,Procs,Globs,Locs),
+	    % 2. Check that its a valid array
+	    (	atom(A)	 -> true ; write('Invalid LHS:'),writeln(A) ),
+	    % 3. Compile the index of the array (which might be an expression)
+		compileExpr(4*I,CI,RI,Procs,Globs,Locs),
+		% 4. Retrieve the base address of A (A is always in the global scope)
+		(	varInEnv(A,Globs) -> getEnv(A,Globs,BaseAddr) ; (write('Error: '), write(A), writeln( 'not declared!'), abort) ),
+	    % 5. Calculate the address where E is stored [E] = BaseAddr + I * 4]
+		ActualAddr = BaseAddr + RI,
+		C = ( [ActualAddr] = RE ),
+		Code = (CI ; CE ; C).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	    
+
 compileStmt( (X=E),Code,Procs,Globs,TG,Globs,TG,
 	     Locs,TL,Locs,TL,MaxTop,MaxTop,
 	     _Lev,_RetLbl) :- !,
@@ -924,66 +834,26 @@ compileHLP(P,Code,Pin,_,GlobsOut) :-
 :- resetnewreg, resetnewlabel.
 
 % Compiler test
+% :- resetnewreg, resetnewlabel.
 
 :- Program = (
-	     int p#[a] :: { return a + a ; } ;
-          int i ;
-	     i = 2 ;
-	    i = p#[i] ;
-          ),
-        empty_assoc(Empty),
-        compileHLP(Program,Tac,Empty,_,_),
-        writeTac(Tac),
-	writeln('Translation into object code:'),
-	tacToObj(Tac,Obj),
-	writeObj(Obj,0),
-	empty_assoc(Empty),!,
-	execObj(0,Obj,Empty,Empty,_,HeapOut),
-	writeln(HeapOut).
-
-:- resetnewreg, resetnewlabel.
-
-:- Program = (
-	     int p#[a] :: { int i ; i = a ; return i + a ; } ;
-          int i ;
-	     {int j,k ;
-          i = 1 ;
-	     j = 2 ;
-	      int l ;
-	      k=3;
-	     i = i+j*k;
-	      {int a ;
-	       a = 10 ? 30 : 40 ;
-	      } ;
-	      l = i ;
-	      { int b ;
-		b = 20 ;
-	      };
-	     } ;
-	     i = p#[i] ;
-          ),
-        empty_assoc(Empty),
-        compileHLP(Program,Tac,Empty,_,_),
-        writeTac(Tac),
-	tacToObj(Tac,Obj),
-	writeln('Translation into object code:'),
-	writeObj(Obj,0),
-	empty_assoc(Empty),
-	execObj(0,Obj,Empty,Empty,_,HeapOut),
-	writeln(HeapOut).
-
-:- resetnewreg, resetnewlabel.
-
-:- Program = (
-	  int add#[x,y]::{
-	     return x+y ;
-	  } ;
-	  int i, j;
-	  j = 3 ;
-	  i = add#[j,4] ;
+			int min, a, a1, a2, a3, a4, i, j, k ;
+			min = 10000 ;
+			i = 0 ; 
+			j = 1 ;
+			k = 2 ;
+			a@0 = 123 ; 
+			a@j = 234 ; 
+			a@k = -345 ;
+			a@3 = -678 ; 
+			a@4 = 890 ;
+         	while (i < 5) do {
+        		if ( min > a@i ) then { min = a@i ; } ;
+        		i = i + 1 ;
+            } ;
 	  ),
 	empty_assoc(Empty),
-	compileHLP(Program,Tac,Empty,_,_),
+	compileHLP(Program,Tac,Empty,_,Env1),
 	writeTac(Tac),
 	tacToObj(Tac,Obj),
 	writeln('Translation into object code:'),
@@ -995,20 +865,19 @@ compileHLP(P,Code,Pin,_,GlobsOut) :-
 :- resetnewreg, resetnewlabel.
 
 :- Program = (
-	  int i,j ;
-	  i = 10 ;
-	  while ( i > 0 ) do {
-	     int x ;
-	     x = i ;
-	     x = x - 1 ;
-	     i = x ;
-	     if ( x < 5 ) then {
-		j = ((x < 4) ? 20 : 10) ;
-	     };
-	  };
+			int x,x1,x2,x3,x4,x5 ;
+			x@1 = 10  ; % assigns x1
+			x@5 = 50  ; % assigns x5
+			x@0 = 100 ; % same as x = 100 ;
+			int i ;
+			i=0 ;
+			while i =< 5 do {
+  				x@i = 2*i ; % rudimentary array
+				i=i+1 ; 
+			};
 	  ),
 	empty_assoc(Empty),
-	compileHLP(Program,Tac,Empty,_,_),
+	compileHLP(Program,Tac,Empty,_,Env1),
 	writeTac(Tac),
 	tacToObj(Tac,Obj),
 	writeln('Translation into object code:'),
@@ -1017,217 +886,3 @@ compileHLP(P,Code,Pin,_,GlobsOut) :-
 	execObj(0,Obj,Empty,Empty,_,HeapOut),
 	writeln(HeapOut).
 
-:- resetnewreg, resetnewlabel.
-
-:- Program = (
-	  int i,j ;
-	  i = 10 ;
-	  j = 20 ;
-	  {
-	   int x ;
-	   x = i ;
-	   i = j ;
-	   j = x ;
-	  };
-	  ),
-	empty_assoc(Empty),
-	compileHLP(Program,Tac,Empty,_,_),
-	writeTac(Tac),
-	tacToObj(Tac,Obj),
-	writeln('Translation into object code:'),
-	writeObj(Obj,0),
-	empty_assoc(Empty),
-	execObj(0,Obj,Empty,Empty,_,HeapOut),
-	writeln(HeapOut).
-
-:- resetnewreg, resetnewlabel.
-
-:- Program = (
-	  int fact#[x]::{
-            if ( x == 0 ) then { int i ; j=10 ; i = 3 ; return 1 ; j=0 ; }
-	    else { return fact#[x-1]*x ; } ;
-	  } ;
-	  int i, j;
-	  j = 5 ;
-	  i = fact#[j] ;
-	  ),
-	empty_assoc(Empty),
-	compileHLP(Program,Tac,Empty,_,_),
-	writeTac(Tac),
-	tacToObj(Tac,Obj),
-	writeln('Translation into object code:'),
-	writeObj(Obj,0),
-	empty_assoc(Empty),
-	execObj(0,Obj,Empty,Empty,_,HeapOut),
-	writeln(HeapOut).
-
-:- resetnewreg, resetnewlabel.
-
-:- Program = (
-	  int fib#[x]::{
-            if ( x =< 1 ) then { return x ; }
-	    else { int a,b ; a=fib#[x-1] ; b=fib#[x-2] ; return a+b ; } ;
-	  } ;
-	  int i, j;
-	  j = 10 ;
-	  i = fib#[j] ;
-	  ),
-	empty_assoc(Empty),
-	compileHLP(Program,Tac,Empty,_,_),
-	writeTac(Tac),
-	tacToObj(Tac,Obj),
-	writeln('Translation into object code:'),
-	writeObj(Obj,0),
-	empty_assoc(Empty),
-	execObj(0,Obj,Empty,Empty,_,HeapOut),
-	writeln(HeapOut).
-/*
-:- resetnewreg, resetnewlabel.
-
-:- Program = (
-	  gcd#[]::{
-	    if ( i == j ) then { return ; } ;
-            if ( i > j ) then { i = i - j ; gcd#[] ; return ;}
-	    else { j = j - i ; gcd#[] ; return ; } ;
-	  } ;
-	  int i, j;
-	  j = 144 ;
-	  i = 240 ;
-	  gcd#[] ;
-	  ),
-	empty_assoc(Empty),
-	compileHLP(Program,Tac,Empty,_,_),
-	writeTac(Tac),
-	tacToObj(Tac,Obj),
-	writeln('Translation into object code:'),
-	writeObj(Obj,0),
-	empty_assoc(Empty),
-	execObj(0,Obj,Empty,Empty,_,HeapOut),
-	writeln(HeapOut).
-
-:- resetnewreg, resetnewlabel.
-
-:- Program = (
-	  int f1#[x,y]::{
-	    if ( x == y ) then { return f2#[x]+1; } ;
-            if ( x > y ) then { return f1#[x-1,y]+1;}
-	    else { return f1#[x,y-1]; } ;
-	  } ;
-	  int f2#[x]::{
-	    if (x == 0) then { j = x ; return 1 ; }
-	    else { return f1#[x/2,x/3]+1 ; } ;
-	  } ;
-	  int i, j;
-	  j = 300 ;
-	  i = f1#[j,240] ;
-	  ),
-	writeln('===================================='),
-	empty_assoc(Empty),
-	compileHLP(Program,Tac,Empty,_,GlobsOut),
-	writeln('Three address code:'),
-	writeTac(Tac),
-	tacToObj(Tac,Obj),
-	writeln('Translation into object code:'),
-	writeObj(Obj,0),
-	empty_assoc(Empty),
-	writeln('Execution of object code:'),
-	execObj(0,Obj,Empty,Empty,_,HeapOut),
-        write('Address of i:'), getEnv(i,GlobsOut,Addri), write(Addri),
-	write(', value = '), get_assoc(Addri,HeapOut,Vali), writeln(Vali),
-        write('Address of j:'), getEnv(j,GlobsOut,Addrj), write(Addrj),
-	write(', value = '), get_assoc(Addrj,HeapOut,Valj), writeln(Valj),
-	writeln('Results of interpretation:'),
-	execHLP(Program,Empty,_,EnvOut),
-	getEnv(i,EnvOut,ValIi),
-	write('i='),writeln(ValIi),
-	getEnv(j,EnvOut,ValIj),
-	write('j='),writeln(ValIj).
-
-:- resetnewreg, resetnewlabel.
-
-:- Program = (
-	     int x, y ;
-	     x = -1 ;
-	     if (x < 0) then
-	      {
-		int x; x = 2 ; y = x ;
-		while ( y > 0 ) do
-		 {
-		  int z ;
-		  z = x*x ;
-		  y = y / 2 ;
-		  if ( z >= y ) then
-		   {
-		    z = z - 1 ;
-		   }
-		  else
-		   {
-		    z = z + 1 ;
-		   } ;
-		 } ;
-		y = ( (y>0) ? (x+1) : (x-1) ) ;
-	      } ;
-	     x=1;
-	     ),
-	writeln('===================================='),
-	empty_assoc(Empty),
-	compileHLP(Program,Tac,Empty,_,GlobsOut),
-	writeln('Three address code:'),
-	writeTac(Tac),
-	tacToObj(Tac,Obj),
-	writeln('Translation into object code:'),
-	writeObj(Obj,0),
-	empty_assoc(Empty),
-	writeln('Execution of object code:'),
-	execObj(0,Obj,Empty,Empty,_,HeapOut),
-        write('Address of x:'), getEnv(x,GlobsOut,Addrx), write(Addrx),
-	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx),
-        write('Address of y:'), getEnv(y,GlobsOut,Addry), write(Addry),
-	write(', value = '), get_assoc(Addry,HeapOut,Valy), writeln(Valy),
-	writeln('Results of interpretation:'),
-	execHLP(Program,Empty,_,EnvOut),
-	getEnv(x,EnvOut,ValIx),
-	write('x='),writeln(ValIx),
-	getEnv(y,EnvOut,ValIy),
-	write('y='),writeln(ValIy).
-
-:- resetnewreg, resetnewlabel.
-
-:- Program = (
-	  int x, y;
-          x = 144 ;
-          y = 60 ;
-          while ( x \= y ) do {
-             if ( x < y ) then {
-		int z ;
-                z = y - x ;
-		y = z ;
-             } else {
-		int w ;
-                w = x - y ;
-		x = w ;
-             } ;
-          } ;
-	     ),
-	writeln('===================================='),
-	empty_assoc(Empty),
-	compileHLP(Program,Tac,Empty,_,GlobsOut),
-	writeln('Three address code:'),
-	writeTac(Tac),
-	tacToObj(Tac,Obj),
-	writeln('Translation into object code:'),
-	writeObj(Obj,0),
-	empty_assoc(Empty),
-	writeln('Execution of object code:'),
-	execObj(0,Obj,Empty,Empty,_,HeapOut),
-        write('Address of x:'), getEnv(x,GlobsOut,Addrx), write(Addrx),
-	write(', value = '), get_assoc(Addrx,HeapOut,Valx), writeln(Valx),
-        write('Address of y:'), getEnv(y,GlobsOut,Addry), write(Addry),
-	write(', value = '), get_assoc(Addry,HeapOut,Valy), writeln(Valy),
-	writeln('Results of interpretation:'),
-	execHLP(Program,Empty,_,EnvOut),
-	getEnv(x,EnvOut,ValIx),
-	write('x='),writeln(ValIx),
-	getEnv(y,EnvOut,ValIy),
-	write('y='),writeln(ValIy).
-*/
