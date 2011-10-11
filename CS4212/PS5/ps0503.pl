@@ -446,9 +446,12 @@ compileExpr(A@I,Code,Reg,Procs,Globs,Locs,ErrorIn,ErrorOut) :- !,
 	% 3. Calculate the actual address of the array indexed by 'I'
 	% New : Error Checking Code. Make sure index exists!
 	( atom(I) -> (varInEnv(I,Globs); varInEnv(I,Locs)); writeln('Index variable not declared!') ),
-	compileExpr(BaseAddr+4*I,CodeI,RI,Procs,Globs,Locs,ErrorIn,ErrorOut),
+
+	compileExpr(BaseAddr+4*I,CodeI,RI,Procs,Globs,Locs,ErrorIn,ErrorAux1),
 	% 4. Set the value of the register to the value pointed by this address
-	newreg(Reg), Code = (CodeI ; Reg = [RI] ; ).
+	newreg(Reg), Code = (CodeI ; Reg = [RI] ; ),
+	ErrorOut = ErrorAux1.
+
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -465,38 +468,41 @@ compileExpr(X,Code,Reg,_Procs,Globs,Locs,ErrorIn,ErrorOut) :-
 	), Code = C, 
 	ErrorOut = ErrorIn.
 
-compileExpr(X,nop,X,_Procs,_Globs,_Locs,_ErrorIn,_ErrorOut) :- integer(X), !.
+compileExpr(X,nop,X,_Procs,_Globs,_Locs,Error,Error) :- integer(X), !.
 
 compileExpr(E,Code,Result,Procs,Globs,Locs,ErrorIn,ErrorOut) :-
 	E =.. [F,A,B], member(F,[+,-,*,/,mod,<<,>>,/\,\/,and,or,xor]), !,
-	compileExpr(A,CodeA,RA,Procs,Globs,Locs,ErrorIn,ErrorAux),
-	compileExpr(B,CodeB,RB,Procs,Globs,Locs,ErrorAux,ErrorOut),
+	compileExpr(A,CodeA,RA,Procs,Globs,Locs,ErrorIn,ErrorAux1),
+	compileExpr(B,CodeB,RB,Procs,Globs,Locs,ErrorAux1,ErrorAux2),
 	Op =.. [F,RA,RB], newreg(Result),
 	C = (Result = Op),
-	Code = (CodeA;CodeB;C).
+	Code = (CodeA;CodeB;C),
+	ErrorOut = ErrorAux2.
 
 compileExpr(E,Code,Result,Procs,Globs,Locs,ErrorIn,ErrorOut) :-
 	E =.. [F,A,B], member(F,[<,>,=<,>=,==,\=]), !,
 	(   B == 0
 	->  compileExpr(A,CodeAB,R,Procs,Globs,Locs,ErrorIn,ErrorAux)
-	;   compileExpr(A-B,CodeAB,R,Procs,Globs,Locs,ErrorAux,ErrorOut) ),
+	;   compileExpr(A-B,CodeAB,R,Procs,Globs,Locs,ErrorIn,ErrorAux) ),
 	Op =.. [F,R,0], newreg(Result), newlabel(LblOut), newlabel(Skip),
 	C = ( if Op goto Skip ;
               Result = 0 ;
               goto LblOut ;
               Skip::Result = 1;
 	      LblOut :: ),
-	Code = (CodeAB;C).
+	Code = (CodeAB;C),
+	ErrorOut = ErrorAux.
 
 compileExpr((X ? Y : Z),Code,R,Procs,Globs,Locs,ErrorIn,ErrorOut) :- !,
         newreg(R), newlabel(Skip), newlabel(Lout),
         compileExpr(X,Cx,Qx,Procs,Globs,Locs,ErrorIn,ErrorAux1),
         compileExpr(Y,Cy,Qy,Procs,Globs,Locs,ErrorAux1,ErrorAux2),
-        compileExpr(Z,Cz,Qz,Procs,Globs,Locs,ErrorAux2,ErrorOut),
+        compileExpr(Z,Cz,Qz,Procs,Globs,Locs,ErrorAux2,ErrorAux3),
         C1 = (if Qx == 0 goto Skip),
         C2 = (R = Qy ; goto Lout),
         C3 =  (R = Qz),
-        Code = (Cx;C1;Cy;C2;Skip::;Cz;C3;Lout::).
+        Code = (Cx;C1;Cy;C2;Skip::;Cz;C3;Lout::),
+        ErrorOut = ErrorAux3.
 
 compileExpr(E,Code,R,Procs,Globs,Locs,ErrorIn,ErrorOut) :-
 	E =.. [F,A], member(F,[+,-]), !,
@@ -547,35 +553,36 @@ compileExpr(P#Args,Code,R,Procs,Globs,Locs,ErrorIn,ErrorOut) :- !,
 
 compileStmt( (int L), nop,_Procs,GlobIn,TGIn,GlobOut,TGOut,
 	     LocIn,TLIn,LocOut,TLOut,MaxTopIn,MaxTopOut,
-	     Lev,_RetLbl,ErrorIn,ErrorOut) :- !,
+	     Lev,_RetLbl,Error,Error) :- !,
 	(   Lev == 0
 	->  newvars(L,GlobIn,TGIn,GlobOut,TGOut), LocIn = LocOut,
 	    TLIn = TLOut, MaxTopIn = MaxTopOut
 	;   newvars(L,LocIn,TLIn,LocOut,TLOut), GlobIn = GlobOut,
-	    TGIn = TGOut, MaxTopOut is max(MaxTopIn,TLOut) ),
-	    ErrorOut = ErrorIn.
+	    TGIn = TGOut, MaxTopOut is max(MaxTopIn,TLOut) ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 compileStmt( (A@I=E),Code,Procs,Globs,TG,Globs,TG,
 	    Locs,TL,Locs,TL,MaxTop,MaxTop,
 	    _Lev,_RetLbl,ErrorIn,ErrorOut) :- !,
+
 	    % 1. Compile the expression.
-	    compileExpr(E,CE,RE,Procs,Globs,Locs,ErrorIn,ErrorAux),
+	    compileExpr(E,CE,RE,Procs,Globs,Locs,ErrorIn,ErrorAux1),
 	    % 2. Check that its a valid array
 	    (	atom(A)	 -> true ; write('Invalid LHS:'),writeln(A) ),
 	    % 3. Compile the index of the array (which might be an expression)
-		compileExpr(4*I,CI,RI,Procs,Globs,Locs,ErrorAux,ErrorOut),
+		compileExpr(4*I,CI,RI,Procs,Globs,Locs,ErrorAux1,ErrorAux2),
 		% 4. Retrieve the base address of A (A is always in the global scope)
 		(	varInEnv(A,Globs) -> getEnv(A,Globs,BaseAddr) ; (write('Error: '), write(A), writeln( 'not declared!'), abort) ),
 	    % 5. Calculate the address where E is stored [E] = BaseAddr + I * 4]
 		ActualAddr = BaseAddr + RI,
 		C = ( [ActualAddr] = RE ),
 		Code = (CI ; CE ; C),
-		ErrorOut = ErrorIn.
+		ErrorOut = ErrorAux2.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	    
 
 compileStmt( (X=E),Code,Procs,Globs,TG,Globs,TG,Locs,TL,Locs,TL,MaxTop,MaxTop,
-	     _Lev,_RetLbl,ErrorIn,ErrorOut) :- !,
+	     _Lev,_RetLbl,ErrorIn,ErrorOut) :- !,	  
+
 	compileExpr(E,CE,R,Procs,Globs,Locs,ErrorIn,ErrorAux),
 	(   atom(X)  ->  true ;	write('Invalid LHS:'),writeln(X) ),
 	(   varInEnv(X,Locs)
@@ -590,6 +597,7 @@ compileStmt( (X=E),Code,Procs,Globs,TG,Globs,TG,Locs,TL,Locs,TL,MaxTop,MaxTop,
 
 compileStmt( (if B then { S1 } else { S2 }), Code,Procs,Globs,TG,Globs,TG,
 	     Locs,TL,Locs,TL,MaxTopIn,MaxTopOut,_Lev,RetLbl,ErrorIn,ErrorOut) :- !,
+
 	compileExpr(B,CB,RB,Procs,Globs,Locs,ErrorIn,ErrorAux1),
 	C1 = (if RB == 0 goto LblS2),
 	newlabel(LblS2),
@@ -617,6 +625,7 @@ compileStmt( (if B then { S }), Code,Procs,Globs,TG,Globs,TG,
 compileStmt( (while B do { S }), Code,Procs,Globs,TG,Globs,TG,
 	     Locs,TL,Locs,TL,MaxTopIn,MaxTopOut,
 	     _Lev,RetLbl,ErrorIn,ErrorOut) :- !,
+
 	newlabel(LblTop),
 	newlabel(LblOut),
 	compileExpr(B,CB,RB,Procs,Globs,Locs,ErrorIn,ErrorAux1),
@@ -627,12 +636,14 @@ compileStmt( (while B do { S }), Code,Procs,Globs,TG,Globs,TG,
 	Code = ( LblTop:: ; CB ; C1 ; CS ; C2 ; LblOut:: ),
 	ErrorOut = ErrorAux2.
 
+
 compileStmt( {S}, Code,Procs,Globs,TG,Globs,TG,Locs,TL,Locs,
 	     TL,MaxTopIn,MaxTopOut,_Lev,RetLbl,ErrorIn,ErrorOut) :- !,
 	expandEnv(Locs,NewLocs),
 	compileHL(S,Code,Procs,Globs,TG,_,_,NewLocs,TL,_,_,
 		  MaxTopIn,MaxTopOut,1,RetLbl,ErrorIn,ErrorAux),
-		  ErrorOut = ErrorAux.
+
+	ErrorOut = ErrorAux.
 
 compileStmt( P#Args, Code,Procs,Globs,TG,Globs,TG,Locs,TL,Locs,TL,MaxTop,MaxTop,
 	    _Lev,_RetLbl,ErrorIn,ErrorOut) :- !,
@@ -705,7 +716,7 @@ compileProcedure(Pdef,Code,Procs,Glob,ErrorIn,ErrorOut) :-
 	ErrorOut = ErrorAux.
 
 % compile all procedures collected while traversing the code
-compileProcList([],nop,_Procs,_Glob,_ErrorIn,_ErrorOut).
+compileProcList([],nop,_Procs,_Glob,Error,Error).
 
 compileProcList([_-Pdef|Rest],Code,Procs,Glob,ErrorIn,ErrorOut) :-
 	compileProcedure(Pdef,CodeP,Procs,Glob,ErrorIn,ErrorAux1),
@@ -754,7 +765,7 @@ compileHLP( (P;Rest),Code,Pin,Pout,GlobsOut,ErrorIn,ErrorOut) :-
 	compileHLP(Rest,Code,Paux,Pout,GlobsOut,ErrorIn,ErrorOut).
 
 compileHLP(P,Code,Pin,_,GlobsOut,ErrorIn,ErrorOut) :-
-	expandEnv([],EmptyEnv),newreg(error),
+	expandEnv([],EmptyEnv),
 	compileHL(P,CodeP,Pin,EmptyEnv,-4,GlobsOut,_TGOut,EmptyEnv,0,_LocsOut,_TLOut,0,MaxTopOut,0,noreturn,ErrorIn,ErrorAux1),
 	compileProcedures(Pin,CProcs,GlobsOut,ErrorAux1,ErrorAux2), SP is 10000-MaxTopOut,
 	C1 = ( framePtr = 10000 ; stackPtr = SP ),
@@ -764,19 +775,24 @@ compileHLP(P,Code,Pin,_,GlobsOut,ErrorIn,ErrorOut) :-
 	Code = ( C1 ; CodeP ; C2 ; CProcs ; C3),
 	ErrorOut = ErrorAux2.
 
-:- resetnewreg, resetnewlabel.
-
 % Compiler test
 :- resetnewreg, resetnewlabel.
 
 :- Program = (
-			int min, a, a1, a2, i ;
+			int min, a, a1, a2, a3, a4, i, j, k ;
 			min = 10000 ;
 			i = 0 ; 
-         	% while (i < 5) do {
-        		% if ( min > a@i ) then { min = a@i ; } ;
-        		% i = i + 1 ;
-          %   } ;
+			j = 1 ;
+			k = 2 ;
+			a@0 = 123 ; 
+			a@j = 234 ; 
+			a@k = -345 ;
+			a@3 = -678 ; 
+			a@4 = 890 ;
+         	while (i < 5) do {
+        		if ( min > a@i ) then { min = a@i ; } ;
+        		i = i + 1 ;
+            } ;
 	  ),
 	empty_assoc(Empty),
 	compileHLP(Program,Tac,Empty,_,_Env1,0,_ErrorOut),
