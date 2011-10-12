@@ -1,3 +1,6 @@
+% Benjamin Tan Wei Hao
+% U077129N
+% Problem Set 5 , Exercise 1
 :- op(800,yfx,and).
 :- op(810,yfx,or).
 :- op(1099,yf,;).
@@ -543,12 +546,9 @@ compileExpr(E,Code,Result,Procs,Globs,Locs) :-
 	      LblOut :: ),
 	Code = (CodeAB;C).
 
-% Handle the code here!
-% GlobHead | GlobTail 
-% LocHead | LocTail 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% This would lead to an error condition
 compileExpr(E,_Code,_R,_Procs,[],_) :-
 	E =.. [^^,_], !,
 	writeln('Error in ^^'), abort.
@@ -566,14 +566,12 @@ compileExpr(E,Code,R,Procs,Globs,[_|LT]) :-
 	compileExpr(A,CodeA,R1,Procs,Globs,LT), 
 	Code = (CodeA ; R = R1).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 compileExpr(E,Code,R,Procs,Globs,Locs) :-
 	E =.. [F,A], member(F,[+,-]), !,
 	C =.. [F,0,A], 
 	compileExpr(C,Code,R,Procs,Globs,Locs), !.
-
-
-
 
 compileExpr((X ? Y : Z),Code,R,Procs,Globs,Locs) :- !,
         newreg(R), newlabel(Skip), newlabel(Lout),
@@ -900,6 +898,7 @@ compileHLP(P,Code,Pin,_,GlobsOut) :-
 
 :- resetnewreg, resetnewlabel.
 
+%% Will abort
 :- Program = (
 		int a ; 
 		a = 100 ;
