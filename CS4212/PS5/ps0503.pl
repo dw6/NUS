@@ -9,6 +9,16 @@
 %     \/___/   \/_____/  \/_/  \/_____/     \/_/\/_____/ 
 %                                             
 
+% Basic Approach:
+
+% The main compileHLP predicate, compileStmt and compileExpr are augmented with an 
+% ErrLbl and EndLbl.
+
+% In compileHLP, the error register is either set to 1 or 0, depending whether the 
+% bounds checking code jumps to the ErrLbl.
+
+
+%
 :- op(800,yfx,and).
 :- op(810,yfx,or).
 :- op(1099,yf,;).
@@ -26,19 +36,27 @@
 :- op(950,fx,return).
 :- op(100,xfx,@).
 
+
+% For convenience, we add 'and' and 'or' to 'is'.
+% Try help(arithmetic_function) at Prolog prompt for full docs.
 and(X,Y,Val) :- Val is abs(sign(X)) /\ abs(sign(Y)).
 or(X,Y,Val) :- Val is abs(sign(X)) \/ abs(sign(Y)).
 :- arithmetic_function(and/2).
 :- arithmetic_function(or/2).
 
+% Environments must be enhanced to handle multiple scopes
+% An environment is a stack of association lists ; stacks can
+% be implemented as lists.
+%
+% It is convenient to have a full API for environments
+
 % get the value of a variable from the environment,
 %	-- fail if var does not exist
 
 getEnv(X,[],_) :- !,
-	write('Attempt to retrieve undefined identifier: '), writeln(X), abort.
+	write('Attempt to retrieve undefined identifier!: '), writeln(X), abort.
 getEnv(X,[Top|_],Val) :- get_assoc(X,Top,Val),!.
 getEnv(X,[_|Rest],Val) :- getEnv(X,Rest,Val).
-
 varInEnv(X,[Top|Rest]) :-
 	get_assoc(X,Top,_),! ; varInEnv(X,Rest).
 
@@ -117,6 +135,16 @@ cleanUp(EnvOrig,EnvProcOut,EnvOut) :-
 	globalEnv(EnvProcOut,GEnv),
 	replaceGlobalEnv(GEnv,EnvOrig,EnvOut).
 
+/*
+ *  HL expression evaluator: allows procedure calls
+ *   -- since procedure calls may change values of global variables
+ *      we need input and output environments here too
+ *   -- environments are now stacks of records; global variables are
+ *      at the bottom of the stack
+ *   -- evaluator also takes in a dictionary of procedure definitions
+ *      to be able to execute a procedure call when one is encountered
+ */
+
 evalExpr(X,Env,Env,_Procs,Val) :-
 	atom(X),!, \+ atom_prefix(X,v_), getEnv(X,Env,Val),
 	(   Val = undef
@@ -179,6 +207,18 @@ createVars( X, EnvIn, EnvOut ) :-
 	(   atom(X), \+ atom_prefix(X,v_)
 	->  createEnv(X,EnvIn,EnvOut)
 	;   write('Incorrect variable name:'), writeln(X), abort ).
+
+% Statement execution predicate, has a new element: variable
+% declarations
+%    -- the fifth argument is useful in handling 'while' loops
+%    -- when entering 'while' loop body a second time, all declarations
+%       must be disregarded
+%    -- Fifth argument possible values:
+%	  'firstTime' : used when a stmt is executed for the first time
+%	  'secondTime': used when a stmt is subsequently executed again
+%    -- Sixth argument: signals that a return has been encountered;
+%	execution of statements must be disabled till the end of
+%	procedure is encountered
 
 execStmt((int L),_Procs,EnvIn,EnvOut,Flag,_) :- !,
 	(   Flag == firstTime
@@ -253,6 +293,21 @@ execHLP(P,Pin,_,EnvOut) :-
 	expandEnv([],Empty), % execute main program starting with empty env
 	execHL(P,Pin,Empty,EnvOut,firstTime,_ReturnEncountered).
 
+% Three address code and object code
+%   -- enhanced to handle references
+%   -- new instructions: [Addr] = reg ; reg = [Addr]
+%        where Addr is an address expression
+%   -- contents of address Addr is transferred to/from 
+%   -- memory (or "heap", in most PL) is modelled as association list
+%          with mappings Address -> Value
+%          - addresses are multiples of 4 for holding integer values
+%
+% There is no syntax checker, but the predicates only accept correct
+% TAC/OBJ code.
+%
+% Main predicate is tacToObj(TacCode,ObjCode).
+
+% Three address instruction with no label --> Object instruction
 taiNLtoObj(nop,P,P,nop) :- !.
 taiNLtoObj(X=Y,P,[L:K|P],X=Z) :-
 	Y =.. [F,L,A], atom(L), !, Z =.. [F,K,A].
@@ -263,17 +318,18 @@ taiNLtoObj(Iin,P,[X:Y|P],Iout) :-
         ;   Iin = (if Expr goto E), Iout = (if Expr goto D) ),
         (   E =.. [F,X,Z], D =.. [F,Y,Z]
         ;   atom(E), E = X, D = Y ) ,!.
+%taiNLtoObj(_I,_Pin,_Pout,_T).
 
 % Three address instruction (possibly labelled) --> Object instruction
 %    -- add pair (Label,IP) to symbol table
 taiToObj(L::nop,IP,Lin,Lout,Pin,Pout,T) :- taiToObj(L::,IP,Lin,Lout,Pin,Pout,T).
 taiToObj(L::I,IP,Lin,Lout,Pin,Pout,T) :- !,
-        get_assoc(L,Lin,_)
+        (get_assoc(L,Lin,_)
         ->  writeln('Duplicate labels'), abort
         ;   put_assoc(L,Lin,IP,Laux),
             (   I =.. [(::)|_]
              -> taiToObj(I,IP,Laux,Lout,Pin,Pout,T)
-             ;  Lout=Laux, taiNLtoObj(I,Pin,Pout,T) ).
+             ;  Lout=Laux, taiNLtoObj(I,Pin,Pout,T) )).
 taiToObj((L::),IP,Lin,Lout,P,P,none) :-
         get_assoc(L,Lin,_)
         -> writeln('Duplicate labels'), abort
@@ -370,6 +426,7 @@ execTai((LHS=RHS),Env,Heap,NewEnv,NewHeap) :-
 		;   write('Incorrect instruction : '), writeln(LHS=RHS), abort )),
 	    put_assoc(Addr,Heap,Val,NewHeap)).
 
+
 % :- dynamic counter/1.
 % :- retractall(counter(_)).
 
@@ -393,6 +450,18 @@ execObj(IP,Code,EnvIn,HeapIn,EnvOut,HeapOut) :-
 /********************************************
  * Compiler from HL language to TAC
  ********************************************/
+% - Local variables (inner scope variables) are now placed on the stack
+% - Use 'stacPointer' and 'framePointer' as register that implement the
+%   stack and activation records
+% - global variables still in the "heap", having lower addresses
+% - activation records have textbook implementation
+%    -- caller places arguments on the stack
+%    -- callee creates room for local procedure variables
+%    -- procedure returns value in register 'returnValue'
+%    -- callee cleans up local variables
+%    -- caller cleans up arguments
+%
+
 
 :- dynamic auxreg/1.
 :- dynamic auxvar/1.
@@ -429,6 +498,7 @@ newvars((V,Vs),EnvIn,TopIn,EnvOut,TopOut) :-
 	newvars(V,EnvIn,TopIn,EnvAux,TopAux),
 	newvars(Vs,EnvAux,TopAux,EnvOut,TopOut).
 
+
 % compilation of expressions, similar to 05.pl
 %   - environment is split between locals and globals
 %   - procedures are lexically scoped, they only inherit the global
@@ -438,24 +508,23 @@ newvars((V,Vs),EnvIn,TopIn,EnvOut,TopOut) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-compileExpr(A@I,Code,Reg,Procs,Globs,Locs,ErrorIn,ErrorOut) :- !,
-	% 1. Make sure array exists
+compileExpr(A@I,Code,Reg,Procs,Globs,Locs,EndLbl,ErrLbl,TG) :- !,
 	(	atom(A)	 -> true ; write('Array not declared:'),writeln(A), abort ),
-	% 2. Get the base address of the array 	
 	(	varInEnv(A,Globs) -> getEnv(A,Globs,BaseAddr) ; (write('Error: '), write(A), writeln( 'not declared!'), abort) ),
-	% 3. Calculate the actual address of the array indexed by 'I'
-	% New : Error Checking Code. Make sure index exists!
-	( atom(I) -> (varInEnv(I,Globs); varInEnv(I,Locs)); writeln('Index variable not declared!') ),
 
-	compileExpr(BaseAddr+4*I,CodeI,RI,Procs,Globs,Locs,ErrorIn,ErrorAux1),
-	% 4. Set the value of the register to the value pointed by this address
-	newreg(Reg), Code = (CodeI ; Reg = [RI] ; ),
-	ErrorOut = ErrorAux1.
+	% Additional error checking code.
+		% Checks against TG to see whether variable exists. if not, 
+		% it will jump to ErrLbl and set the error register to 1
+		(( integer(I), ChkAddr is BaseAddr+4*I ) ->  
+			ECode = (if ChkAddr > TG goto ErrLbl) ; ECode = (nop)) , 	
 
+
+	compileExpr(BaseAddr+4*I,CodeI,RI,Procs,Globs,Locs,EndLbl,ErrLbl,TG),
+	newreg(Reg), Code = (ECode ; CodeI ; Reg = [RI]).
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-compileExpr(X,Code,Reg,_Procs,Globs,Locs,ErrorIn,ErrorOut) :-
+compileExpr(X,Code,Reg,_Procs,Globs,Locs,_EndLbl,_ErrLbl,_TG) :-
 	atom(X), !, newreg(Reg),
 	(   varInEnv(X,Locs)
 	->  getEnv(X,Locs,Offset),
@@ -465,59 +534,55 @@ compileExpr(X,Code,Reg,_Procs,Globs,Locs,ErrorIn,ErrorOut) :-
 	;   (   getEnv(X,Globs,Addr)
 	    ->	C = ( Reg = [Addr] )
 	    ;	write('Undeclared variable: '), writeln(X), abort)
-	), Code = C, 
-	ErrorOut = ErrorIn.
+	), Code = C .
 
-compileExpr(X,nop,X,_Procs,_Globs,_Locs,Error,Error) :- integer(X), !.
+compileExpr(X,nop,X,_Procs,_Globs,_Locs,_EndLbl,_ErrLbl,_TG) :- integer(X), !.
 
-compileExpr(E,Code,Result,Procs,Globs,Locs,ErrorIn,ErrorOut) :-
+compileExpr(E,Code,Result,Procs,Globs,Locs,EndLbl,ErrLbl,TG) :-
 	E =.. [F,A,B], member(F,[+,-,*,/,mod,<<,>>,/\,\/,and,or,xor]), !,
-	compileExpr(A,CodeA,RA,Procs,Globs,Locs,ErrorIn,ErrorAux1),
-	compileExpr(B,CodeB,RB,Procs,Globs,Locs,ErrorAux1,ErrorAux2),
+	compileExpr(A,CodeA,RA,Procs,Globs,Locs,EndLbl,ErrLbl,TG),
+	compileExpr(B,CodeB,RB,Procs,Globs,Locs,EndLbl,ErrLbl,TG),
 	Op =.. [F,RA,RB], newreg(Result),
 	C = (Result = Op),
-	Code = (CodeA;CodeB;C),
-	ErrorOut = ErrorAux2.
+	Code = (CodeA;CodeB;C).
 
-compileExpr(E,Code,Result,Procs,Globs,Locs,ErrorIn,ErrorOut) :-
+compileExpr(E,Code,Result,Procs,Globs,Locs,EndLbl,ErrLbl,TG) :-
 	E =.. [F,A,B], member(F,[<,>,=<,>=,==,\=]), !,
 	(   B == 0
-	->  compileExpr(A,CodeAB,R,Procs,Globs,Locs,ErrorIn,ErrorAux)
-	;   compileExpr(A-B,CodeAB,R,Procs,Globs,Locs,ErrorIn,ErrorAux) ),
+	->  compileExpr(A,CodeAB,R,Procs,Globs,Locs,EndLbl,ErrLbl,TG)
+	;   compileExpr(A-B,CodeAB,R,Procs,Globs,Locs,EndLbl,ErrLbl,TG) ),
 	Op =.. [F,R,0], newreg(Result), newlabel(LblOut), newlabel(Skip),
 	C = ( if Op goto Skip ;
               Result = 0 ;
               goto LblOut ;
               Skip::Result = 1;
 	      LblOut :: ),
-	Code = (CodeAB;C),
-	ErrorOut = ErrorAux.
+	Code = (CodeAB;C).
 
-compileExpr((X ? Y : Z),Code,R,Procs,Globs,Locs,ErrorIn,ErrorOut) :- !,
+compileExpr((X ? Y : Z),Code,R,Procs,Globs,Locs,EndLbl,ErrLbl,TG) :- !,
         newreg(R), newlabel(Skip), newlabel(Lout),
-        compileExpr(X,Cx,Qx,Procs,Globs,Locs,ErrorIn,ErrorAux1),
-        compileExpr(Y,Cy,Qy,Procs,Globs,Locs,ErrorAux1,ErrorAux2),
-        compileExpr(Z,Cz,Qz,Procs,Globs,Locs,ErrorAux2,ErrorAux3),
+        compileExpr(X,Cx,Qx,Procs,Globs,Locs,EndLbl,ErrLbl,TG),
+        compileExpr(Y,Cy,Qy,Procs,Globs,Locs,EndLbl,ErrLbl,TG),
+        compileExpr(Z,Cz,Qz,Procs,Globs,Locs,EndLbl,ErrLbl,TG),
         C1 = (if Qx == 0 goto Skip),
         C2 = (R = Qy ; goto Lout),
         C3 =  (R = Qz),
-        Code = (Cx;C1;Cy;C2;Skip::;Cz;C3;Lout::),
-        ErrorOut = ErrorAux3.
+        Code = (Cx;C1;Cy;C2;Skip::;Cz;C3;Lout::).
 
-compileExpr(E,Code,R,Procs,Globs,Locs,ErrorIn,ErrorOut) :-
+compileExpr(E,Code,R,Procs,Globs,Locs,EndLbl,ErrLbl,TG) :-
 	E =.. [F,A], member(F,[+,-]), !,
-	C =.. [F,0,A], compileExpr(C,Code,R,Procs,Globs,Locs,ErrorIn,ErrorOut).
+	C =.. [F,0,A], compileExpr(C,Code,R,Procs,Globs,Locs,EndLbl,ErrLbl,TG).
 
-compileExpr(\ X,Code,R,Procs,Globs,Locs,ErrorIn,ErrorOut) :- !,
-	compileExpr((-1) xor X, Code, R, Procs, Globs, Locs,ErrorIn,ErrorOut).
+compileExpr(\ X,Code,R,Procs,Globs,Locs,EndLbl,ErrLbl,TG) :- !,
+	compileExpr((-1) xor X, Code, R, Procs, Globs, Locs,EndLbl,ErrLbl,TG).
 
 
-compileExpr(P#Args,Code,R,Procs,Globs,Locs,ErrorIn,ErrorOut) :- !,
+compileExpr(P#Args,Code,R,Procs,Globs,Locs,EndLbl,ErrLbl,TG) :- !,
 	get_assoc(P,Procs,Pdef), procedureType(Pdef,Type),
 	(   (R == noval, Type == int ; var(R), Type == void)
 	    ->	write('Type violation in procedure call: '), writeln(P), abort
 	    ;	true ),
-	compileArgs(Args,CodeArgs,Procs,Globs,Locs,StackSpace,ErrorIn,ErrorOut),
+	compileArgs(Args,CodeArgs,Procs,Globs,Locs,StackSpace,EndLbl,ErrLbl,TG),
 	newlabel(Label),
 	C = (  Label::stackPtr = stackPtr - 4 ;
 		      RetAddr =  Label + 4 ;
@@ -553,7 +618,7 @@ compileExpr(P#Args,Code,R,Procs,Globs,Locs,ErrorIn,ErrorOut) :- !,
 
 compileStmt( (int L), nop,_Procs,GlobIn,TGIn,GlobOut,TGOut,
 	     LocIn,TLIn,LocOut,TLOut,MaxTopIn,MaxTopOut,
-	     Lev,_RetLbl,Error,Error) :- !,
+	     Lev,_RetLbl,_EndLbl,_ErrLbl) :- !,
 	(   Lev == 0
 	->  newvars(L,GlobIn,TGIn,GlobOut,TGOut), LocIn = LocOut,
 	    TLIn = TLOut, MaxTopIn = MaxTopOut
@@ -561,29 +626,31 @@ compileStmt( (int L), nop,_Procs,GlobIn,TGIn,GlobOut,TGOut,
 	    TGIn = TGOut, MaxTopOut is max(MaxTopIn,TLOut) ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-compileStmt( (A@I=E),Code,Procs,Globs,TG,Globs,TG,
-	    Locs,TL,Locs,TL,MaxTop,MaxTop,
-	    _Lev,_RetLbl,ErrorIn,ErrorOut) :- !,
+compileStmt( (A@I=E),Code,Procs,Globs,TG,Globs,TG,Locs,TL,Locs,TL,MaxTop,MaxTop,
+	    _Lev,_RetLbl,EndLbl,ErrLbl) :- !,
 
-	    % 1. Compile the expression.
-	    compileExpr(E,CE,RE,Procs,Globs,Locs,ErrorIn,ErrorAux1),
-	    % 2. Check that its a valid array
+	    compileExpr(E,CE,RE,Procs,Globs,Locs,EndLbl,ErrLbl,TG),
 	    (	atom(A)	 -> true ; write('Invalid LHS:'),writeln(A) ),
-	    % 3. Compile the index of the array (which might be an expression)
-		compileExpr(4*I,CI,RI,Procs,Globs,Locs,ErrorAux1,ErrorAux2),
-		% 4. Retrieve the base address of A (A is always in the global scope)
-		(	varInEnv(A,Globs) -> getEnv(A,Globs,BaseAddr) ; (write('Error: '), write(A), writeln( 'not declared!'), abort) ),
-	    % 5. Calculate the address where E is stored [E] = BaseAddr + I * 4]
+		compileExpr(4*I,CI,RI,Procs,Globs,Locs,EndLbl,ErrLbl,TG),
+		(	varInEnv(A,Globs) -> getEnv(A,Globs,BaseAddr) ; 
+		  	( write(A), writeln( 'not declared!'), abort) ),	
+
+		% Additional error checking code.
+		% Checks against TG to see whether variable exists. if not, 
+		% it will jump to ErrLbl and set the error register to 1
+		(( integer(I), ChkAddr is BaseAddr+4*I ) ->  
+			ECode = (if ChkAddr > TG goto ErrLbl) ; ECode = (nop)) , 	
+
 		ActualAddr = BaseAddr + RI,
 		C = ( [ActualAddr] = RE ),
-		Code = (CI ; CE ; C),
-		ErrorOut = ErrorAux2.
+		Code = ( ECode ; CI ; CE ; C).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	    
 
-compileStmt( (X=E),Code,Procs,Globs,TG,Globs,TG,Locs,TL,Locs,TL,MaxTop,MaxTop,
-	     _Lev,_RetLbl,ErrorIn,ErrorOut) :- !,	  
-
-	compileExpr(E,CE,R,Procs,Globs,Locs,ErrorIn,ErrorAux),
+compileStmt( (X=E),Code,Procs,Globs,TG,Globs,TG,
+	     Locs,TL,Locs,TL,MaxTop,MaxTop,
+	     _Lev,_RetLbl,EndLbl,ErrLbl) :- !,
+	compileExpr(E,CE,R,Procs,Globs,Locs,EndLbl,ErrLbl,TG),
 	(   atom(X)  ->  true ;	write('Invalid LHS:'),writeln(X) ),
 	(   varInEnv(X,Locs)
 	->  getEnv(X,Locs,Offset),
@@ -592,87 +659,69 @@ compileStmt( (X=E),Code,Procs,Globs,TG,Globs,TG,Locs,TL,Locs,TL,MaxTop,MaxTop,
 	    ;   O is - Offset, LHS = [framePtr+O] )
 	;   getEnv(X,Globs,Addr), LHS = [Addr]  ),
 	C = ( LHS = R ),
-	Code = (CE ; C),
-	ErrorOut = ErrorAux.
-
+	Code = (CE ; C).
 compileStmt( (if B then { S1 } else { S2 }), Code,Procs,Globs,TG,Globs,TG,
-	     Locs,TL,Locs,TL,MaxTopIn,MaxTopOut,_Lev,RetLbl,ErrorIn,ErrorOut) :- !,
-
-	compileExpr(B,CB,RB,Procs,Globs,Locs,ErrorIn,ErrorAux1),
+	     Locs,TL,Locs,TL,MaxTopIn,MaxTopOut,_Lev,RetLbl,EndLbl,ErrLbl) :- !,
+	compileExpr(B,CB,RB,Procs,Globs,Locs,EndLbl,ErrLbl,TG),
 	C1 = (if RB == 0 goto LblS2),
 	newlabel(LblS2),
 	compileStmt({S1},CS1,Procs,Globs,TG,_,_,Locs,TL,_,_,
-		    MaxTopIn,MaxTop1,1,RetLbl,ErrorAux1,ErrorAux2),
+		    MaxTopIn,MaxTop1,1,RetLbl,EndLbl,ErrLbl),
 	C2 = (goto LblOut),
 	compileStmt({S2},CS2,Procs,Globs,TG,_,_,Locs,TL,_,_,
-		    MaxTop1,MaxTopOut,1,RetLbl,ErrorAux2,ErrorAux3),
+		    MaxTop1,MaxTopOut,1,RetLbl,EndLbl,ErrLbl),
 	newlabel(LblOut),
-	Code = ( CB ; C1 ; CS1 ; C2 ; LblS2:: ; CS2 ; LblOut:: ),
-	ErrorOut = ErrorAux3.
-
+	Code = ( CB ; C1 ; CS1 ; C2 ; LblS2:: ; CS2 ; LblOut:: ).
 compileStmt( (if B then { S }), Code,Procs,Globs,TG,Globs,TG,
 	     Locs,TL,Locs,TL,MaxTopIn,MaxTopOut,
-	     _Lev,RetLbl,ErrorIn,ErrorOut) :- !,
-	compileExpr(B,CB,RB,Procs,Globs,Locs,ErrorIn,ErrorAux1),
+	     _Lev,RetLbl,EndLbl,ErrLbl) :- !,
+	compileExpr(B,CB,RB,Procs,Globs,Locs,EndLbl,ErrLbl,TG),
 	C = (if RB == 0 goto LblOut),
 	compileStmt({S},CS,Procs,Globs,TG,_,_,
 		    Locs,TL,_,_,MaxTopIn,MaxTopOut,
-		    1,RetLbl,ErrorAux1,ErrorAux2),
+		    1,RetLbl,EndLbl,ErrLbl),
 	newlabel(LblOut),
-	Code = ( CB ; C ; CS ; LblOut:: ),
-	ErrorOut = ErrorAux2.
-
+	Code = ( CB ; C ; CS ; LblOut:: ).
 compileStmt( (while B do { S }), Code,Procs,Globs,TG,Globs,TG,
 	     Locs,TL,Locs,TL,MaxTopIn,MaxTopOut,
-	     _Lev,RetLbl,ErrorIn,ErrorOut) :- !,
-
+	     _Lev,RetLbl,EndLbl,ErrLbl) :- !,
 	newlabel(LblTop),
 	newlabel(LblOut),
-	compileExpr(B,CB,RB,Procs,Globs,Locs,ErrorIn,ErrorAux1),
+	compileExpr(B,CB,RB,Procs,Globs,Locs,EndLbl,ErrLbl,TG),
 	C1 = (if RB == 0 goto LblOut),
 	compileStmt({S},CS,Procs,Globs,TG,_,_,Locs,TL,_,_,
-		    MaxTopIn,MaxTopOut,1,RetLbl,ErrorAux1,ErrorAux2),
+		    MaxTopIn,MaxTopOut,1,RetLbl,EndLbl,ErrLbl),
 	C2 = ( goto LblTop ),
-	Code = ( LblTop:: ; CB ; C1 ; CS ; C2 ; LblOut:: ),
-	ErrorOut = ErrorAux2.
-
-
+	Code = ( LblTop:: ; CB ; C1 ; CS ; C2 ; LblOut:: ).
 compileStmt( {S}, Code,Procs,Globs,TG,Globs,TG,Locs,TL,Locs,
-	     TL,MaxTopIn,MaxTopOut,_Lev,RetLbl,ErrorIn,ErrorOut) :- !,
+	     TL,MaxTopIn,MaxTopOut,_Lev,RetLbl,EndLbl,ErrLbl) :- !,
 	expandEnv(Locs,NewLocs),
 	compileHL(S,Code,Procs,Globs,TG,_,_,NewLocs,TL,_,_,
-		  MaxTopIn,MaxTopOut,1,RetLbl,ErrorIn,ErrorAux),
-
-	ErrorOut = ErrorAux.
-
-compileStmt( P#Args, Code,Procs,Globs,TG,Globs,TG,Locs,TL,Locs,TL,MaxTop,MaxTop,
-	    _Lev,_RetLbl,ErrorIn,ErrorOut) :- !,
-	compileExpr(P#Args,Code,noval,Procs,Globs,Locs,ErrorIn,ErrorOut).
-
+		  MaxTopIn,MaxTopOut,1,RetLbl,EndLbl,ErrLbl).
+compileStmt( P#Args, Code,Procs,Globs,TG,Globs,TG,
+	    Locs,TL,Locs,TL,MaxTop,MaxTop,
+	    _Lev,_RetLbl,EndLbl,ErrLbl) :- !,
+	compileExpr(P#Args,Code,noval,Procs,Globs,Locs,EndLbl,ErrLbl,TG).
 compileStmt( return, goto RetLbl,_Procs,Glob,TG,Glob,TG,Loc,TL,Loc,TL,
-	     MaxTop,MaxTop,_Lev,RetLbl,_ErrorIn,_ErrorOut) :- !.
-
+	     MaxTop,MaxTop,_Lev,RetLbl,_EndLbl,ErrLbl) :- !.
 compileStmt( (return X), Code,Procs,Glob,TG,Glob,TG,
 	     Loc,TL,Loc,TL,MaxTop,MaxTop,
-	     _Lev,RetLbl,ErrorIn,ErrorOut) :-
-	compileExpr(X,CX,R,Procs,Glob,Loc,ErrorIn,ErrorAux),
+	     _Lev,RetLbl,EndLbl,ErrLbl) :-
+	compileExpr(X,CX,R,Procs,Glob,Loc,EndLbl,ErrLbl,TG),
 	C = ( returnResult = R ; goto RetLbl ),
-	Code = (CX ; C ),
-	ErrorOut = ErrorAux.
+	Code = (CX ; C ).
 
 % compile list of arguments to a procedure
 %   - argument expressions are compiled one by one
 %   - each argument is pushed on the stack
-compileArgs([],nop,_Procs,_Globs,_Locs,0,_ErrorIn,_ErrorOut) :- !.
-
-compileArgs([A|As],Code,Procs,Globs,Locs,StackSize,ErrorIn,ErrorOut) :-
-	compileExpr(A,CA,RA,Procs,Globs,Locs,ErrorIn,ErrorAux1), newreg(Reg),
+compileArgs([],nop,_Procs,_Globs,_Locs,0,_EndLbl,ErrLbl,TG) :- !.
+compileArgs([A|As],Code,Procs,Globs,Locs,StackSize,EndLbl,ErrLbl,TG) :-
+	compileExpr(A,CA,RA,Procs,Globs,Locs,EndLbl,ErrLbl,TG), newreg(Reg),
 	C = ( stackPtr = stackPtr - 4 ;
 	      Reg = RA ;
 	      [stackPtr] = Reg ),
-	compileArgs(As,CAs,Procs,Globs,Locs,StackSizeAs,ErrorAux1,ErrorAux2),
-	StackSize is StackSizeAs+4, Code = ( CA ; C ; CAs),
-	ErrorOut = ErrorAux2.
+	compileArgs(As,CAs,Procs,Globs,Locs,StackSizeAs,EndLbl,ErrLbl,TG),
+	StackSize is StackSizeAs+4, Code = ( CA ; C ; CAs).
 
 % allocate offsets on the stack for local procedure variables
 argumentsEnv([],Empty,-8) :- !,expandEnv([],Empty).
@@ -692,14 +741,14 @@ argumentsEnv([A|As],Env,K) :-
 %     stack usage computed for the body of the procedure
 %   - body of procedure compiles as a regular statement in
 %     the created environment
-compileProcedure(Pdef,Code,Procs,Glob,ErrorIn,ErrorOut) :-
+compileProcedure(Pdef,Code,Procs,Glob,EndLbl,ErrLbl) :-
 	procedureName(Pdef,P),
 	procedureArgs(Pdef,Pargs),
 	procedureBody(Pdef,Pbody),
 	argumentsEnv(Pargs,Locs,_),
 	newreg(RetAddr),
 	compileStmt(Pbody,CodeBody,Procs,Glob,0,_GlobOut,_TGOut,
-		    Locs,0,_LocsOut,_TLOut,0,MaxStack,1,RetLbl,ErrorIn,ErrorAux),
+		    Locs,0,_LocsOut,_TLOut,0,MaxStack,1,RetLbl,EndLbl,ErrLbl),
 	(   MaxStack == 0
 	->  StackAllocation = nop
 	;   StackAllocation = ( stackPtr = stackPtr - MaxStack ) ),
@@ -712,96 +761,156 @@ compileProcedure(Pdef,Code,Procs,Glob,ErrorIn,ErrorOut) :-
                           RetAddr  = [framePtr+4] ;
 	                  framePtr = [framePtr] ;
 	                  goto RetAddr  ),
-	Code = ( C1 ; StackAllocation ; CodeBody ; C2),
-	ErrorOut = ErrorAux.
+	Code = ( C1 ; StackAllocation ; CodeBody ; C2).
 
 % compile all procedures collected while traversing the code
-compileProcList([],nop,_Procs,_Glob,Error,Error).
-
-compileProcList([_-Pdef|Rest],Code,Procs,Glob,ErrorIn,ErrorOut) :-
-	compileProcedure(Pdef,CodeP,Procs,Glob,ErrorIn,ErrorAux1),
-	compileProcList(Rest,CodeRest,Procs,Glob,ErrorAux1,ErrorAux2),
-	Code = ( CodeP ; CodeRest),
-	ErrorOut = ErrorAux2.
+compileProcList([],nop,_Procs,_Glob,_EndLbl,ErrLbl).
+compileProcList([_-Pdef|Rest],Code,Procs,Glob,EndLbl,ErrLbl) :-
+	compileProcedure(Pdef,CodeP,Procs,Glob,EndLbl,ErrLbl),
+	compileProcList(Rest,CodeRest,Procs,Glob,EndLbl,ErrLbl),
+	Code = ( CodeP ; CodeRest).
 
 % statement compilation predicate that is called after procedures have
 % been collected into a dictionary
 compileHL( (S1;S2), Code,Procs,GlobsIn,TGIn,GlobsOut,TGOut,
 	   LocsIn,TLIn,LocsOut,TLOut,MaxTopIn,MaxTopOut,
-	   Lev,RetLbl,ErrorIn,ErrorOut) :-
+	   Lev,RetLbl,EndLbl,ErrLbl) :-
 	compileStmt(S1,C1,Procs,GlobsIn,TGIn,GlobsAux,TGAux,
 		    LocsIn,TLIn,LocsAux,TLAux,MaxTopIn,MaxTopAux,
-		    Lev,RetLbl,ErrorIn,ErrorAux1),
+		    Lev,RetLbl,EndLbl,ErrLbl),
 	compileHL(S2,C2,Procs,GlobsAux,TGAux,GlobsOut,TGOut,
 		  LocsAux,TLAux,LocsOut,TLOut,MaxTopAux,MaxTopOut,
-		  Lev,RetLbl,ErrorAux1,ErrorAux2),
-	Code = ( C1 ; C2 ),
-	ErrorOut = ErrorAux2.
-
+		  Lev,RetLbl,EndLbl,ErrLbl),
+	Code = ( C1 ; C2 ).
 compileHL( (S;), Code,Procs,GlobsIn,TGIn,GlobsOut,TGOut,
 	   LocsIn,TLIn,LocsOut,TLOut,MaxTopIn,MaxTopOut,
-	   Lev,RetLbl,ErrorIn,ErrorOut) :-
+	   Lev,RetLbl,EndLbl,ErrLbl) :-
 	compileStmt(S,Code,Procs,GlobsIn,TGIn,GlobsOut,TGOut,
 		    LocsIn,TLIn,LocsOut,TLOut,MaxTopIn,MaxTopOut,
-		    Lev,RetLbl,ErrorIn,ErrorOut).
+		    Lev,RetLbl,EndLbl,ErrLbl).
 
 % compile procedures after being collected into a dictionary
-compileProcedures(Procs,Code,Glob,ErrorIn,ErrorOut) :-
+compileProcedures(Procs,Code,Glob,EndLbl,ErrLbl) :-
 	assoc_to_list(Procs,PL),
-	compileProcList(PL,Code,Procs,Glob,ErrorIn,ErrorOut).
+	compileProcList(PL,Code,Procs,Glob,EndLbl,ErrLbl).
 
 
 % Main predicate:
 %  - collect all procedures
 %  - compile main program
 %  - compile collected procedures
-compileHLP( (P;Rest),Code,Pin,Pout,GlobsOut,ErrorIn,ErrorOut) :-
+compileHLP( (P;Rest),Code,Pin,Pout,GlobsOut,EndLbl,ErrLbl) :-
 	isProcedure(P), !,
 	procedureName(P,Pname),
 	(   get_assoc(Pname,Pin,_)
 	->  write('Duplicate procedure name:'), writeln(Pname), abort
 	;   true ),
 	put_assoc(Pname,Pin,P,Paux),
-	compileHLP(Rest,Code,Paux,Pout,GlobsOut,ErrorIn,ErrorOut).
+	compileHLP(Rest,Code,Paux,Pout,GlobsOut,EndLbl,ErrLbl).
 
-compileHLP(P,Code,Pin,_,GlobsOut,ErrorIn,ErrorOut) :-
+
+compileHLP(P,Code,Pin,_,GlobsOut,EndLbl,ErrLbl) :-
 	expandEnv([],EmptyEnv),
-	compileHL(P,CodeP,Pin,EmptyEnv,-4,GlobsOut,_TGOut,EmptyEnv,0,_LocsOut,_TLOut,0,MaxTopOut,0,noreturn,ErrorIn,ErrorAux1),
-	compileProcedures(Pin,CProcs,GlobsOut,ErrorAux1,ErrorAux2), SP is 10000-MaxTopOut,
+	newlabel(EndLbl),
+	newlabel(ErrLbl),
+	compileHL(P,CodeP,Pin,EmptyEnv,-4,GlobsOut,_TGOut,
+		  EmptyEnv,0,_LocsOut,_TLOut,0,MaxTopOut,
+		  0,noreturn,EndLbl,ErrLbl),
+	compileProcedures(Pin,CProcs,GlobsOut,EndLbl,ErrLbl), SP is 10000-MaxTopOut,
+
+	% Additional code to include the error register
+
 	C1 = ( framePtr = 10000 ; stackPtr = SP ),
-	newlabel(End),
-	C2 = ( goto End ),
-	C3 = (End ::),
-	Code = ( C1 ; CodeP ; C2 ; CProcs ; C3),
-	ErrorOut = ErrorAux2.
+	C2 = ( error = 0 ; goto EndLbl ),
+	C3 = ( ErrLbl :: ; error = 1 ; goto EndLbl ),
+	C4 = (EndLbl ::),
+	Code = ( C1 ; CodeP ; C2 ; CProcs ; C3 ; C4).
 
 % Compiler test
 :- resetnewreg, resetnewlabel.
 
+% No Error
 :- Program = (
-			int min, a, a1, a2, a3, a4, i, j, k ;
-			min = 10000 ;
-			i = 0 ; 
-			j = 1 ;
-			k = 2 ;
-			a@0 = 123 ; 
-			a@j = 234 ; 
-			a@k = -345 ;
-			a@3 = -678 ; 
-			a@4 = 890 ;
-         	while (i < 5) do {
-        		if ( min > a@i ) then { min = a@i ; } ;
-        		i = i + 1 ;
-            } ;
+			int x,x1,x2,x3,x4,x5 ;
+			x@1 = 10  ; % assigns x1
+			x@5 = 50  ; % assigns x5
+			x@0 = 100 ; % same as x = 100 ;
+			int i ;
+			i=0 ;
+			while i =< 5 do {
+  				x@i = 2*i ; % rudimentary array
+				i=i+1 ; 
+			};
 	  ),
 	empty_assoc(Empty),
-	compileHLP(Program,Tac,Empty,_,_Env1,0,_ErrorOut),
+	compileHLP(Program,Tac,Empty,_,_Env1,_,_),
 	writeTac(Tac),
 	tacToObj(Tac,Obj),
 	writeln('Translation into object code:'),
 	writeObj(Obj,0),
 	empty_assoc(Empty),
-	execObj(0,Obj,Empty,Empty,_,HeapOut),
-	writeln(HeapOut).
+	execObj(0,Obj,Empty,Empty,EnvOut,HeapOut),
+	writeln(HeapOut),
+	writeln('Environment Out [error = 0]'),
+	writeln(EnvOut).
+
+:- resetnewreg, resetnewlabel.
+
+% Error on LValue
+:- Program = (
+			int x,x1,x2,x3,x4,x5 ;
+			x@1 = 10  ; % assigns x1
+			x@10 = 50  ; % assigns x5 * ERRRRRRROOOOORRRRR * 
+			x@0 = 100 ; % same as x = 100 ;
+			int i ;
+			i=0 ;
+			while i =< 5 do {
+  				x@i = 2*i ; % rudimentary array
+				i=i+1 ; 
+			};
+	  ),
+	empty_assoc(Empty),
+	compileHLP(Program,Tac,Empty,_,_Env1,_,_),
+	writeTac(Tac),
+	tacToObj(Tac,Obj),
+	writeln('Translation into object code:'),
+	writeObj(Obj,0),
+	empty_assoc(Empty),
+	execObj(0,Obj,Empty,Empty,EnvOut,HeapOut),
+	writeln(HeapOut),
+	writeln('Environment Out [error = 1]'),
+	writeln(EnvOut).
+
+
+% Error on RValue
+:- resetnewreg, resetnewlabel.
+
+
+:- Program = (
+			int x,x1,x2,x3,x4,x5 ;
+			x@1 = 10  ; 
+			x@2 = 50  ; 
+			x@0 = 100 ;
+			int i ;
+			i=0 ;
+			while i =< 5 do {
+  				x5 = x@10  ; % * ERROR * <<---
+				i=i+1 ; 
+			};
+	  ),
+	empty_assoc(Empty),
+	compileHLP(Program,Tac,Empty,_,_Env1,_,_),
+	writeTac(Tac),
+	tacToObj(Tac,Obj),
+	writeln('Translation into object code:'),
+	writeObj(Obj,0),
+	empty_assoc(Empty),
+	execObj(0,Obj,Empty,Empty,EnvOut,HeapOut),
+	writeln(HeapOut),
+	writeln('Environment Out [error = 1]'),
+	writeln(EnvOut).
+
+
+
 
 

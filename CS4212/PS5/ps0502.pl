@@ -8,10 +8,6 @@
 %    \ \____/ \ `\____\/_/\_\_//\______/   \ \_\/\______/
 %     \/___/   \/_____/  \/_/  \/_____/     \/_/\/_____/ 
 %                                             
-  
-
-                                          
-                                        
 
 /*
  * Compilation of HL language with basic programming constructs,
