@@ -14,12 +14,10 @@
 int eax, ebx, ecx, edx, edi, esi, esp, ebp, result;
 unsigned char M[10000] ;
 
-
-// Arguments are stored in ecx and edx
 void exec() {
 	esp = 10000 ;
 
-	// Caller Prologue
+// Caller Prologue
 	esp -= 4 ; *(int*)&M[esp] = eax ;			// push eax 
 	esp -= 4 ; *(int*)&M[esp] = ecx ;			// push ecx 
 	esp -= 4 ; *(int*)&M[esp] = edx ;			// push edx 
