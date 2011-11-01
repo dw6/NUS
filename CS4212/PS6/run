@@ -1,0 +1,11 @@
+# Full compilation
+lex clex.l
+yacc -d cgram.y
+gcc -c lex.yy.c
+gcc -c y.tab.c
+gcc -o cgram lex.yy.o y.tab.o
+
+# lex clex.l
+# yacc -d cgram.y
+# gcc -o cflex lex.yy.c y.tab.c
+
