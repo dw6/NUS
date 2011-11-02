@@ -64,30 +64,12 @@ def zipwithgen(f,g1,g2):
 		for x in zipwithgen(f,tail(g1),tail(g2))(): yield x
 	return rets
 
-
 def fibs():
 	yield 0
 	yield 1
 	h = zipwithgen(lambda x,y:x+y, fibs, tail(fibs))()
 	for x in h: yield x
 
-
+# Call to fibs()
 i = fibs()
-print next(i)
-print next(i)
-print next(i)
-print next(i)
-print next(i)
-print next(i)
-print next(i)
-print next(i)
-print next(i)
-print next(i)
-print next(i)
-print next(i)
-print next(i)
-print next(i)
-print next(i)
-print next(i)
-print next(i)
-print next(i)
+for j in range(10): print next(i)
