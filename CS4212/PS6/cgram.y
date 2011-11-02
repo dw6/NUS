@@ -331,11 +331,12 @@ external_declaration
 	| declaration {$$=$1;}
 	;
 
+/* Second rule changed */
 function_definition
 	: declaration_specifiers declarator declaration_list function_statement
 	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s %s %s %s", $1, $2, $3, $4); $$ = buf;}
 	| declaration_specifiers declarator function_statement
-     {char buf[2048]; snprintf(buf, sizeof(buf), "%s", $3); $$ = buf; }
+     {char buf[2048]; snprintf(buf, sizeof(buf), "%s %s %s", $1 ,$2, $3); $$ = buf; }
 	| declarator declaration_list function_statement
 	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s %s %s", $1, $2, $3); $$ = buf;}
 	| declarator function_statement
