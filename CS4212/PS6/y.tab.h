@@ -52,38 +52,33 @@
      DEC_OP = 268,
      LEFT_OP = 269,
      RIGHT_OP = 270,
-     LE_OP = 271,
-     GE_OP = 272,
-     EQ_OP = 273,
-     NE_OP = 274,
-     STRING_LITERAL = 275,
-     SIZEOF = 276,
-     AND_OP = 277,
-     OR_OP = 278,
-     SUB_ASSIGN = 279,
-     LEFT_ASSIGN = 280,
-     RIGHT_ASSIGN = 281,
-     AND_ASSIGN = 282,
-     MUL_ASSIGN = 283,
-     DIV_ASSIGN = 284,
-     MOD_ASSIGN = 285,
-     ADD_ASSIGN = 286,
-     XOR_ASSIGN = 287,
-     OR_ASSIGN = 288,
-     TYPE_NAME = 289,
-     TYPEDEF = 290,
-     EXTERN = 291,
-     STATIC = 292,
-     AUTO = 293,
-     REGISTER = 294,
-     CASE = 295,
-     DEFAULT = 296,
-     IF = 297,
-     ELSE = 298,
-     SWITCH = 299,
-     WHILE = 300,
-     DO = 301,
-     FOR = 302
+     STRING_LITERAL = 271,
+     SIZEOF = 272,
+     AND_OP = 273,
+     OR_OP = 274,
+     SUB_ASSIGN = 275,
+     LEFT_ASSIGN = 276,
+     RIGHT_ASSIGN = 277,
+     AND_ASSIGN = 278,
+     MUL_ASSIGN = 279,
+     DIV_ASSIGN = 280,
+     MOD_ASSIGN = 281,
+     ADD_ASSIGN = 282,
+     XOR_ASSIGN = 283,
+     OR_ASSIGN = 284,
+     TYPE_NAME = 285,
+     LE_OP = 286,
+     GE_OP = 287,
+     EQ_OP = 288,
+     NE_OP = 289,
+     CASE = 290,
+     DEFAULT = 291,
+     IF = 292,
+     ELSE = 293,
+     SWITCH = 294,
+     WHILE = 295,
+     DO = 296,
+     FOR = 297
    };
 #endif
 /* Tokens.  */
@@ -100,50 +95,45 @@
 #define DEC_OP 268
 #define LEFT_OP 269
 #define RIGHT_OP 270
-#define LE_OP 271
-#define GE_OP 272
-#define EQ_OP 273
-#define NE_OP 274
-#define STRING_LITERAL 275
-#define SIZEOF 276
-#define AND_OP 277
-#define OR_OP 278
-#define SUB_ASSIGN 279
-#define LEFT_ASSIGN 280
-#define RIGHT_ASSIGN 281
-#define AND_ASSIGN 282
-#define MUL_ASSIGN 283
-#define DIV_ASSIGN 284
-#define MOD_ASSIGN 285
-#define ADD_ASSIGN 286
-#define XOR_ASSIGN 287
-#define OR_ASSIGN 288
-#define TYPE_NAME 289
-#define TYPEDEF 290
-#define EXTERN 291
-#define STATIC 292
-#define AUTO 293
-#define REGISTER 294
-#define CASE 295
-#define DEFAULT 296
-#define IF 297
-#define ELSE 298
-#define SWITCH 299
-#define WHILE 300
-#define DO 301
-#define FOR 302
+#define STRING_LITERAL 271
+#define SIZEOF 272
+#define AND_OP 273
+#define OR_OP 274
+#define SUB_ASSIGN 275
+#define LEFT_ASSIGN 276
+#define RIGHT_ASSIGN 277
+#define AND_ASSIGN 278
+#define MUL_ASSIGN 279
+#define DIV_ASSIGN 280
+#define MOD_ASSIGN 281
+#define ADD_ASSIGN 282
+#define XOR_ASSIGN 283
+#define OR_ASSIGN 284
+#define TYPE_NAME 285
+#define LE_OP 286
+#define GE_OP 287
+#define EQ_OP 288
+#define NE_OP 289
+#define CASE 290
+#define DEFAULT 291
+#define IF 292
+#define ELSE 293
+#define SWITCH 294
+#define WHILE 295
+#define DO 296
+#define FOR 297
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 7 "cgram.y"
+#line 20 "cgram.y"
 {
 	char* s;	
 }
 /* Line 1529 of yacc.c.  */
-#line 147 "y.tab.h"
+#line 137 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

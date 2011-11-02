@@ -1,4 +1,18 @@
 %{
+/*
+	Benjamin Tan Wei Hao
+	U077129N
+	
+	I used this series of commands to generate the resulting program:
+
+	lex clex.l
+	yacc -d cgram.y
+	gcc -c lex.yy.c
+	gcc -c y.tab.c
+	gcc -o cgram lex.yy.o y.tab.o
+	
+*/
+	
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

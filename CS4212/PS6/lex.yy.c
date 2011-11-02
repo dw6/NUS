@@ -624,6 +624,20 @@ int yy_flex_debug = 0;
 char *yytext;
 #line 1 "clex.l"
 #line 2 "clex.l"
+/*
+	Benjamin Tan Wei Hao
+	U077129N
+	
+	I used this series of commands to generate the resulting program:
+
+	lex clex.l
+	yacc -d cgram.y
+	gcc -c lex.yy.c
+	gcc -c y.tab.c
+	gcc -o cgram lex.yy.o y.tab.o
+	
+*/
+	
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -631,7 +645,7 @@ char *yytext;
 
 void count();
 int check_type();
-#line 635 "lex.yy.c"
+#line 649 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -813,9 +827,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 18 "clex.l"
+#line 32 "clex.l"
 
-#line 819 "lex.yy.c"
+#line 833 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -900,463 +914,463 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 19 "clex.l"
+#line 33 "clex.l"
 { comment(); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 20 "clex.l"
+#line 34 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 21 "clex.l"
+#line 35 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 22 "clex.l"
+#line 36 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 23 "clex.l"
+#line 37 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 24 "clex.l"
+#line 38 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 25 "clex.l"
+#line 39 "clex.l"
 { count(); yylval.s = (char *)strdup(yytext); return(CONTINUE); }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 26 "clex.l"
+#line 40 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 27 "clex.l"
+#line 41 "clex.l"
 { count(); yylval.s = (char *)strdup(yytext); return(DO); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 28 "clex.l"
+#line 42 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 29 "clex.l"
+#line 43 "clex.l"
 { count(); yylval.s = (char *)strdup(yytext); return(ELSE); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 30 "clex.l"
+#line 44 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 31 "clex.l"
+#line 45 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 32 "clex.l"
+#line 46 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 33 "clex.l"
+#line 47 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 34 "clex.l"
+#line 48 "clex.l"
 { count(); yylval.s = strdup(yytext); return(GOTO); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 35 "clex.l"
+#line 49 "clex.l"
 { count(); yylval.s = strdup(yytext); return(IF); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 36 "clex.l"
+#line 50 "clex.l"
 { count(); yylval.s = strdup(yytext); return(INT); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 37 "clex.l"
+#line 51 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 38 "clex.l"
+#line 52 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 39 "clex.l"
+#line 53 "clex.l"
 { count(); yylval.s = strdup(yytext); return(RETURN); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 40 "clex.l"
+#line 54 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 41 "clex.l"
+#line 55 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 42 "clex.l"
+#line 56 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 43 "clex.l"
+#line 57 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 44 "clex.l"
+#line 58 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 45 "clex.l"
+#line 59 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 46 "clex.l"
+#line 60 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 47 "clex.l"
+#line 61 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 48 "clex.l"
+#line 62 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 49 "clex.l"
+#line 63 "clex.l"
 { count(); yylval.s = strdup(yytext); return(VOID); }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 50 "clex.l"
+#line 64 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 51 "clex.l"
+#line 65 "clex.l"
 { count(); yylval.s = (char *)strdup(yytext); return(WHILE); }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 53 "clex.l"
+#line 67 "clex.l"
 { count(); yylval.s = (char *)strdup(yytext); return(IDENTIFIER); }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 54 "clex.l"
+#line 68 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 55 "clex.l"
+#line 69 "clex.l"
 { count(); yylval.s = (char *)strdup(yytext);  return(CONSTANT); }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 56 "clex.l"
+#line 70 "clex.l"
 { count(); yylval.s = (char *)strdup(yytext);  return(CONSTANT); }
 	YY_BREAK
 case 38:
 /* rule 38 can match eol */
 YY_RULE_SETUP
-#line 57 "clex.l"
+#line 71 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 58 "clex.l"
+#line 72 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 59 "clex.l"
+#line 73 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 60 "clex.l"
+#line 74 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 42:
 /* rule 42 can match eol */
 YY_RULE_SETUP
-#line 62 "clex.l"
+#line 76 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 64 "clex.l"
+#line 78 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 65 "clex.l"
+#line 79 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 66 "clex.l"
+#line 80 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 67 "clex.l"
+#line 81 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 68 "clex.l"
+#line 82 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 69 "clex.l"
+#line 83 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 70 "clex.l"
+#line 84 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 71 "clex.l"
+#line 85 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 72 "clex.l"
+#line 86 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 73 "clex.l"
+#line 87 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 74 "clex.l"
+#line 88 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 75 "clex.l"
+#line 89 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 76 "clex.l"
+#line 90 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 77 "clex.l"
+#line 91 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 78 "clex.l"
+#line 92 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 79 "clex.l"
+#line 93 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 80 "clex.l"
+#line 94 "clex.l"
 { count(); return(AND_OP); }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 81 "clex.l"
+#line 95 "clex.l"
 { count(); return(OR_OP); }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 82 "clex.l"
+#line 96 "clex.l"
 { count(); return(LE_OP); }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 83 "clex.l"
+#line 97 "clex.l"
 { count(); return(GE_OP); }
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 84 "clex.l"
+#line 98 "clex.l"
 { count(); return(EQ_OP); }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 85 "clex.l"
+#line 99 "clex.l"
 { count(); return(NE_OP); }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 86 "clex.l"
+#line 100 "clex.l"
 { count(); return(';'); }
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 87 "clex.l"
+#line 101 "clex.l"
 { count(); return('{'); }
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 88 "clex.l"
+#line 102 "clex.l"
 { count(); return('}'); }
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 89 "clex.l"
+#line 103 "clex.l"
 { count(); return(','); }
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 90 "clex.l"
+#line 104 "clex.l"
 { count(); return(':'); }
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 91 "clex.l"
+#line 105 "clex.l"
 { count(); return('='); }
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 92 "clex.l"
+#line 106 "clex.l"
 { count(); return('('); }
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 93 "clex.l"
+#line 107 "clex.l"
 { count(); return(')'); }
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 94 "clex.l"
+#line 108 "clex.l"
 { count(); return('['); }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 95 "clex.l"
+#line 109 "clex.l"
 { count(); return(']'); }
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 96 "clex.l"
+#line 110 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 97 "clex.l"
+#line 111 "clex.l"
 { count(); return('&'); }
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 98 "clex.l"
+#line 112 "clex.l"
 { count(); return('!'); }
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 99 "clex.l"
+#line 113 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 100 "clex.l"
+#line 114 "clex.l"
 { count(); return('-'); }
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 101 "clex.l"
+#line 115 "clex.l"
 { count(); return('+'); }
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 102 "clex.l"
+#line 116 "clex.l"
 { count(); return('*'); }
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 103 "clex.l"
+#line 117 "clex.l"
 { count(); return('/'); }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 104 "clex.l"
+#line 118 "clex.l"
 { count(); return('%'); }
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
-#line 105 "clex.l"
+#line 119 "clex.l"
 { count(); return('<'); }
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
-#line 106 "clex.l"
+#line 120 "clex.l"
 { count(); return('>'); }
 	YY_BREAK
 case 86:
 YY_RULE_SETUP
-#line 107 "clex.l"
+#line 121 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
-#line 108 "clex.l"
+#line 122 "clex.l"
 { count(); printf("Unimplemented: %s\n", yytext); }
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 109 "clex.l"
+#line 123 "clex.l"
 { count(); return('?'); }
 	YY_BREAK
 case 89:
 /* rule 89 can match eol */
 YY_RULE_SETUP
-#line 111 "clex.l"
+#line 125 "clex.l"
 { count(); }
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
-#line 112 "clex.l"
+#line 126 "clex.l"
 { /* ignore bad characters */ }
 	YY_BREAK
 case 91:
 YY_RULE_SETUP
-#line 113 "clex.l"
+#line 127 "clex.l"
 ECHO;
 	YY_BREAK
-#line 1360 "lex.yy.c"
+#line 1374 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2353,7 +2367,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 113 "clex.l"
+#line 127 "clex.l"
 
 
 

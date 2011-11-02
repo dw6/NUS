@@ -1,4 +1,17 @@
 %{
+/*
+	Benjamin Tan Wei Hao
+	U077129N
+	
+	I used this series of commands to generate the resulting program:
+
+	lex clex.l
+	yacc -d cgram.y
+	gcc -c lex.yy.c
+	gcc -c y.tab.c
+	gcc -o cgram lex.yy.o y.tab.o
+	
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>	
@@ -9,11 +22,10 @@
 }
 
 %token<s> INT VOID CONSTANT IDENTIFIER GOTO CONTINUE BREAK RETURN
-%token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP STRING_LITERAL SIZEOF
+%token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP STRING_LITERAL SIZEOF
 %token AND_OP OR_OP 
 %token<s> SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
-%token<s> XOR_ASSIGN OR_ASSIGN TYPE_NAME
-%token TYPEDEF EXTERN STATIC AUTO REGISTER
+%token<s> XOR_ASSIGN OR_ASSIGN TYPE_NAME LE_OP GE_OP EQ_OP NE_OP
 
 %token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR 
 %type<s> primary_expression expression assignment_expression unary_expression postfix_expression
@@ -36,21 +48,21 @@ primary_expression
 	: IDENTIFIER {$$=$1;}
 	| CONSTANT 	 {$$=$1;}
 	| '(' expression ')' 
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "(%s)", $2); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "(%s)", $2); $$ = buf;}
 	;
 
 postfix_expression
 	: primary_expression {$$=$1;}
 	| postfix_expression '(' ')' 
-     {char buf[2048]; snprintf(buf, sizeof(buf), "%s()", $1); $$ = buf;}
+     {char buf[1024]; snprintf(buf, sizeof(buf), "%s()", $1); $$ = buf;}
 	| postfix_expression '(' argument_expression_list ')'
-     {char buf[2048]; snprintf(buf, sizeof(buf), "%s(%s)", $1, $3); $$ = buf;}
+     {char buf[1024]; snprintf(buf, sizeof(buf), "%s(%s)", $1, $3); $$ = buf;}
 	;
 
 argument_expression_list
 	: assignment_expression {$$=$1;}
 	| argument_expression_list ',' assignment_expression
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s, %s", $1, $3); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s, %s", $1, $3); $$ = buf;}
 	;
 
 unary_expression
@@ -64,17 +76,17 @@ cast_expression
 multiplicative_expression
 	: cast_expression {$$=$1;}
 	| multiplicative_expression '*' cast_expression
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s * %s", $1, $3); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s * %s", $1, $3); $$ = buf;}
 	| multiplicative_expression '/' cast_expression
-     {char buf[2048]; snprintf(buf, sizeof(buf), "%s / %s", $1, $3); $$ = buf;}
+     {char buf[1024]; snprintf(buf, sizeof(buf), "%s / %s", $1, $3); $$ = buf;}
 	;
 
 additive_expression
 	: multiplicative_expression {$$=$1;}
 	| additive_expression '+' multiplicative_expression
-      {char buf[2048]; snprintf(buf, sizeof(buf), "%s + %s", $1, $3); $$ = buf;}
+      {char buf[1024]; snprintf(buf, sizeof(buf), "%s + %s", $1, $3); $$ = buf;}
 	| additive_expression '-' multiplicative_expression
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "%s - %s", $1, $3); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "%s - %s", $1, $3); $$ = buf;}
 	;
 
 shift_expression
@@ -84,21 +96,21 @@ shift_expression
 relational_expression
 	: shift_expression {$$=$1;}
 	| relational_expression '<' shift_expression 
-      {char buf[2048]; snprintf(buf, sizeof(buf), "%s < %s", $1, $3); $$ = buf;}
+      {char buf[1024]; snprintf(buf, sizeof(buf), "%s < %s", $1, $3); $$ = buf;}
 	| relational_expression '>' shift_expression 
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "%s > %s", $1, $3); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "%s > %s", $1, $3); $$ = buf;}
 	| relational_expression LE_OP shift_expression
-      {char buf[2048]; snprintf(buf, sizeof(buf), "%s <= %s", $1, $3); $$ = buf;}
+      {char buf[1024]; snprintf(buf, sizeof(buf), "%s <= %s", $1, $3); $$ = buf;}
 	| relational_expression GE_OP shift_expression
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "%s >= %s", $1, $3); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "%s >= %s", $1, $3); $$ = buf;}
 	;
 
 equality_expression
 	: relational_expression {$$=$1;}
 	| equality_expression EQ_OP relational_expression
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "%s == %s", $1, $3); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "%s == %s", $1, $3); $$ = buf;}
 	| equality_expression NE_OP relational_expression
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "%s != %s", $1, $3); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "%s != %s", $1, $3); $$ = buf;}
 	;
 
 and_expression
@@ -112,7 +124,7 @@ exclusive_or_expression
 inclusive_or_expression
 	: exclusive_or_expression {$$=$1;}
 	| inclusive_or_expression '|' exclusive_or_expression
-	{char buf[2048]; snprintf(buf, sizeof(buf), "%s | %s", $1, $3); $$ = buf;}
+	{char buf[1024]; snprintf(buf, sizeof(buf), "%s | %s", $1, $3); $$ = buf;}
 	;
 
 logical_and_expression
@@ -123,23 +135,23 @@ logical_and_expression
 logical_or_expression
 	: logical_and_expression {$$=$1;}
 	| logical_or_expression OR_OP logical_and_expression
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "(%s) || (%s)", $1, $3); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "(%s) || (%s)", $1, $3); $$ = buf;}
 	;
 
 conditional_expression
 	: logical_or_expression {$$=$1;}
 	| logical_or_expression '?' expression ':' conditional_expression
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "(%s) ? (%s) : (%s)", $1, $3, $5); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "(%s) ? (%s) : (%s)", $1, $3, $5); $$ = buf;}
 	;
 
 assignment_expression
 	: conditional_expression {$$=$1;}
 	| unary_expression assignment_operator assignment_expression  
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "%s = %s", $1, $3); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "%s = %s", $1, $3); $$ = buf;}
 	;
 
 assignment_operator
-	: '=' 	 {char buf[2048]; snprintf(buf, sizeof(buf), "="); $$ = buf;}		
+	: '=' 	 {char buf[1024]; snprintf(buf, sizeof(buf), "="); $$ = buf;}		
 	| MUL_ASSIGN {$$=$1;}
 	| DIV_ASSIGN {$$=$1;}
 	| MOD_ASSIGN {$$=$1;}
@@ -155,32 +167,32 @@ assignment_operator
 expression
 	: assignment_expression {$$=$1;}
 	| expression ',' assignment_expression 
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s, %s", $1, $3); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s, %s", $1, $3); $$ = buf;}
 	;
 
 declaration
 	: declaration_specifiers ';'
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s;", $1); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s;", $1); $$ = buf;}
 	| declaration_specifiers init_declarator_list ';'
-     {char buf[2048]; snprintf(buf, sizeof(buf), "%s %s;", $1, $2); $$ = buf;}
+     {char buf[1024]; snprintf(buf, sizeof(buf), "%s %s;", $1, $2); $$ = buf;}
 	;
 
 declaration_specifiers
 	: type_specifier {$$=$1;}
 	| type_specifier declaration_specifiers
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s %s", $1, $2); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s %s", $1, $2); $$ = buf;}
 	;
 
 init_declarator_list
 	: init_declarator {$$=$1;}
 	| init_declarator_list ',' init_declarator
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "%s, %s", $1, $3); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "%s, %s", $1, $3); $$ = buf;}
 	;
 
 init_declarator
 	: declarator {$$=$1;}
 	| declarator '=' initializer
-      {char buf[2048]; snprintf(buf, sizeof(buf), "%s = %s", $1, $3); $$ = buf;}
+      {char buf[1024]; snprintf(buf, sizeof(buf), "%s = %s", $1, $3); $$ = buf;}
 	;
 
 type_specifier
@@ -195,13 +207,13 @@ declarator
 direct_declarator
 	: IDENTIFIER {$$=$1;}
 	| '(' declarator ')'
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "(%s)", $2); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "(%s)", $2); $$ = buf;}
 	| direct_declarator '(' parameter_type_list ')'
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s ( %s )", $1, $3); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s ( %s )", $1, $3); $$ = buf;}
 	| direct_declarator '(' identifier_list ')'
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s ( %s )", $1, $3); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s ( %s )", $1, $3); $$ = buf;}
 	| direct_declarator '(' ')'
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s()", $$); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s()", $$); $$ = buf;}
 	;
 
 parameter_type_list
@@ -211,32 +223,32 @@ parameter_type_list
 parameter_list
 	: parameter_declaration {$$=$1;}
 	| parameter_list ',' parameter_declaration
-     {char buf[2048]; snprintf(buf, sizeof(buf), "%s, %s", $1, $3); $$ = buf;}
+     {char buf[1024]; snprintf(buf, sizeof(buf), "%s, %s", $1, $3); $$ = buf;}
 	;
 
 parameter_declaration
 	: declaration_specifiers declarator
-     {char buf[2048]; snprintf(buf, sizeof(buf), "%s, %s", $1, $2); $$ = buf;}
+     {char buf[1024]; snprintf(buf, sizeof(buf), "%s, %s", $1, $2); $$ = buf;}
 	| declaration_specifiers {$$=$1;}
 	;
 
 identifier_list
 	: IDENTIFIER {$$=$1;}
 	| identifier_list ',' IDENTIFIER
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s , %s", $1, $3); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s , %s", $1, $3); $$ = buf;}
 	;
 
 initializer
 	: assignment_expression {$$=$1;}
 	| '{' initializer_list '}'
-     {char buf[2048]; snprintf(buf, sizeof(buf), "{ %s }", $2); $$ = buf;}
+     {char buf[1024]; snprintf(buf, sizeof(buf), "{ %s }", $2); $$ = buf;}
 
 	;
 
 initializer_list
 	: initializer {$$=$1;}
 	| initializer_list ',' initializer
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s, %s", $1, $3); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s, %s", $1, $3); $$ = buf;}
 	;
 
 statement
@@ -247,83 +259,82 @@ statement
 	| jump_statement {$$=$1;}		
 	;
 
+/* Changed first rule to ignore the first braces of main() */
 function_statement
-	: '{' '}'
-	 {char buf[2048]; snprintf(buf, sizeof(buf), ""); $$ = buf;}
-	| '{' statement_list '}'
-     {char buf[2048]; snprintf(buf, sizeof(buf), "%s", $2); $$ = buf;}
+	: '{' statement_list '}'
+     {char buf[1024]; snprintf(buf, sizeof(buf), "%s", $2); $$ = buf;}
 	| '{' declaration_list '}'
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "%s", $2); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "%s", $2); $$ = buf;}
 	| '{' declaration_list statement_list '}'
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "%s %s", $2, $3); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "%s %s", $2, $3); $$ = buf;}
 	;
 
 compound_statement
 	: '{' '}'
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "{ }"); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "{ }"); $$ = buf;}
 	| '{' statement_list '}'
-     {char buf[2048]; snprintf(buf, sizeof(buf), "{ %s }", $2); $$ = buf;}
+     {char buf[1024]; snprintf(buf, sizeof(buf), "{ %s }", $2); $$ = buf;}
 	| '{' declaration_list '}'
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "{ %s }", $2); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "{ %s }", $2); $$ = buf;}
 	| '{' declaration_list statement_list '}'
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "{ %s %s }", $2, $3); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "{ %s %s }", $2, $3); $$ = buf;}
 	;
 
 declaration_list
 	: declaration {$$=$1;}
 	| declaration_list declaration
-     {char buf[2048]; snprintf(buf, sizeof(buf), "%s %s", $1, $2); $$ = buf;}
+     {char buf[1024]; snprintf(buf, sizeof(buf), "%s %s", $1, $2); $$ = buf;}
 	;
 
 statement_list
 	: statement {$$=$1;}
 	| statement_list statement 
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s %s", $1, $2); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s %s", $1, $2); $$ = buf;}
 	;
 
 expression_statement
 	: ';'
 	{char buf[2048]; snprintf(buf, sizeof(buf), ";"); $$ = buf;}
 	| expression ';' 	 
-	  {char buf[2048]; snprintf(buf, sizeof(buf), "%s;", $1); $$ = buf;}
+	  {char buf[1024]; snprintf(buf, sizeof(buf), "%s;", $1); $$ = buf;}
 	;
 
 selection_statement
 	: IF '(' expression ')' statement 
-     {char buf[2048]; snprintf(buf, sizeof(buf), "if ( %s ) then %s;", $3, $5); $$ = buf;}
+     {char buf[1024]; snprintf(buf, sizeof(buf), "if ( %s ) then %s;", $3, $5); $$ = buf;}
 	| IF '(' expression ')' '{' statement '}' ELSE '{' statement '}'
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "if ( %s ) then {%s} else {%s};", $3, $6, $10); $$ = buf; }
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "if ( %s ) then {%s} else {%s};", $3, $6, $10); $$ = buf; }
 	| IF '(' expression ')' '{' statement '}' ELSE statement
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "if ( %s ) then %s else {%s};", $3, $6, $9); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "if ( %s ) then %s else {%s};", $3, $6, $9); $$ = buf;}
 	| IF '(' expression ')' statement ELSE '{' statement '}'
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "if ( %s ) then {%s} else %s;", $3, $5, $8); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "if ( %s ) then {%s} else %s;", $3, $5, $8); $$ = buf;}
 	| IF '(' expression ')' statement ELSE statement
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "if ( %s ) then {%s} else {%s};", $3, $5, $7); $$ = buf; }
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "if ( %s ) then {%s} else {%s};", $3, $5, $7); $$ = buf; }
 	;
 
 iteration_statement
 	: WHILE '(' expression ')' statement 
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "while ( %s ) do %s;", $3, $5); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "while ( %s ) do %s;", $3, $5); $$ = buf;}
 	;
 
 jump_statement
 	: GOTO IDENTIFIER ';' 
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s %s;", $1, $2); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s %s;", $1, $2); $$ = buf;}
 	| CONTINUE ';'
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s;", $1); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s;", $1); $$ = buf;}
 	| BREAK ';'
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s;", $1); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s;", $1); $$ = buf;}
 	| RETURN ';'
-     {char buf[2048]; snprintf(buf, sizeof(buf), "%s;", $1); $$ = buf;}
+     {char buf[1024]; snprintf(buf, sizeof(buf), "%s;", $1); $$ = buf;}
 	| RETURN expression ';'
-     {char buf[2048]; snprintf(buf, sizeof(buf), "%s %s;", $1, $2); $$ = buf;}
+     {char buf[1024]; snprintf(buf, sizeof(buf), "%s %s;", $1, $2); $$ = buf;}
 	;
 
 /* Since only main() is epxcted, we can do this. */
 translation_unit
 	: external_declaration {$$=$1; printf("\n%s\n", $$);}
 	| translation_unit external_declaration
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s %s", $1, $2); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s %s", $1, $2); $$ = buf;}
 	;
 
 external_declaration
@@ -331,16 +342,15 @@ external_declaration
 	| declaration {$$=$1;}
 	;
 
-/* Second rule changed */
 function_definition
 	: declaration_specifiers declarator declaration_list function_statement
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s %s %s %s", $1, $2, $3, $4); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s %s %s %s", $1, $2, $3, $4); $$ = buf;}
 	| declaration_specifiers declarator function_statement
-     {char buf[2048]; snprintf(buf, sizeof(buf), "%s %s %s", $1 ,$2, $3); $$ = buf; }
+     {char buf[1024]; snprintf(buf, sizeof(buf), "%s", $3); $$ = buf; }
 	| declarator declaration_list function_statement
-	 {char buf[2048]; snprintf(buf, sizeof(buf), "%s %s %s", $1, $2, $3); $$ = buf;}
+	 {char buf[1024]; snprintf(buf, sizeof(buf), "%s %s %s", $1, $2, $3); $$ = buf;}
 	| declarator function_statement
-     {char buf[2048]; snprintf(buf, sizeof(buf), "%s %s", $1, $2); $$ = buf;}
+     {char buf[1024]; snprintf(buf, sizeof(buf), "%s %s", $1, $2); $$ = buf;}
 	;
 
 %%
