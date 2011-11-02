@@ -1051,7 +1051,7 @@ YY_RULE_SETUP
 case 31:
 YY_RULE_SETUP
 #line 49 "clex.l"
-{ count(); printf("Unimplemented: %s\n", yytext); }
+{ count(); yylval.s = strdup(yytext); return(VOID); }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP

@@ -46,7 +46,7 @@ IS			(u|U|l|L)*
 "typedef"				{ count(); printf("Unimplemented: %s\n", yytext); }
 "union"					{ count(); printf("Unimplemented: %s\n", yytext); }
 "unsigned"				{ count(); printf("Unimplemented: %s\n", yytext); }
-"void"					{ count(); printf("Unimplemented: %s\n", yytext); }
+"void"					{ count(); yylval.s = strdup(yytext); return(VOID); }
 "volatile"				{ count(); printf("Unimplemented: %s\n", yytext); }
 "while"					{ count(); yylval.s = (char *)strdup(yytext); return(WHILE); }
 	

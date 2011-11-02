@@ -40,124 +40,98 @@
       know about them.  */
    enum yytokentype {
      INT = 258,
-     CONSTANT = 259,
-     IDENTIFIER = 260,
-     GOTO = 261,
-     CONTINUE = 262,
-     BREAK = 263,
-     RETURN = 264,
-     PTR_OP = 265,
-     INC_OP = 266,
-     DEC_OP = 267,
-     LEFT_OP = 268,
-     RIGHT_OP = 269,
-     LE_OP = 270,
-     GE_OP = 271,
-     EQ_OP = 272,
-     NE_OP = 273,
-     STRING_LITERAL = 274,
-     SIZEOF = 275,
-     AND_OP = 276,
-     OR_OP = 277,
-     SUB_ASSIGN = 278,
-     LEFT_ASSIGN = 279,
-     RIGHT_ASSIGN = 280,
-     AND_ASSIGN = 281,
-     MUL_ASSIGN = 282,
-     DIV_ASSIGN = 283,
-     MOD_ASSIGN = 284,
-     ADD_ASSIGN = 285,
-     XOR_ASSIGN = 286,
-     OR_ASSIGN = 287,
-     TYPE_NAME = 288,
-     TYPEDEF = 289,
-     EXTERN = 290,
-     STATIC = 291,
-     AUTO = 292,
-     REGISTER = 293,
-     CHAR = 294,
-     SHORT = 295,
-     LONG = 296,
-     SIGNED = 297,
-     UNSIGNED = 298,
-     FLOAT = 299,
-     DOUBLE = 300,
-     CONST = 301,
-     VOLATILE = 302,
-     VOID = 303,
-     STRUCT = 304,
-     UNION = 305,
-     ENUM = 306,
-     ELLIPSIS = 307,
-     CASE = 308,
-     DEFAULT = 309,
-     IF = 310,
-     ELSE = 311,
-     SWITCH = 312,
-     WHILE = 313,
-     DO = 314,
-     FOR = 315
+     VOID = 259,
+     CONSTANT = 260,
+     IDENTIFIER = 261,
+     GOTO = 262,
+     CONTINUE = 263,
+     BREAK = 264,
+     RETURN = 265,
+     PTR_OP = 266,
+     INC_OP = 267,
+     DEC_OP = 268,
+     LEFT_OP = 269,
+     RIGHT_OP = 270,
+     LE_OP = 271,
+     GE_OP = 272,
+     EQ_OP = 273,
+     NE_OP = 274,
+     STRING_LITERAL = 275,
+     SIZEOF = 276,
+     AND_OP = 277,
+     OR_OP = 278,
+     SUB_ASSIGN = 279,
+     LEFT_ASSIGN = 280,
+     RIGHT_ASSIGN = 281,
+     AND_ASSIGN = 282,
+     MUL_ASSIGN = 283,
+     DIV_ASSIGN = 284,
+     MOD_ASSIGN = 285,
+     ADD_ASSIGN = 286,
+     XOR_ASSIGN = 287,
+     OR_ASSIGN = 288,
+     TYPE_NAME = 289,
+     TYPEDEF = 290,
+     EXTERN = 291,
+     STATIC = 292,
+     AUTO = 293,
+     REGISTER = 294,
+     CASE = 295,
+     DEFAULT = 296,
+     IF = 297,
+     ELSE = 298,
+     SWITCH = 299,
+     WHILE = 300,
+     DO = 301,
+     FOR = 302
    };
 #endif
 /* Tokens.  */
 #define INT 258
-#define CONSTANT 259
-#define IDENTIFIER 260
-#define GOTO 261
-#define CONTINUE 262
-#define BREAK 263
-#define RETURN 264
-#define PTR_OP 265
-#define INC_OP 266
-#define DEC_OP 267
-#define LEFT_OP 268
-#define RIGHT_OP 269
-#define LE_OP 270
-#define GE_OP 271
-#define EQ_OP 272
-#define NE_OP 273
-#define STRING_LITERAL 274
-#define SIZEOF 275
-#define AND_OP 276
-#define OR_OP 277
-#define SUB_ASSIGN 278
-#define LEFT_ASSIGN 279
-#define RIGHT_ASSIGN 280
-#define AND_ASSIGN 281
-#define MUL_ASSIGN 282
-#define DIV_ASSIGN 283
-#define MOD_ASSIGN 284
-#define ADD_ASSIGN 285
-#define XOR_ASSIGN 286
-#define OR_ASSIGN 287
-#define TYPE_NAME 288
-#define TYPEDEF 289
-#define EXTERN 290
-#define STATIC 291
-#define AUTO 292
-#define REGISTER 293
-#define CHAR 294
-#define SHORT 295
-#define LONG 296
-#define SIGNED 297
-#define UNSIGNED 298
-#define FLOAT 299
-#define DOUBLE 300
-#define CONST 301
-#define VOLATILE 302
-#define VOID 303
-#define STRUCT 304
-#define UNION 305
-#define ENUM 306
-#define ELLIPSIS 307
-#define CASE 308
-#define DEFAULT 309
-#define IF 310
-#define ELSE 311
-#define SWITCH 312
-#define WHILE 313
-#define DO 314
-#define FOR 315
+#define VOID 259
+#define CONSTANT 260
+#define IDENTIFIER 261
+#define GOTO 262
+#define CONTINUE 263
+#define BREAK 264
+#define RETURN 265
+#define PTR_OP 266
+#define INC_OP 267
+#define DEC_OP 268
+#define LEFT_OP 269
+#define RIGHT_OP 270
+#define LE_OP 271
+#define GE_OP 272
+#define EQ_OP 273
+#define NE_OP 274
+#define STRING_LITERAL 275
+#define SIZEOF 276
+#define AND_OP 277
+#define OR_OP 278
+#define SUB_ASSIGN 279
+#define LEFT_ASSIGN 280
+#define RIGHT_ASSIGN 281
+#define AND_ASSIGN 282
+#define MUL_ASSIGN 283
+#define DIV_ASSIGN 284
+#define MOD_ASSIGN 285
+#define ADD_ASSIGN 286
+#define XOR_ASSIGN 287
+#define OR_ASSIGN 288
+#define TYPE_NAME 289
+#define TYPEDEF 290
+#define EXTERN 291
+#define STATIC 292
+#define AUTO 293
+#define REGISTER 294
+#define CASE 295
+#define DEFAULT 296
+#define IF 297
+#define ELSE 298
+#define SWITCH 299
+#define WHILE 300
+#define DO 301
+#define FOR 302
 
 
 
@@ -169,7 +143,7 @@ typedef union YYSTYPE
 	char* s;	
 }
 /* Line 1529 of yacc.c.  */
-#line 173 "y.tab.h"
+#line 147 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
