@@ -28,7 +28,6 @@ delay n fill s = (set n fill) ++ s
 not_gate :: [Bool] -> [Bool]
 not_gate s = delay 1 True (map not s)
 
-
 clock :: [Bool]
 clock = not_gate clock
 
@@ -39,17 +38,18 @@ and_gate i1 i2 = delay 2 True (zipWith (&&) i1 i2)
 nand_gate :: [Bool] -> [Bool] -> [Bool] -> [Bool]
 nand_gate i1 i2 i3 = not_gate(and_gate (and_gate i1 i2) (i3))
 
+zippy :: [t] -> [t1] -> [t2] -> [t3] -> [(t, t1, t2, t3)]
+zippy (w:ws) (x:xs) (y:ys) (z:zs) = (w, x, y, z):zippy ws xs ys zs
+
 jk_flip_flop :: [Bool]->[Bool]->[Bool]->[Bool]
 jk_flip_flop j k clock = 
 	let (q,qbar,w1,w2) = 
 		(nand_gate w1 qbar high, nand_gate w2 q high, nand_gate j clock qbar, nand_gate k clock q) in q
 
---sync_counter :: [Bool] -> [Bool] -> [Bool] -> ([Bool])
+sync_counter :: [Bool] -> [Bool] -> [Bool] -> [(Bool, Bool, Bool, Bool)]
 sync_counter j1 k1 clock = 
 	let(q1,q2,w1,q3,w2,q4,o1,o2,o3,o4) = 
 		(jk_flip_flop j1 k1 clock, jk_flip_flop q1 q1 clock, and_gate q1 q2, jk_flip_flop w1 w1 clock,
-		and_gate w1 q3, jk_flip_flop w2 w2 clock, q4, q3, q2, q1) in (o1, o2, o3, o4)
+		and_gate w1 q3, jk_flip_flop w2 w2 clock, q4, q3, q2, q1) in zippy q4 q3 q2 q1
 
-  
---
---  take 40 (srneg_latch ((set 6 False)++high) (set 15 True)++(set 6 False)++high)
+ 
