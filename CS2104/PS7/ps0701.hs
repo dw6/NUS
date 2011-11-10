@@ -36,7 +36,7 @@ and_gate :: [Bool] -> [Bool] -> [Bool]
 and_gate i1 i2 = delay 2 True (zipWith (&&) i1 i2)
                               
 nand_gate :: [Bool] -> [Bool] -> [Bool] -> [Bool]
-nand_gate i1 i2 i3 = not_gate(and_gate (and_gate i1 i2) (i3))
+nand_gate i1 i2 i3 = not_gate(and_gate (and_gate i1 i2) (delay 2 True i3))
 
 zippy :: [t] -> [t1] -> [t2] -> [t3] -> [(t, t1, t2, t3)]
 zippy (w:ws) (x:xs) (y:ys) (z:zs) = (w, x, y, z):zippy ws xs ys zs
