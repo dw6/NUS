@@ -73,20 +73,34 @@ diff([H|T],L1,L2) :- select(H,L1,L3),!,diff(T,L3,L2).
 
 /* functional abstraction */
 it(((\ X) -> Y), (TX->TY),L,P) :- !,
-	it(X,TX,L1,P), it(Y,TY,L2,P),diff(L1,L2,L).
+	writeln('Functional Abstracton'),
+	it(X,TX,L1,P), it(Y,TY,L2,P),diff(L1,L2,L),
+	writeln(P).
+
 /* recursive abstraction */
 it((F = E),T,L,P) :- !,
-	it(E,T,L1,P),diff([(F::T)],L1,L).
+	writeln('Recursive Abstracton'),
+	it(E,T,L1,P),diff([(F::T)],L1,L),
+	writeln(P).
+
+
 /* function application */
 it((E1 @ E2),T,L,P) :- !,
+	writeln('Function Application'),
 	it(E1,(T1->T),L1,P), it(E2,T1,L2,P),
-	union(L1,L2,L).
+	union(L1,L2,L),
+	writeln(P).
+
+
 /* Constants */
 it(X,int,[],_) :- integer(X),!.
+
 /* Predefined Symbol */
 it(X,T,[],P) :- copy_term(P,FreshP), member((X::T),FreshP), !.
 /* variables -- T is a new type variable */
+
 it(X,T,[X::T],_) :- atom(X),!.
+
 /* if statement */
 it((if B then X else Y),T,L,P) :- !,it((if)@B@X@Y,T,L,P).
 /* Expressions */
@@ -122,57 +136,65 @@ infertype(E,T) :-
 % Example queries:
 
 % Function composition
-:- E = \f-> \g -> \x->f@(g@x),
-	infertype(E,T),
-	write('Expression:'),writeln(E),
-	write('Type:'), writeln(T),nl.
-% T = ((_G637->_G629)-> (_G628->_G637)->_G628->_G629).
-
-% Composition with identity
-:- E = (\f -> \g -> \x->f@(g@x))@(\x->x),
-	infertype(E,T),
-	term_variables(T,V), append(V,_,[a,b,c,d,e,f,g]),
-	write('Expression:'),writeln(E),
-	write('Type:'), writeln(T),nl.
-% T = ((_G685->_G686)->_G685->_G686).
-
-% Composition with identity and doubling
-:- E = (\f -> \g -> \x->f@(g@x))@(\x->x)@(\x->2*x),
-	infertype(E,T),
-	term_variables(T,V), append(V,_,[a,b,c,d,e,f,g]),
-	write('Expression:'),writeln(E),
-	write('Type:'), writeln(T),nl.
-% T = (int->int).
-
-% Factorial
-:- E = (fact = (\x) -> if (x==0) then 1 else (x*fact@(x-1))),
-	infertype(E,T),
-	term_variables(T,V), append(V,_,[a,b,c,d,e,f,g]),
-	write('Expression:'),writeln(E),
-	write('Type:'), writeln(T),nl.
-% T = int.
-
-% Map
-:- E = (map = (\f) -> (\l) -> if (l == []) then [] else ((f@(head@l)):(map@f@(tail@l)))),
-	infertype(E,T),
-	term_variables(T,V), append(V,_,[a,b,c,d,e,f,g]),
-	write('Expression:'),writeln(E),
-	write('Type:'), writeln(T),nl.
-% T = (_G6280->_G6419)->[_G6280]->[_G6419] .
-
-% Foldl
-:- E = (foldl = \f -> \i -> \l -> if (l == []) then i else foldl@f@(f@i@(head@l))@(tail@l)),
+:- E = \f-> \x->f@(f@x),
 	infertype(E,T),
 	term_variables(T,V), append(V,_,[a,b,c,d,e,f,g]),
 	write('Expression:'),writeln(E),
 	write('Type:'), writeln(T),nl.
 
-% Foldr
-:- E = (foldr = \f -> \i -> \l -> if (l==[]) then i else f@(head@l)@(foldr@f@i@(tail@l))),
-	infertype(E,T),
-	term_variables(T,V), append(V,_,[a,b,c,d,e,f,g]),
-	write('Expression:'),writeln(E),
-	write('Type:'), writeln(T),nl.
+% :- E = \f-> \g -> \x->f@(g@x),
+% 	infertype(E,T),
+% 	write('Expression:'),writeln(E),
+% 	write('Type:'), writeln(T),nl.
+
+
+% % T = ((_G637->_G629)-> (_G628->_G637)->_G628->_G629).
+
+% % Composition with identity
+% :- E = (\f -> \g -> \x->f@(g@x))@(\x->x),
+% 	infertype(E,T),
+% 	term_variables(T,V), append(V,_,[a,b,c,d,e,f,g]),
+% 	write('Expression:'),writeln(E),
+% 	write('Type:'), writeln(T),nl.
+% % T = ((_G685->_G686)->_G685->_G686).
+
+% % Composition with identity and doubling
+% :- E = (\f -> \g -> \x->f@(g@x))@(\x->x)@(\x->2*x),
+% 	infertype(E,T),
+% 	term_variables(T,V), append(V,_,[a,b,c,d,e,f,g]),
+% 	write('Expression:'),writeln(E),
+% 	write('Type:'), writeln(T),nl.
+% % T = (int->int).
+
+% % Factorial
+% :- E = (fact = (\x) -> if (x==0) then 1 else (x*fact@(x-1))),
+% 	infertype(E,T),
+% 	term_variables(T,V), append(V,_,[a,b,c,d,e,f,g]),
+% 	write('Expression:'),writeln(E),
+% 	write('Type:'), writeln(T),nl.
+% % T = int.
+
+% % Map
+% :- E = (map = (\f) -> (\l) -> if (l == []) then [] else ((f@(head@l)):(map@f@(tail@l)))),
+% 	infertype(E,T),
+% 	term_variables(T,V), append(V,_,[a,b,c,d,e,f,g]),
+% 	write('Expression:'),writeln(E),
+% 	write('Type:'), writeln(T),nl.
+% % T = (_G6280->_G6419)->[_G6280]->[_G6419] .
+
+% % Foldl
+% :- E = (foldl = \f -> \i -> \l -> if (l == []) then i else foldl@f@(f@i@(head@l))@(tail@l)),
+% 	infertype(E,T),
+% 	term_variables(T,V), append(V,_,[a,b,c,d,e,f,g]),
+% 	write('Expression:'),writeln(E),
+% 	write('Type:'), writeln(T),nl.
+
+% % Foldr
+% :- E = (foldr = \f -> \i -> \l -> if (l==[]) then i else f@(head@l)@(foldr@f@i@(tail@l))),
+% 	infertype(E,T),
+% 	term_variables(T,V), append(V,_,[a,b,c,d,e,f,g]),
+% 	write('Expression:'),writeln(E),
+% 	write('Type:'), writeln(T),nl.
 
 
 
