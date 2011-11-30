@@ -1,0 +1,93 @@
+\title{PC1222 Laboratory Report\\Electron Diffraction}
+\author{Heng Low Wee (U096901R) \\Lab Group B6}
+\date{}
+\documentclass[11pt]{article}
+	\addtolength{\oddsidemargin}{-.875in}
+	\addtolength{\evensidemargin}{-.875in}
+	\addtolength{\textwidth}{1.75in}
+	\addtolength{\topmargin}{-1in}
+	\addtolength{\textheight}{1.75in}
+\usepackage[compact]{titlesec}
+\usepackage{amsmath}
+%\titlespacing{\section}{0pt}{*0}{*0}
+%\titlespacing{\subsection}{0pt}{*0}{*0}
+%\titlespacing{\subsubsection}{0pt}{*0}{*0}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+\paragraph{}
+In this experiment we demonstrate the wave behavior of electrons. We demonstrate that an electron beam behaves similarly to light waves, and hence also able to produce an interference pattern on a screen given suitable conditions. Making use of the relationship between wavelength of the electron beam and the interference pattern, we also determine experimental values for the interatomic spacing of graphite, which is our second objective in this experiment.
+
+\paragraph{}
+The experiment uses the Thomson's method for sending electrons through a thin film of graphite microcrystal to investigate the resulting ring diffraction pattern. Then, from measuring the diameter of these rings, we deduce the interatomic spacing of graphite. The molecular structure of graphite is carbon atoms arranged in a hexagonal sheet structure. With that, we deduce 2 values for the interatomic spacing, namely $d_{inner}$ and $d_{outer}$.
+
+\section{Methodology}
+\paragraph{}
+The primary apparatus in this experiment is the Electron Diffraction Tube. We connected the diffraction tube to the power supply, allowing the filament to warm up before increasing the anode voltage $V_A$ to 2.5kV. By making adjustments on the external bias, we sharpen the ring diffraction pattern so that we can measure the diameter of the rings more easily.
+
+\paragraph{}
+On the screen of the diffraction tube, 2 rings were observed. For each ring, we took 3 measurements for the diameter using the Vernier Caliper, one at the horizontal, one at the vertical and one at diagonal.
+
+\paragraph{}
+We repeated the above procedure for 5 more times, varying the amount of voltage supplied to the tube. We varied the voltage from 2.5kV to 4.5kV, incrementing at 400V. With that we obtained 6 sets of results (refer to attached spreadsheet for tabulated results), which we used to deduce $d_{inner}$ and $d_{outer}$ in the following section.
+
+\section{Results}
+\paragraph{}
+In order to estimate the interatomic spacing, $d$, we perform linear least square fit on the data we collected. We rearranged the equation that defines the relationship between interatomic space and wavelength, so that we can plot a linear graph, $D$ against $1/\sqrt{V}$.
+\begin{align*}
+D\frac{d}{2L} = \frac{h}{\sqrt{2me}} \frac{1}{\sqrt{V}} \Rightarrow D = \frac{1}{d} \frac{2Lh}{\sqrt{2me}} \frac{1}{\sqrt{V}}
+\end{align*}
+Effectively, the gradient of the linear graph can help us deduce the value of $d$:
+\begin{align*}
+m_G = \frac{1}{d} \frac{2Lh}{\sqrt{2me}} \Rightarrow d = \frac{1}{m_G} \frac{2Lh}{\sqrt{2me}} \textrm{, where }m_G\textrm{ is the gradient of graph}
+\end{align*}
+
+\paragraph{}
+We applied the above equation to deduce our experimental values for $d_{inner}$ and $d_{outer}$, at $(2.2 \times 10^{-10} \pm 0.1 \times 10^{-10})$m and $(1.1 \times 10^{-10} \pm 0.1 \times 10^{-10})$m respectively. Also, we obtained coefficients of determination, 0.978 and 0.974, from which we may conclude that our data was consistent, and that our estimates for $d$ are accurate.
+
+\paragraph{}
+To determine how accurate is this method of determining interatomic space of graphite, we calculated the theoretical values for $d_{inner}$ and $d_{outer}$ in order to make comparison. We obtained a 3.3\% discrepancy for $d_{inner}$, and 10.6\% discrepancy for $d_{outer}$. We conclude that this method is fairly accurate in determining the interatomic spacing of graphite.
+
+\section{Discussion}
+\paragraph{}
+In lecture, we learnt that visible light is able to undergo diffraction grating and produce an interference pattern, given the right conditions i.e. distance between slits and slits width etc. In this experiment, since we are using electron beam, the usual diffraction grating that we used for visible light would not work here. The reason is because in comparison to visible light, the electron beam's wavelength is too short. Consider the wavelength of violet light, which has the shortest wavelength in the visible spectrum. So this violet light, there already exists a minimum distance between slits that will provide the right conditions for violet light to diffract. The wavelength of violet length is approximately $4.50 \times 10^{-7}$m, and the maximum wavelength of the electron beam, at 2.5kV, is $h/\sqrt{2meV} = 2.45 \times 10^{-11}$m. The wavelength of the electron beam is just too short to be diffracted by the usual method. Suppose it is possible, the reduction of the distance between slits, and slits width, have to reduce by at least 10000 times. At that level, by naive estimation, it is already comparable to atomic layers.
+
+\paragraph{}
+During the experiment we observed, that if we touch the round surface of the tube, the interference pattern on the screen would change, showing that contact with the surface creates some flow of current, or loss of charges that affects the pattern on the screen. This reason, might also contribute to the fact that the experiment is prone to measurement discrepancy. Another contributing factor to discrepancy is that as we take measurements on the diameter, it is difficult, however hard we try, to maintain consistency in measuring from one side's center of the ring to the opposite side as we were taking measurements on a curved surface.
+
+\section{Conclusion}
+\paragraph{}
+Making observations on ring diffraction patterns produced by the electron beam, we demonstrated the wave behavior of electrons, as proposed by Louis De Broglie. Also, our experiment values have percentage discrepancies of 3.3\% and 10.6\%, therefore we conclude that our results are fairly accurate in comparison to theoretical values.
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
