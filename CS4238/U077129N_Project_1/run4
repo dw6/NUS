@@ -1,0 +1,16 @@
+# Task 2: This script runs the exploit in an infinite loop with ASLR turned on.
+
+sudo sysctl -w kernel.randomize_va_space=2
+sudo chmod 4755 readfile
+sudo execstack -s readfile
+gcc -g -o readfile readfile.c
+
+x=0
+
+while true;
+do
+	echo "[$x] ================================================="
+	./exploit1 $i && ./stack
+	x=$(( $x + 1 ))
+done
+

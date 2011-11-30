@@ -1,0 +1,14 @@
+To execute the exploit, simply run either
+
+	(a) "./run"
+
+	Executes the script for task 1. This turns off the stack protector and turns off ASLR. It 
+	incrementally tries each offset (exploit.c accepts a single argument, the offset), and on
+	a successful attempt, a root shell is returned.
+
+
+	(b) "./run2" 
+
+	Executes the script for task 2. This turns ASLR on and searches for a suitable return address
+	This process takes quite a while, but a successful exploit usually takes around 4000 to 5000
+	attempts.
