@@ -41,7 +41,8 @@ class Evaluator
 					  ((BinaryPrimitiveApplication) exp).argument2 instanceof BoolConstant) ||
 					// comparison operators - < and >
 					((((BinaryPrimitiveApplication) exp).operator.equals("<") || 
-					  ((BinaryPrimitiveApplication) exp).operator.equals(">")) && 
+					  ((BinaryPrimitiveApplication) exp).operator.equals(">") || 
+					  ((BinaryPrimitiveApplication) exp).operator.equals("=")) && 
 					  ((BinaryPrimitiveApplication) exp).argument1 instanceof IntConstant && 
 					  ((BinaryPrimitiveApplication) exp).argument2 instanceof IntConstant);  
 					  
@@ -146,7 +147,13 @@ class Evaluator
 						   				Integer.parseInt(((IntConstant) secondArg).value))
 				);
 			}
-			
+			else if (operator.equals("="))
+			{
+				return new BoolConstant(Boolean.toString(
+						   				Integer.parseInt(((IntConstant) firstArg).value) == 
+						   				Integer.parseInt(((IntConstant) secondArg).value))
+				);
+			}
 			else
 			{
 				return new IntConstant(Integer.toString(Integer.MAX_VALUE));

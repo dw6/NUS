@@ -63,8 +63,7 @@ public class VM
 			// second argument will not be popped
 			// in case of false
 			case OPCODES.AND:
-				os.push(new BoolValue(((BoolValue) os.pop()).value
-						& ((BoolValue) os.pop()).value));
+				os.push(new BoolValue(((BoolValue) os.pop()).value & ((BoolValue) os.pop()).value));
 				pc++;
 				break;
 
@@ -102,14 +101,19 @@ public class VM
 						- ((IntValue) os.pop()).value));
 				pc++;
 				break;
-	
-				
+			
 			case OPCODES.TIMES:
 				os.push(new IntValue(((IntValue) os.pop()).value
 						* ((IntValue) os.pop()).value));
 				pc++;
 				break;
-
+				
+			// TODO: FIX THIS
+			case OPCODES.DIV:
+				os.push(new IntValue(((IntValue) os.pop()).value
+						/ ((IntValue) os.pop()).value));
+				pc++;
+				break;
 			// DONE simply breaks the loop. The result is now
 			// on top of the operand stack
 
