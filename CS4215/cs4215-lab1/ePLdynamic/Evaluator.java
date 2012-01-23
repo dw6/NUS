@@ -142,8 +142,8 @@ class Evaluator
 			else if (operator.equals(">"))
 			{
 				return new BoolConstant(Boolean.toString(
-					    Integer.parseInt(((IntConstant) firstArg).value) > 
-					    Integer.parseInt(((IntConstant) secondArg).value))
+						   				Integer.parseInt(((IntConstant) firstArg).value) > 
+						   				Integer.parseInt(((IntConstant) secondArg).value))
 				);
 			}
 			

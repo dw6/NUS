@@ -72,6 +72,18 @@ public class VM
 				os.push(new BoolValue(!((BoolValue) os.pop()).value));
 				pc++;
 				break;
+				
+			case OPCODES.LT:
+				os.push(new BoolValue(
+						((IntValue) os.pop()).value < ((IntValue) os.pop()).value));
+				pc++;
+				break;
+				
+			case OPCODES.GT:
+				os.push(new BoolValue(
+						((IntValue) os.pop()).value > ((IntValue) os.pop()).value));
+				pc++;
+				break;	
 
 			case OPCODES.EQ:
 				os.push(new BoolValue(
@@ -85,6 +97,13 @@ public class VM
 				pc++;
 				break;
 
+			case OPCODES.MINUS:
+				os.push(new IntValue(((IntValue) os.pop()).value
+						- ((IntValue) os.pop()).value));
+				pc++;
+				break;
+	
+				
 			case OPCODES.TIMES:
 				os.push(new IntValue(((IntValue) os.pop()).value
 						* ((IntValue) os.pop()).value));
