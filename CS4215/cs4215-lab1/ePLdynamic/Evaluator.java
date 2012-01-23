@@ -33,15 +33,18 @@ class Evaluator
 					// division (exclude second argument 0)
 					((BinaryPrimitiveApplication) exp).operator.equals("/")
 							&& ((BinaryPrimitiveApplication) exp).argument1 instanceof IntConstant
-							&& ((BinaryPrimitiveApplication) exp).argument2 instanceof IntConstant
-							&& !((IntConstant) (((BinaryPrimitiveApplication) exp).argument2)).value
-									.equals("0")) ||
-
+							&& ((BinaryPrimitiveApplication) exp).argument2 instanceof IntConstant) ||
 					// boolean cases - AND/OR
-					((((BinaryPrimitiveApplication) exp).operator.equals("&&") || 
-					  ((BinaryPrimitiveApplication) exp).operator.equals("||")) && 
+					((((BinaryPrimitiveApplication) exp).operator.equals("&") || 
+					  ((BinaryPrimitiveApplication) exp).operator.equals("|")) && 
 					  ((BinaryPrimitiveApplication) exp).argument1 instanceof BoolConstant && 
-					  ((BinaryPrimitiveApplication) exp).argument2 instanceof BoolConstant);
+					  ((BinaryPrimitiveApplication) exp).argument2 instanceof BoolConstant) ||
+					// comparison operators - < and >
+					((((BinaryPrimitiveApplication) exp).operator.equals("<") || 
+					  ((BinaryPrimitiveApplication) exp).operator.equals(">")) && 
+					  ((BinaryPrimitiveApplication) exp).argument1 instanceof IntConstant && 
+					  ((BinaryPrimitiveApplication) exp).argument2 instanceof IntConstant);  
+					  
 		}
 		else
 		{
@@ -66,7 +69,10 @@ class Evaluator
 			String operator = ((BinaryPrimitiveApplication) exp).operator;
 			Expression firstArg = ((BinaryPrimitiveApplication) exp).argument1;
 			Expression secondArg = ((BinaryPrimitiveApplication) exp).argument2;
-					
+
+			System.err.println(operator);
+
+			
 			if (reducible(firstArg))
 			{
 				return new BinaryPrimitiveApplication(operator, oneStep(firstArg), secondArg);
@@ -95,6 +101,7 @@ class Evaluator
 			}
 			else if (operator.equals("/"))
 			{
+				System.out.println("Here");
 				int numerator 	= Integer.parseInt(((IntConstant) firstArg).value);
 				int denominator = Integer.parseInt(((IntConstant) secondArg).value); 
 				
@@ -103,13 +110,14 @@ class Evaluator
 				}
 				else
 				{
+					// TODO:
 					// of course the following is not correct.
 					// you need to handle all cases, so that
 					// there is no need for a final "else" part
 					return new IntConstant(Integer.toString(Integer.MAX_VALUE));
 				}
 			}
-			else if (operator.equals("&&"))
+			else if (operator.equals("&"))
 			{
 				
 				return new BoolConstant( Boolean.toString( 
@@ -117,7 +125,7 @@ class Evaluator
 										 Boolean.parseBoolean(((BoolConstant)secondArg).value))
 				);
 			}
-			else if (operator.equals("||"))
+			else if (operator.equals("|"))
 			{
 				return new BoolConstant( Boolean.toString( 
 						 				 Boolean.parseBoolean(((BoolConstant)firstArg).value) || 
