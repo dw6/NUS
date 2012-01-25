@@ -28,7 +28,7 @@ public class VM
 		{
 			INSTRUCTION i = instructionArray[pc];
 
-			System.out.println("pc: "+pc+"; instruction: "+i);
+			// System.out.println("pc: "+pc+"; instruction: "+i);
 
 			switch (i.OPCODE) {
 
@@ -56,8 +56,7 @@ public class VM
 			// second argument will not be popped
 			// in case of true
 			case OPCODES.OR:
-				os.push(new BoolValue(((BoolValue) os.pop()).value
-						| ((BoolValue) os.pop()).value));
+				os.push(new BoolValue(((BoolValue) os.pop()).value | ((BoolValue) os.pop()).value));
 				pc++;
 				break;
 
@@ -105,7 +104,6 @@ public class VM
 						+ ((IntValue) os.pop()).value));
 				pc++;
 				break;
-			
 				
 			// MINUS
 			case OPCODES.MINUS:
@@ -118,16 +116,41 @@ public class VM
 				break;
 			
 			case OPCODES.TIMES:
-				os.push(new IntValue(((IntValue) os.pop()).value
-						* ((IntValue) os.pop()).value));
+				os.push(new IntValue(((IntValue) os.pop()).value * ((IntValue) os.pop()).value));
 				pc++;
 				break;
 				
 			// TODO: FIX THIS
 			case OPCODES.DIV:
-				os.push(new IntValue(((IntValue) os.pop()).value
-						/ ((IntValue) os.pop()).value));
-				pc++;
+				
+				second =  ((IntValue) os.pop()).value;
+				first = ((IntValue) os.pop()).value;
+				
+				/* Handling Division by Zero */
+				/*
+				 * At any point of time division by zero is encountered,
+				 * the entire result would be deemed erroneous. As such,
+				 * the entire stack will be popped since no meaningful 
+				 * computation can carry on. 
+				 * 
+				 * The result should be an error, implemented as an ErrorValue.
+				 */
+				
+				// Division by zero error!
+				if (second == 0) {
+					// Pop the entire stack
+					while(!os.isEmpty()) {
+						os.pop();
+					}
+					os.push(new ErrorValue());
+					break loop;
+				}
+				else 
+				{
+					os.push(new IntValue(first / second));
+					pc++;
+				}
+				
 				break;
 			// DONE simply breaks the loop. The result is now
 			// on top of the operand stack

@@ -4,14 +4,30 @@ import ePL.*;
 
 class Evaluator
 {
-
 	// evaluate repeatedly implements the evaluation relation
 	// by repeatedly calling oneStep until the expression is
 	// not reducible
 	static public Expression evaluate(Expression exp)
 	{
-		System.err.println("Evaluate, reducible? " + reducible(exp));
-		return reducible(exp) ? evaluate(oneStep(exp)) : exp;
+		if (reducible(exp))
+		{
+			return evaluate(oneStep(exp));
+		}
+		else
+		{
+			if(exp.toString().contains("Error"))
+			{
+				/**
+				 * I chose not to implemented this as an exception, and instead 
+				 * return an error message.
+				 */
+				return new BoolConstant("Error: Most probably division by zero.");
+			}
+			else
+			{
+				return exp;
+			}
+		}		
 	}
 
 	// in ePL, a reducible expression is a PrimitiveApplication that
@@ -71,18 +87,14 @@ class Evaluator
 			Expression arg = ((UnaryPrimitiveApplication) exp).argument;
 			String operator = ((UnaryPrimitiveApplication)exp).operator;
 			
-			
 			if (((UnaryPrimitiveApplication)exp).operator.equals("\\"))
-			{
-				System.err.println("Unary Primitive Application! - Negation");
-				
+			{				
 				if (reducible(arg))
 				{
 					return new UnaryPrimitiveApplication(operator, oneStep(arg));
 				}
 				else
 				{
-					System.out.println("Not reducible");
 					return new BoolConstant(Boolean.toString(!((BoolConstant) arg).value.equals("true")));
 				}		
 			}
@@ -91,7 +103,6 @@ class Evaluator
 				System.err.println("Unrecognized Unary operator.");
 				return null;
 			}
-		
 		}
 		else
 		{
@@ -99,7 +110,12 @@ class Evaluator
 			Expression firstArg = ((BinaryPrimitiveApplication) exp).argument1;
 			Expression secondArg = ((BinaryPrimitiveApplication) exp).argument2;
 			
-			if (reducible(firstArg))
+			
+			if (firstArg.toString().contains("null") || secondArg.toString().contains("null")) 
+			{
+				return new UnaryPrimitiveApplication("", new BoolConstant("Error"));
+			}
+			else if (reducible(firstArg))
 			{
 				return new BinaryPrimitiveApplication(operator, oneStep(firstArg), secondArg);
 			}
@@ -135,11 +151,11 @@ class Evaluator
 				}
 				else
 				{
-					// TODO:
-					// of course the following is not correct.
-					// you need to handle all cases, so that
-					// there is no need for a final "else" part
-					return new IntConstant(Integer.toString(Integer.MAX_VALUE));
+					/*
+					 * Instead of blowing up, return BoolConsant, with an "Error" to 
+					 * mark the result as an error.
+					 */
+					return new UnaryPrimitiveApplication("", new BoolConstant("Error"));
 				}
 			}
 			else if (operator.equals("&"))
