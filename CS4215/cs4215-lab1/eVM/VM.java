@@ -28,7 +28,7 @@ public class VM
 		{
 			INSTRUCTION i = instructionArray[pc];
 
-			System.out.println("pc: "+pc+"; instruction: "+i);
+			// System.out.println("pc: "+pc+"; instruction: "+i);
 
 			switch (i.OPCODE) {
 
