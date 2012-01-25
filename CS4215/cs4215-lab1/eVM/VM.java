@@ -17,6 +17,9 @@ public class VM
 
 		int pc = 0;
 
+		// store first and second operands
+		int first, second;
+		
 		Stack<Value> os = new Stack<Value>();
 
 		// loop
@@ -25,7 +28,7 @@ public class VM
 		{
 			INSTRUCTION i = instructionArray[pc];
 
-			// System.out.println("pc: "+pc+"; instruction: "+i);
+			System.out.println("pc: "+pc+"; instruction: "+i);
 
 			switch (i.OPCODE) {
 
@@ -73,14 +76,21 @@ public class VM
 				break;
 				
 			case OPCODES.LT:
-				os.push(new BoolValue(
-						((IntValue) os.pop()).value < ((IntValue) os.pop()).value));
+				
+				second =  ((IntValue) os.pop()).value;
+				first = ((IntValue) os.pop()).value;
+				
+				os.push(new BoolValue( first < second ));
+			
 				pc++;
 				break;
 				
 			case OPCODES.GT:
-				os.push(new BoolValue(
-						((IntValue) os.pop()).value > ((IntValue) os.pop()).value));
+				
+				second =  ((IntValue) os.pop()).value;
+				first = ((IntValue) os.pop()).value;
+				
+				os.push(new BoolValue( first < second ));
 				pc++;
 				break;	
 
@@ -95,10 +105,15 @@ public class VM
 						+ ((IntValue) os.pop()).value));
 				pc++;
 				break;
-
+			
+				
+			// MINUS
 			case OPCODES.MINUS:
-				os.push(new IntValue(((IntValue) os.pop()).value
-						- ((IntValue) os.pop()).value));
+								
+				second =  ((IntValue) os.pop()).value;
+				first = ((IntValue) os.pop()).value;
+								
+				os.push(new IntValue(first - second));
 				pc++;
 				break;
 			

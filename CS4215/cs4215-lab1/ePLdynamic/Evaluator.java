@@ -10,6 +10,7 @@ class Evaluator
 	// not reducible
 	static public Expression evaluate(Expression exp)
 	{
+		System.err.println("Evaluate, reducible? " + reducible(exp));
 		return reducible(exp) ? evaluate(oneStep(exp)) : exp;
 	}
 
@@ -47,6 +48,13 @@ class Evaluator
 					  ((BinaryPrimitiveApplication) exp).argument2 instanceof IntConstant);  
 					  
 		}
+		else if (exp instanceof UnaryPrimitiveApplication) 
+		{
+			return (((UnaryPrimitiveApplication) exp).operator.equals("\\")) &&
+				   (((UnaryPrimitiveApplication) exp).argument instanceof BinaryPrimitiveApplication ||
+				   ((UnaryPrimitiveApplication) exp).argument instanceof UnaryPrimitiveApplication   ||
+				   ((UnaryPrimitiveApplication) exp).argument instanceof BoolConstant);
+		}
 		else
 		{
 			return false;
@@ -61,18 +69,35 @@ class Evaluator
 		if (exp instanceof UnaryPrimitiveApplication)
 		{
 			Expression arg = ((UnaryPrimitiveApplication) exp).argument;
-			/* ((PrimitiveApplication)exp.operator.equals("\\")) */
-			return new BoolConstant(Boolean.toString(!((BoolConstant) arg).value.equals("true")));
-
+			String operator = ((UnaryPrimitiveApplication)exp).operator;
+			
+			
+			if (((UnaryPrimitiveApplication)exp).operator.equals("\\"))
+			{
+				System.err.println("Unary Primitive Application! - Negation");
+				
+				if (reducible(arg))
+				{
+					return new UnaryPrimitiveApplication(operator, oneStep(arg));
+				}
+				else
+				{
+					System.out.println("Not reducible");
+					return new BoolConstant(Boolean.toString(!((BoolConstant) arg).value.equals("true")));
+				}		
+			}
+			else 
+			{
+				System.err.println("Unrecognized Unary operator.");
+				return null;
+			}
+		
 		}
 		else
 		{
 			String operator = ((BinaryPrimitiveApplication) exp).operator;
 			Expression firstArg = ((BinaryPrimitiveApplication) exp).argument1;
 			Expression secondArg = ((BinaryPrimitiveApplication) exp).argument2;
-
-			System.err.println(operator);
-
 			
 			if (reducible(firstArg))
 			{
@@ -102,7 +127,6 @@ class Evaluator
 			}
 			else if (operator.equals("/"))
 			{
-				System.out.println("Here");
 				int numerator 	= Integer.parseInt(((IntConstant) firstArg).value);
 				int denominator = Integer.parseInt(((IntConstant) secondArg).value); 
 				
