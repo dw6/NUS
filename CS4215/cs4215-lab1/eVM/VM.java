@@ -28,7 +28,7 @@ public class VM
 		{
 			INSTRUCTION i = instructionArray[pc];
 
-			// System.out.println("pc: "+pc+"; instruction: "+i);
+			System.out.println("pc: "+pc+"; instruction: "+i);
 
 			switch (i.OPCODE) {
 
@@ -105,7 +105,6 @@ public class VM
 				pc++;
 				break;
 				
-			// MINUS
 			case OPCODES.MINUS:
 								
 				second =  ((IntValue) os.pop()).value;
@@ -120,7 +119,7 @@ public class VM
 				pc++;
 				break;
 				
-			// TODO: FIX THIS
+		
 			case OPCODES.DIV:
 				
 				second =  ((IntValue) os.pop()).value;
@@ -139,9 +138,11 @@ public class VM
 				// Division by zero error!
 				if (second == 0) {
 					// Pop the entire stack
-					while(!os.isEmpty()) {
+					while(!os.isEmpty()) 
+					{
 						os.pop();
 					}
+					
 					os.push(new ErrorValue());
 					break loop;
 				}
@@ -152,6 +153,7 @@ public class VM
 				}
 				
 				break;
+				
 			// DONE simply breaks the loop. The result is now
 			// on top of the operand stack
 
