@@ -82,6 +82,8 @@ class Evaluator
 
 	static private Expression oneStep(Expression exp)
 	{
+		System.err.println(exp.toString());
+		
 		if (exp instanceof UnaryPrimitiveApplication)
 		{
 			Expression arg = ((UnaryPrimitiveApplication) exp).argument;

@@ -28,7 +28,7 @@ public class VM
 		{
 			INSTRUCTION i = instructionArray[pc];
 
-			// System.out.println("pc: "+pc+"; instruction: "+i);
+			System.out.println("pc: "+pc+"; instruction: "+i);
 
 			switch (i.OPCODE) {
 
@@ -89,7 +89,7 @@ public class VM
 				second =  ((IntValue) os.pop()).value;
 				first = ((IntValue) os.pop()).value;
 				
-				os.push(new BoolValue( first < second ));
+				os.push(new BoolValue( first > second ));
 				pc++;
 				break;	
 
