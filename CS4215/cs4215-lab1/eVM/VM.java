@@ -1,3 +1,8 @@
+/**
+ * Benjamin Tan Wei Hao U077129N
+ */
+
+
 package eVM;
 
 import eVML.*;
@@ -28,7 +33,7 @@ public class VM
 		{
 			INSTRUCTION i = instructionArray[pc];
 
-			System.out.println("pc: "+pc+"; instruction: "+i);
+			// System.out.println("pc: "+pc+"; instruction: "+i);
 
 			switch (i.OPCODE) {
 
@@ -94,8 +99,7 @@ public class VM
 				break;	
 
 			case OPCODES.EQ:
-				os.push(new BoolValue(
-						((IntValue) os.pop()).value == ((IntValue) os.pop()).value));
+				os.push(new BoolValue(((IntValue) os.pop()).value == ((IntValue) os.pop()).value));
 				pc++;
 				break;
 

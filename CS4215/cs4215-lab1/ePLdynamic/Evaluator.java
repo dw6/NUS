@@ -1,3 +1,8 @@
+/**
+ * Benjamin Tan Wei Hao U077129N
+ */
+
+
 package ePLdynamic;
 
 import ePL.*;
@@ -82,7 +87,7 @@ class Evaluator
 
 	static private Expression oneStep(Expression exp)
 	{
-		System.err.println(exp.toString());
+		// System.err.println(exp.toString());
 		
 		if (exp instanceof UnaryPrimitiveApplication)
 		{
