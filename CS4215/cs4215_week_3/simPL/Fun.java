@@ -32,7 +32,7 @@ public class Fun implements Expression
 
 	public Expression substitute(String var, Expression replacement)
 	{
-
+		
 		StringSet bfv = body.freeVars(); // body free vars
 		StringSet rfv = replacement.freeVars(); // replacement free vars
 		StringSet ufv = bfv.union(rfv); // union of the above two
@@ -47,12 +47,17 @@ public class Fun implements Expression
 			// if substitution var occurs in list or formal parameters,
 			// there is no free occurrence of var in body: nothing to do
 			if (var.equals(formal))
+			{
+				System.out.println("var: " + var);
 				return this;
+			}
 
 			// if formal parameter is a free variable in the replacement,
 			// we need to rename formal parameter using substitution
 			if (rfv.contains(formal))
 			{
+				System.out.println("rfv: " + rfv);
+
 				String newvar = NewName.newName(ufv);
 				ufv.add(newvar); // making sure that future new names
 									// are different from newvar
@@ -61,9 +66,12 @@ public class Fun implements Expression
 			}
 			else
 			{
+				System.out.println("formal: " + rfv);
+
 				newformals.add(formal);
 			}
 		}
+		System.err.println("Huat: "  + new Fun(funType, newformals, newbody.substitute(var, replacement)));
 		return new Fun(funType, newformals, newbody.substitute(var, replacement));
 	}
 
