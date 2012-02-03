@@ -48,7 +48,6 @@ public class Fun implements Expression
 			// there is no free occurrence of var in body: nothing to do
 			if (var.equals(formal))
 			{
-				System.out.println("var: " + var);
 				return this;
 			}
 
@@ -56,8 +55,6 @@ public class Fun implements Expression
 			// we need to rename formal parameter using substitution
 			if (rfv.contains(formal))
 			{
-				System.out.println("rfv: " + rfv);
-
 				String newvar = NewName.newName(ufv);
 				ufv.add(newvar); // making sure that future new names
 									// are different from newvar
@@ -66,12 +63,9 @@ public class Fun implements Expression
 			}
 			else
 			{
-				System.out.println("formal: " + rfv);
-
 				newformals.add(formal);
 			}
 		}
-		System.err.println("Huat: "  + new Fun(funType, newformals, newbody.substitute(var, replacement)));
 		return new Fun(funType, newformals, newbody.substitute(var, replacement));
 	}
 

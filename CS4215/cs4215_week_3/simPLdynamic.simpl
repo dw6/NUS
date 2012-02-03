@@ -1,1 +1,1 @@
-(fun {((int * int -> int) -> int)} power -> (power  17 3) end  recfun mypower {(int * int -> int)}  x y ->  if (y = 0) then 1 else (x * (mypower  x (y - 1))) end end)
+(fun {int * int -> int} x y z-> x + y + z end (1 + 1) (6 / 0) (3 + 1))
