@@ -10,15 +10,12 @@ public class Application implements Expression
 
 	public Application(Expression rator, Vector<Expression> rands)
 	{
-		System.err.println("# Application #");		
 		operator = rator;
 		operands = rands;
 	}
 
 	public Expression eliminateLet()
-	{
-		System.err.println("Eliminate let");		
-		
+	{		
 		Vector<Expression> new_operands = new Vector<Expression>();
 		for(Expression o : operands) 
 		{
@@ -32,15 +29,12 @@ public class Application implements Expression
 	// //////////////////////
 
 	public StringSet freeVars()
-	{		
+	{			
 		return operator.freeVars();
 	}
 
-	// stub; to be replaced by student
 	public Expression substitute(String var, Expression replacement)
-	{
-		System.err.println("Substitute in Application");		
-		
+	{		
 		Vector<Expression> new_operands = new Vector<Expression>();
 		for(Expression o : operands) 
 		{
@@ -55,13 +49,14 @@ public class Application implements Expression
 	// A: When either its operands or operator is reducible
 	public boolean reducible()
 	{		
-		System.err.println("# Reducible #: " + (operator.reducible() || isOperandsReducible() || (operator instanceof Fun && !isOperandsReducible())));
-		return operator.reducible() || isOperandsReducible() || (operator instanceof Fun && !isOperandsReducible()) || operator instanceof Application;
+		System.err.println(this);
+		return operator.reducible() || isOperandsReducible() || (operator instanceof Fun && !isOperandsReducible()); 
+//				|| (operator instanceof Application && isOperandsReducible());
 	}
 
 	public Expression oneStep()
 	{
-		System.err.println("One Step called");
+		
 		if (operator.reducible())
 		{
 			return new Application(operator.oneStep(), operands);
@@ -72,17 +67,46 @@ public class Application implements Expression
 		}
 		else 
 		{
-			// When we are here, we are sure that the form is
-			// (fun ... end Op1 ... OpN)
-			Expression body = ((Fun)operator).body;
-			Vector<String> formals = ((Fun) operator).formals;
-			
-			for(int i=0; i<formals.size(); i++) 
+			if (operator instanceof RecFun)
 			{
-				body = body.substitute(formals.get(i), operands.get(i));	
+				System.err.println("# RecFun Application #");
+				RecFun operator = ((RecFun) this.operator);
+				Expression body = operator.body;
+				
+				// Substitute occurrences of function name with the function
+				body = body.substitute(operator.funVar, operator);
+								
+				// When we are here, we are sure that the form is
+				// (fun ... end Op1 ... OpN)
+				Vector<String> formals = operator.formals;
+				
+				for(int i=0; i<formals.size(); i++) 
+				{
+					body = body.substitute(formals.get(i), operands.get(i));	
+				}			
+
+				return body.oneStep();					
 			}
-						
-			return body;
+			else if(operator instanceof Fun)
+			{
+				System.err.println("# Fun Application #");
+				Fun operator = ((Fun) this.operator);
+				Expression body = operator.body;
+							
+				// When we are here, we are sure that the form is
+				// (fun ... end Op1 ... OpN)
+				Vector<String> formals = operator.formals;
+				
+				for(int i=0; i<formals.size(); i++) 
+				{
+					body = body.substitute(formals.get(i), operands.get(i));	
+				}			
+							
+				return body;				
+			}
+
+			// Shouldn't get to here
+			return this;
 		}
 		
 	}
@@ -94,17 +118,34 @@ public class Application implements Expression
 	// Checks if one of the operands is reducible
 	public boolean isOperandsReducible() {
 		for(Expression o : operands) {
-			if(o.reducible()) return true;
+			if(o.reducible() == false) {
+				return false;
+			}
 		}
-		return false;
+		return true;
 	}
 
+//	public boolean isOperandsReducible() {
+//		for(Expression o : operands) {
+//			if(o.reducible()) {
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
+	
 	public Vector<Expression> reduceOperandsByOneStep() 
 	{
-		Vector<Expression> new_operands = new Vector<Expression>();
+		Vector<Expression> new_operands = operands;
 		
 		for(Expression o : operands) {
-			new_operands.add(o.oneStep());
+			if (o.reducible()) {
+				new_operands.add(o.oneStep());
+			}
+			else
+			{
+				return new_operands;
+			}
 		}
 		return new_operands;
 	}
