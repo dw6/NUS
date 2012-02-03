@@ -32,7 +32,6 @@ public class Fun implements Expression
 
 	public Expression substitute(String var, Expression replacement)
 	{
-		
 		StringSet bfv = body.freeVars(); // body free vars
 		StringSet rfv = replacement.freeVars(); // replacement free vars
 		StringSet ufv = bfv.union(rfv); // union of the above two

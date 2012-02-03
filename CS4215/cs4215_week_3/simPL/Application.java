@@ -48,7 +48,6 @@ public class Application implements Expression
 	// A: When either its operands or operator is reducible
 	public boolean reducible()
 	{
-		System.err.println(this);
 		return operator.reducible() || 
 				(IsValue.isValue(operator) && isOperandsReducible()) || 
 				(IsValue.isValue(operator) && allOperandsAreValues());
@@ -56,7 +55,6 @@ public class Application implements Expression
 
 	public Expression oneStep()
 	{
-
 		if (operator.reducible())
 		{
 			return new Application(operator.oneStep(), operands);
@@ -69,7 +67,6 @@ public class Application implements Expression
 		{
 			if (operator instanceof RecFun)
 			{
-				System.err.println("# RecFun Application #");
 				RecFun operator = ((RecFun) this.operator);
 				Expression body = operator.body;
 
@@ -89,7 +86,6 @@ public class Application implements Expression
 			}
 			else if (operator instanceof Fun)
 			{
-				System.err.println("# Fun Application #");
 				Fun operator = ((Fun) this.operator);
 				Expression body = operator.body;
 
