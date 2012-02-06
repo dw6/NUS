@@ -23,10 +23,24 @@ public class Application implements Expression
 		return new Application(operator.eliminateLet(), newoperands);
 	}
 
-	// to be implemented by student
-
+	// Check RHS match LHS int * int 
 	public Type check(TypeEnvironment G) throws TypeError
-	{
+	{		
+		System.err.println("Checking #Application# type");
+		
+		// Check the type of the function! 
+		Type result1 = operator.check(G);
+		
+		if (result1 instanceof FunType)
+		{
+			
+		}
+		else
+		{
+			throw new TypeError("ill-typed function application " + this);
+		}
+
+		
 		return null;
 	}
 

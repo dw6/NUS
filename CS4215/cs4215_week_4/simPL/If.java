@@ -22,7 +22,29 @@ public class If implements Expression
 
 	public Type check(TypeEnvironment G) throws TypeError
 	{
-		return null;
+		Type result1 = condition.check(G);
+		Type result2 = thenPart.check(G);
+		Type result3 = elsePart.check(G);
+		
+		if (result1 instanceof BoolType)
+		{
+			if (result2 instanceof BoolType && result3 instanceof BoolType)
+			{
+				return new BoolType();
+			}
+			else if (result2 instanceof IntType && result3 instanceof IntType)
+			{
+				return new IntType();
+			}
+			else 
+			{
+				throw new TypeError("ill-typed if expression " + this);
+			}
+		}
+		else
+		{
+			throw new TypeError("ill-typed if expression " + this);
+		}
 	}
 
 	// //////////////////////

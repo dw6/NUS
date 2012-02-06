@@ -21,11 +21,22 @@ public class Fun implements Expression
 		return new Fun(funType, formals, body.eliminateLet());
 	}
 
-	// to be implemented by student
 
 	public Type check(TypeEnvironment G) throws TypeError
 	{
-		return null;
+		System.err.println("Checking #Function# type");
+
+		// Extend the environment with function input arguments
+		G = G.extend(formals,((FunType)funType).argumentTypes);
+
+		if (((FunType)funType).returnType.toString().equals(body.check(G).toString()))
+		{
+			return new FunType(((FunType)funType).argumentTypes, ((FunType)funType).returnType);
+		}
+		else
+		{
+			throw new TypeError("ill-typed function " + this);
+		}
 	}
 
 	// //////////////////////

@@ -19,11 +19,31 @@ public class BinaryPrimitiveApplication implements Expression
 				.eliminateLet());
 	}
 
-	// to be implemented by student
-
 	public Type check(TypeEnvironment G) throws TypeError
 	{
-		return null;
+		Type result1 = argument1.check(G);
+		Type result2 = argument2.check(G);
+				
+		if (result1 instanceof IntType && result2 instanceof IntType && (operator.equals("+") || operator.equals("-") || operator.equals("*")))
+		{
+			return new IntType();
+		}
+		else if (result1 instanceof IntType && result2 instanceof IntType && operator.equals("="))
+		{
+			return new BoolType();
+		}
+		else if (result1 instanceof BoolType && result2 instanceof BoolType && (operator.equals("&") || operator.equals("|")))
+		{
+			return new BoolType();
+		}
+		else if (result1 instanceof IntType && result2 instanceof IntType && (operator.equals(">") || operator.equals("<")))
+		{
+			return new BoolType();
+		}
+		else
+		{
+			throw new TypeError("ill-typed binary primitive application " + this);
+		}
 	}
 
 	// //////////////////////
