@@ -23,25 +23,37 @@ public class Application implements Expression
 		return new Application(operator.eliminateLet(), newoperands);
 	}
 
-	// Check RHS match LHS int * int 
 	public Type check(TypeEnvironment G) throws TypeError
-	{		
-		System.err.println("Checking #Application# type");
+	{				
+		// The type of the operator needs to be a function type with the right number of parameters 
+		Type operatorType = operator.check(G);
 		
-		// Check the type of the function! 
-		Type result1 = operator.check(G);
+		int numOperands = operands.size();
+		int numParameters = ((FunType) operatorType).argumentTypes.size();
 		
-		if (result1 instanceof FunType)
+		if (operatorType instanceof FunType && numOperands == numParameters)
 		{
+			for(int i = 0; i < ((FunType) operatorType).argumentTypes.size(); i++)
+			{
+				// The type of every argument needs to coincide with the 
+				// corresponding parameter type of the function type. 				
+				if(!EqualType.equalType(((FunType) operatorType).argumentTypes.get(i), operands.get(i).check(G)))
+				{
+					throw new TypeError("");
+				}
+			}
 			
+			// If all these conditions are met, the type of the function application 
+			// is the same as the return type of the function type that is the type of the operator.			
+			return ((FunType) operatorType).returnType;
+			
+
 		}
 		else
 		{
-			throw new TypeError("ill-typed function application " + this);
+			throw new TypeError("");
 		}
-
-		
-		return null;
+	
 	}
 
 	// //////////////////////

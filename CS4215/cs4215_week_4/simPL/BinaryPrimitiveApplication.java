@@ -24,7 +24,7 @@ public class BinaryPrimitiveApplication implements Expression
 		Type result1 = argument1.check(G);
 		Type result2 = argument2.check(G);
 				
-		if (result1 instanceof IntType && result2 instanceof IntType && (operator.equals("+") || operator.equals("-") || operator.equals("*")))
+		if (result1 instanceof IntType && result2 instanceof IntType && (operator.equals("+") || operator.equals("-") || operator.equals("*") || operator.equals("/")))
 		{
 			return new IntType();
 		}

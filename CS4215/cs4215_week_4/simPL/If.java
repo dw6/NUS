@@ -26,20 +26,9 @@ public class If implements Expression
 		Type result2 = thenPart.check(G);
 		Type result3 = elsePart.check(G);
 		
-		if (result1 instanceof BoolType)
+		if (result1 instanceof BoolType && EqualType.equalType(result2, result3))
 		{
-			if (result2 instanceof BoolType && result3 instanceof BoolType)
-			{
-				return new BoolType();
-			}
-			else if (result2 instanceof IntType && result3 instanceof IntType)
-			{
-				return new IntType();
-			}
-			else 
-			{
-				throw new TypeError("ill-typed if expression " + this);
-			}
+			return result2;
 		}
 		else
 		{

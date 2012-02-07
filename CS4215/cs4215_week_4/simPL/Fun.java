@@ -24,19 +24,32 @@ public class Fun implements Expression
 
 	public Type check(TypeEnvironment G) throws TypeError
 	{
-		System.err.println("Checking #Function# type");
-
-		// Extend the environment with function input arguments
-		G = G.extend(formals,((FunType)funType).argumentTypes);
-
-		if (((FunType)funType).returnType.toString().equals(body.check(G).toString()))
-		{
-			return new FunType(((FunType)funType).argumentTypes, ((FunType)funType).returnType);
-		}
-		else
+		// Need to check first that the formal arguments is the same length as the input parameters
+		if (((FunType)funType).argumentTypes.size() != formals.size())
 		{
 			throw new TypeError("ill-typed function " + this);
 		}
+		else
+		{
+			// Thus for a function definition to be well-typed under the assumptions given by
+			// type environment G1, the body of the function needs to be well-typed under the
+			// assumptions given by an extended environment Gn+1, where Gn+1 extends G1
+			// with bindings of the function’s formal parameters to its declared types. 
+			G = G.extend(formals,((FunType)funType).argumentTypes);
+			
+			// Furthermore, the type of the body needs to coincide with the declared return type
+			// of the function
+			
+			if (EqualType.equalType(((FunType)funType).returnType, body.check(G)))
+			{
+				return funType;
+			}
+			else
+			{
+				throw new TypeError("ill-typed function " + this);
+			}			
+		}
+
 	}
 
 	// //////////////////////
