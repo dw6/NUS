@@ -2,6 +2,7 @@
 % U077129N
 % PS1, Exercise 1
 
+
 :- lib(hash). % query "help hash." to find contents of library
 :- local op(948,fx,print).
 :- local op(1099,xf,;).
