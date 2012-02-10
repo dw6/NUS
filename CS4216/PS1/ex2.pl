@@ -20,7 +20,10 @@ eqn(InX-InY=Z, OutX-OutY=Z) :- !, n_term(InX,OutX), n_term(InY,OutY).
 % ?- aug_rows([-1*X-2*B+3*C-4*D-5*R, -4*A-6*R-6*T+5*B], Out).
 %    Out = [[-1, -2, 3, -4, -5, 0, 0], [0, 5, 0, 0, -6, -4, -6]].
 aug_rows(Eqn,AugMatrix) :- !, get_vars(Eqn, V), aug_rows(Eqn,V,AugMatrix).
-aug_rows([E|ET],V,[C|CT]) :- !, aug_row(E,V,C), aug_rows(ET,V,CT). 
+
+% Appends the = X part to result coefficient list.
+aug_rows([E=Z|ET],V,[C1|CT]) :- 
+	!, aug_row(E,V,C),append(C,[Z],C1), aug_rows(ET,V,CT). 
 aug_rows([],_,[]) :- !.
 
 aug_row(Eqn,[V|VT],[C|CT]) :- !, get_coeff(V,Eqn,C), aug_row(Eqn,VT,CT).
