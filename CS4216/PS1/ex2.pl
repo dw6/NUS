@@ -31,7 +31,8 @@ solve(E,V,VIn,VOut) :-
 			E = [EH|ET], reverse(ET,ETR),
 			ETR = [Z|ETRR],
 			reverse(ETRR,EBody),
-			rhs_sum(EBody,VIn,RHS),
+			reverse(VIn,VInR),
+			rhs_sum(EBody,VInR,RHS),
 			V is (Z-RHS)/EH,
 			append(VIn,[V],VOut)
 		).
@@ -123,32 +124,20 @@ get_coeff(Var,A+_B,N) :- get_coeff(Var,A,N),!.
 get_coeff(Var,A-_B,N) :- get_coeff(Var,A,N),!.
 get_coeff(_,_,0).
 
-% solve_lin( [ X*2+Y=3, 3*Y-2*X=1 ] ).
 
-:- gauss([[2,1,3],[-2,3,1]],X),writeln(X). % (X,Y)=(1,1)
-
+% Test Cases
+% :- gauss([[2,1,3],[-2,3,1]],X),writeln(X). % (X,Y)=(1,1)
 % :- gauss([[3,4,1,6],[2,-1,2,-5],[1,3,-1,9]],X),writeln(X). % (X,Y,Z)=(2,1,-4)
 % :- gauss([[2,-3,1,-5],[3,2,-1,7],[1,4,-5,3]],X),writeln(X). % (X,Y,Z)=(1,3,2)
 % :- gauss([[1,-1,0,2],[2,-1,-1,3],[1,1,1,6]],X),writeln(X). % (X,Y,Z)=(3,1,2)
 % :- gauss([[1,-2,1,0],[2,1,-3,5],[4,-7,1,-1]],X),writeln(X). % (X,Y,Z)=(3,2,1).
 % :- gauss([[1,-3,1,4],[2,-8,8,-2],[-6,3,-15,9]],X),writeln(X). % (X,Y,Z)=(3,-1,-2)
 
-% :- solve_lin( [ 1,-3,1,4 ] ), writeln(X), writeln(Y).
-% :- solve_lin( [ 2*X+1*Y=3, 3*Y-2*X=1 ] ), writeln(X), writeln(Y).
 
-
+% Test Cases 
 % solve_lin( [ 2*X+1*Y=3, 3*Y-2*X=1 ] ).
-
-% solve_lin([1*X-2*Y+1*Z=0,2*X+1*Y-3*Z=5,4*X-7*Y+1*Z= -1]).
-
-% Test Case 1
-% solve_lin([3*X+4*Y+1*Z=6, 2*X-1*Y+2*Z = -5, 1*X+3*Y-1*Z=9]). % (X,Y,Z)=(2,1,-4)
-% solve_lin([[2,-3,1,-5],[3,2,-1,7],[1,4,-5,3]],X),writeln(X). % (X,Y,Z)=(1,3,2)
-
-
-% :- solve_lin( [ X*2+Y=3, 3*Y-2*X=1 ] ).
-
-
-
-% solver([[3,4,1,6],[2,-1,2,-5],[1,3,-1,9]], [X,Y,Z]).
+% solve_lin([3*X+4*Y+1*Z=6, 2*X-1*Y+2*Z = -5, 1*X+3*Y-1*Z=9]).   % (X,Y,Z)=(2,1,-4)
+% solve_lin([2*X-3*Y+1*Z = -5, 3*X+2*Y-1*Z = 7,1*X+4*Y-5*Z = 3]). % (X,Y,Z)=(1,3,2)
+% solve_lin([1*X-1*Y+0*Z = 2, 2*X-1*Y-1*Z = 3, 1*X+1*Y+1*Z = 6]). % (X,Y,Z)=(3,1,2)
+% solve_lin([1*X-3*Y+1*Z = 4,2*X-8*Y+8*Z = -2,-6*X+3*Y-15*Z = 9]). % (X,Y,Z)=(3,-1,-2)
 
