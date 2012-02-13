@@ -1,0 +1,6 @@
+fun{ int -> (int -> int) } x -> fun {int -> int} y -> x + y end end 					[ PASS ]
+2 * ( 8 - 5) > 10 / (1 + 1) 									 						[ PASS ]
+(fun {int * int -> bool} x y -> x < y end 3 4)											[ PASS ]
+let {int} a=1 {int} b=2 in {bool} (fun {int * int -> bool} x y -> x = y end a b) end 	[ PASS ]
+(fun { (int -> int) * int -> int}  f x -> (f x) end fun{int -> int} y -> y + 1 end 10)	[ PASS ]
+let {int} AboutPi = 3 {int -> int} Square = fun {int -> int} y -> y * y end  in {int -> int} fun{ int -> int}  x -> AboutPi * (Square x) end end
