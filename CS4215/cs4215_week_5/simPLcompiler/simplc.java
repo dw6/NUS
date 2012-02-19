@@ -36,6 +36,11 @@ class simplc
 				System.out.println(e);
 			}
 
+			/*
+			 * simPL input: 'simpl' is a valid simpl program that has been type
+			 * checked.
+			 */
+
 			INSTRUCTION[] ia = new Compiler(simpl).compile();
 
 			Compiler.displayInstructionArray(ia);
@@ -45,15 +50,14 @@ class simplc
 				// create object output stream
 				ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(svmlfile));
 
-				// and write resulting
-				// instruction array to output stream
-
+				// and write resulting instruction array to output stream
 				oos.writeObject(ia);
 				oos.close();
 
 				// indicate successful compilation to user
 				System.out.println("sVML code written to " + svmlfile);
-			} catch (Exception ex)
+			}
+			catch (Exception ex)
 			{
 				System.out.println("\ncannot write virtual machine code " + ex);
 			}
@@ -81,14 +85,17 @@ class simplc
 				while (columnCount++ != column)
 					System.out.print(" ");
 				System.out.println("^");
-			} catch (Exception ex)
+			}
+			catch (Exception ex)
 			{
 				System.out.println(e);
 			}
-		} catch (FileNotFoundException e)
+		}
+		catch (FileNotFoundException e)
 		{
 			System.out.println(e);
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			System.out.println(e);
 		}

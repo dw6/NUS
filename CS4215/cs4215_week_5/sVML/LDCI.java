@@ -1,17 +1,32 @@
 package sVML;
 
-public class LDCI extends INSTRUCTION {
+/**
+ * Load Constant Integer
+ *
+ */
 
+public class LDCI extends INSTRUCTION
+{
 	private static final long serialVersionUID = 1L;
 	public int VALUE;
-	public LDCI(int i) {
+
+	/**
+	 * LDCI - Load Constant integer
+	 * @param i
+	 */
+	public LDCI(int i)
+	{
 		OPCODE = OPCODES.LDCI;
 		VALUE = i;
 	}
-	public String toString() {
+
+	public String toString()
+	{
 		return "LDCI" + " " + VALUE;
 	}
-	public String toXML() {
+
+	public String toXML()
+	{
 		return "<svm:LDCI>" + VALUE + "</svm:LDCI>";
 	}
 }

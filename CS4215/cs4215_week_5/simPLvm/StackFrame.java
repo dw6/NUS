@@ -11,4 +11,10 @@ public class StackFrame {
      environment = e;
      operandStack = os;
   }
+  
+  public String toString()
+  {
+	  return new String("pc: " + pc + " env: " + environment + " os: " + operandStack);
+  }
+  
 }

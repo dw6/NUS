@@ -1,15 +1,22 @@
 package sVML;
 
-public class OR extends INSTRUCTION {
+public class OR extends INSTRUCTION
+{
 
 	private static final long serialVersionUID = 1L;
-	public OR() {
+
+	public OR()
+	{
 		OPCODE = OPCODES.OR;
 	}
-	public String toString() {
+
+	public String toString()
+	{
 		return "OR";
 	}
-	public String toXML() {
+
+	public String toXML()
+	{
 		return "<svm:OR/>";
 	}
 }

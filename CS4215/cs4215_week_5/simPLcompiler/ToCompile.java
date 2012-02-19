@@ -4,23 +4,31 @@ import simPL.*;
 
 import sVML.*;
 
-public class ToCompile {
-   public LDF funInstruction;
-   public IndexTable indexTable;
-   public Expression body;
-    public String funVar;
+public class ToCompile
+{
+	public LDF funInstruction;
+	public IndexTable indexTable;
+	public Expression body;
+	public String funVar;
 
-   public ToCompile(LDF fi, IndexTable it, Expression b) {
-      funInstruction = fi;
-      indexTable = it;
-      body = b;
-      funVar = "";
-   }
-   public ToCompile(LDF fi, IndexTable it, Expression b, String fv) {
-      funInstruction = fi;
-      indexTable = it;
-      body = b;
-      funVar = fv;
-   }
+	public ToCompile(LDF fi, IndexTable it, Expression b)
+	{
+		funInstruction = fi;
+		indexTable = it;
+		body = b;
+		funVar = "";
+	}
+
+	public ToCompile(LDF fi, IndexTable it, Expression b, String fv)
+	{
+		funInstruction = fi;
+		indexTable = it;
+		body = b;
+		funVar = fv;
+	}
+
+	public String toString()
+	{
+		return new String(">>> FunInst: " + funInstruction + " IdxTab: " + indexTable + " Body: " + body + " FunVar: " + funVar);
+	}
 }
-

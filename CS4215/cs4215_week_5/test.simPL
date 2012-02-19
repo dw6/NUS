@@ -1,1 +1,1 @@
-2 * if true | false then 100 else 200 end
+2 * if true | false then 1+2 else 2+3 end
