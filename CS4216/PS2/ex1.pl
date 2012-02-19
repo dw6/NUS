@@ -16,9 +16,10 @@ solve(H,CS) :- clause(H,Body),
 peek(H,[H1|_]) :- H1 == H.
 peek(H,[H1]) :- H1 == H.
 
-r(_) :- true.
-p(_) :- true.
-s(X) :- r(X), p(X),r(X), p(X),r(X), p(X).
-q(X) :- r(X), p(X),r(X), q(X), p(X),r(X), p(X). % infinite call to q
-t(X) :- s(X), r(X), s(X),s(X), r(X), s(X),s(X), q(X), s(X). % calls q, the troublemaler
+% r(_) :- true.
+% p(_) :- true.
+% s(X) :- r(X), p(X),r(X), p(X),r(X), p(X).
+% q(X) :- r(X), p(X),r(X), q(X), p(X),r(X), p(X). % infinite call to q
+% t(X) :- s(X), r(X), s(X),s(X), r(X), s(X),s(X), q(X), s(X). % calls q, the troublemaler
 
+p(X) :- p(Y).
