@@ -55,7 +55,12 @@ intro.
 intro.
 apply H0.
 exists x;auto.
-admit.
+intro.
+intro.
+destruct H.
+generalize (H0 x).
+intro.
+contradiction.
 Qed.
 
 Goal
@@ -67,9 +72,13 @@ intro.
 apply NNPP.
 intro.
 apply H.
-exists x;intro;auto.
-(* Stuck here *)
-admit.
+exists x;auto.
+intro.
+intro.
+destruct H0.
+generalize (H x).
+intro.
+contradiction.
 Qed.
 
 Goal
@@ -84,23 +93,32 @@ intro.
 apply NNPP.
 intro.
 apply H0.
-exists x;auto.
-(* Stuck *)
-admit.
+exists x.
+trivial.
+intro.
+intro.
+destruct H.
+generalize(H0 x).
+intro.
+contradiction.
 Qed.
 
 Goal
 (~ exists x, P x)  <->  forall x, ~ P x.
-Proof with auto.
+Proof.
 split.
 intro.
 intro.
 intro.
 apply H.
 exists x;auto.
-(* Stuck *)
-admit.
-
+(* Note how to do below *)
+intro.
+intro.
+destruct H0.
+generalize (H x). (* Generalize -> forall elimination ?*)
+intro.
+contradiction.
 Qed.
 
 
