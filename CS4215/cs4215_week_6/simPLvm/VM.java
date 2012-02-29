@@ -5,6 +5,12 @@ import sVML.*;
 public class VM extends FixedSizeVM
 {
 
+	// the runtime stack is implemented outside
+	// of the heap. Its elements are addresses of
+	// heap nodes, each of which represents
+	// a runtime stack frame. The implementation
+	// represents the runtime stack by an array.
+
 	private static final int[] RUNTIMESTACK = new int[RUNTIMESTACK_SIZE];
 	private static int TopOfRuntimeStack = -1;
 
@@ -57,8 +63,6 @@ public class VM extends FixedSizeVM
 	private static final int SIZE_SLOT = 1;
 	private static final int FIRST_CHILD_SLOT = 2;
 	private static final int LAST_CHILD_SLOT = 3;
-	
-//	private static final int FORWARD_ADDRESS_SLOT;
 
 	// Layout of nodes with children nodes:
 
@@ -280,7 +284,7 @@ public class VM extends FixedSizeVM
 	private static int Free = 0;
 	private static int HEAPBOTTOM = 0;
 	private static int SPACESIZE;
-	private static int FORWARDINGADDRESS = 1;
+	private static int FORWARDINGADDRESS = 0;
 
 	private static int Fromspace;
 	private static int Tospace;
@@ -352,15 +356,14 @@ public class VM extends FixedSizeVM
 			move(v, Free);
 			
 			
-			if (HEAP[v] == TAGS.OPERANDSTACK)
-			{
-				System.err.println("B4: " + HEAP[addr + LAST_CHILD_SLOT]);
-				HEAP[addr + LAST_CHILD_SLOT] = HEAP[v + LAST_CHILD_SLOT] - v + addr;
-				System.err.println("Af: " + HEAP[addr + LAST_CHILD_SLOT]);
+//			if (HEAP[v] == TAGS.OPERANDSTACK)
+//			{
+//				HEAP[addr + LAST_CHILD_SLOT] = HEAP[v + LAST_CHILD_SLOT] - v + addr;
+//			}
 
-			}
-
-					
+//			peek(v,SIZE_SLOT);
+			
+			
 			Free +=  HEAP[v + SIZE_SLOT];
 			HEAP[v + FORWARDINGADDRESS] = addr;
 			return addr;
@@ -394,9 +397,6 @@ public class VM extends FixedSizeVM
 		HEAP[newnode + TAG_SLOT] = tag;
 		HEAP[newnode + SIZE_SLOT] = size;
 		Free = Free + size;
-		
-		peek(Free, size);
-		
 		return newnode;
 	}
 
