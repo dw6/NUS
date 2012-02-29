@@ -5,12 +5,6 @@ import sVML.*;
 public class VM extends FixedSizeVM
 {
 
-	// the runtime stack is implemented outside
-	// of the heap. Its elements are addresses of
-	// heap nodes, each of which represents
-	// a runtime stack frame. The implementation
-	// represents the runtime stack by an array.
-
 	private static final int[] RUNTIMESTACK = new int[RUNTIMESTACK_SIZE];
 	private static int TopOfRuntimeStack = -1;
 
@@ -31,8 +25,13 @@ public class VM extends FixedSizeVM
 
 	private static final class TAGS
 	{
-		public static final int INT = -100, BOOL = -101, ENVIRONMENT = -102, CLOSURE = -103,
-				STACKFRAME = -104, OPERANDSTACK = -105, ERROR = -106;
+		public static final int INT = -100, 
+								BOOL = -101, 
+								ENVIRONMENT = -102, 
+								CLOSURE = -103,
+								STACKFRAME = -104, 
+								OPERANDSTACK = -105, 
+								ERROR = -106;
 	}
 
 	// setting up the heap
@@ -58,6 +57,8 @@ public class VM extends FixedSizeVM
 	private static final int SIZE_SLOT = 1;
 	private static final int FIRST_CHILD_SLOT = 2;
 	private static final int LAST_CHILD_SLOT = 3;
+	
+//	private static final int FORWARD_ADDRESS_SLOT;
 
 	// Layout of nodes with children nodes:
 
@@ -296,6 +297,15 @@ public class VM extends FixedSizeVM
 
 	private static void flip()
 	{
+		System.err.println("##########################");
+		System.err.println(" Free      : " + Free);
+		System.err.println(" Fromspace : " + Fromspace);
+		System.err.println(" Tospace   : " + Tospace);
+		System.err.println(" Topofspace: " + Topofspace);
+		System.err.println("##########################");
+		System.err.println("");
+		
+	
 		int temp = Fromspace;
 		Fromspace = Tospace;
 		Tospace = temp;
@@ -306,7 +316,10 @@ public class VM extends FixedSizeVM
 
 		os = copy(os);
 		e = copy(e);
-		pc = copy(pc);
+		for(int i=0; i< RUNTIMESTACK.length; i++)
+		{
+			RUNTIMESTACK[i] = copy(RUNTIMESTACK[i]);
+		}
 
 		while (scan < Free)
 		{
@@ -314,7 +327,7 @@ public class VM extends FixedSizeVM
 			{
 				HEAP[scan + c] = copy(HEAP[scan + c]);
 			}
-			scan = scan + HEAP[scan + SIZE_SLOT];
+			scan += HEAP[scan + SIZE_SLOT];
 		}
 	}
 
@@ -327,7 +340,7 @@ public class VM extends FixedSizeVM
 	}
 
 
-	private static int copy(int v)
+	static int copy(int v)
 	{
 		if (already_copied(v))
 		{
@@ -337,21 +350,33 @@ public class VM extends FixedSizeVM
 		{
 			int addr = Free;
 			move(v, Free);
-			Free = Free + HEAP[v + SIZE_SLOT];
+			
+			
+			if (HEAP[v] == TAGS.OPERANDSTACK)
+			{
+				System.err.println("B4: " + HEAP[addr + LAST_CHILD_SLOT]);
+				HEAP[addr + LAST_CHILD_SLOT] = HEAP[v + LAST_CHILD_SLOT] - v + addr;
+				System.err.println("Af: " + HEAP[addr + LAST_CHILD_SLOT]);
+
+			}
+
+					
+			Free +=  HEAP[v + SIZE_SLOT];
 			HEAP[v + FORWARDINGADDRESS] = addr;
 			return addr;
 		}
 
 	}
 
-	private static boolean already_copied(int v)
+	static boolean already_copied(int v)
 	{
 		return HEAP[v + FORWARDINGADDRESS] >= Tospace && HEAP[v + FORWARDINGADDRESS] <= Topofspace;
 	}
 
 	// New creates new node with given tag and size
-	private static int New(int tag, int size)
-	{
+	static int New(int tag, int size)
+	{		
+		// We cannot fit the new node into free memory. Time to flip! 
 		if (Free + size > Topofspace)
 		{
 			System.err.println("Flipping ....");
@@ -364,15 +389,23 @@ public class VM extends FixedSizeVM
 			System.err.println("Memory Exhausted");
 		}
 
+		// Initialize this node with tag and size.
 		int newnode = Free;
 		HEAP[newnode + TAG_SLOT] = tag;
 		HEAP[newnode + SIZE_SLOT] = size;
 		Free = Free + size;
+		
+		peek(Free, size);
+		
 		return newnode;
 	}
 
 	public static String run(INSTRUCTION[] INSTRUCTIONARRAY)
 	{
+
+		// Initialize the heap
+		init();
+
 		/*
 		 * These are the initial 3 registers, representing the operand stack,
 		 * environment, and program counter.
@@ -381,9 +414,6 @@ public class VM extends FixedSizeVM
 		e = newEnvironment(0);
 		pc = 0;
 		
-		
-		// Initialize the heap
-		init();
 
 		loop: while (true)
 		{
