@@ -309,7 +309,6 @@ public class VM extends FixedSizeVM
 		System.err.println("##########################");
 		System.err.println("");
 		
-	
 		int temp = Fromspace;
 		Fromspace = Tospace;
 		Tospace = temp;
@@ -354,15 +353,6 @@ public class VM extends FixedSizeVM
 		{
 			int addr = Free;
 			move(v, Free);
-			
-			
-//			if (HEAP[v] == TAGS.OPERANDSTACK)
-//			{
-//				HEAP[addr + LAST_CHILD_SLOT] = HEAP[v + LAST_CHILD_SLOT] - v + addr;
-//			}
-
-//			peek(v,SIZE_SLOT);
-			
 			
 			Free +=  HEAP[v + SIZE_SLOT];
 			HEAP[v + FORWARDINGADDRESS] = addr;

@@ -1,0 +1,31 @@
+Variable term:Type.
+Variable S: Prop.
+Variable (P :term -> Prop).
+Variable (Q :term -> Prop).
+Variable b:term.
+
+Require Import Classical.
+
+
+Goal (forall x, exists y, (P x \/ Q y)) -> (exists y, forall x, (P x \/ Q y)).
+Proof.
+intro.
+apply NNPP.
+intro.
+apply H0.
+exists b.
+intro.
+generalize(H x);clear H;intro H.
+destruct H.
+destruct H.
+left.
+trivial.
+exfalso.
+apply H0.
+exists x0.
+intro.
+right.
+trivial.
+Qed.
+
+

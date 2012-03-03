@@ -31,15 +31,18 @@ Lemma Bob1:
 exists x,
 (P x -> forall x, P x).
 Proof with contradiction.
-  destruct (classic (forall x , P x)).
-  exists b;intro;auto.
-  apply NNPP;intro.
-  apply H.
-  intro.
-  apply NNPP;intro.
-  apply H0.
-  exists x;intro.
-  contradiction.
+destruct(classic(forall x, P x)).
+exists b;auto.
+apply NNPP. (* Remember this point *)
+intro.
+apply H.
+intro.
+apply NNPP.
+intro.
+apply H0.
+exists x.
+intro.
+contradiction.
 Qed.
 
 
@@ -54,14 +57,19 @@ apply H.
 intro.
 intro.
 apply H0.
-exists x;auto.
+exists x.
+trivial.
+apply NNPP.
 intro.
+apply H.
 intro.
-destruct H.
-generalize (H0 x).
+destruct H0.
+intro.
+generalize(H1 x).
 intro.
 contradiction.
 Qed.
+
 
 Goal
 (~ exists x, ~ P x)  <->  forall x, P x.
@@ -76,14 +84,38 @@ exists x;auto.
 intro.
 intro.
 destruct H0.
-generalize (H x).
+generalize(H x).
 intro.
 contradiction.
 Qed.
 
+
 Goal
 (~ forall x, P x)  <->  exists x, ~ P x.
 Proof with auto.
+split.
+intro.
+apply NNPP.
+intro.
+apply H.
+intro.
+apply NNPP.
+intro.
+apply H0.
+exists x.
+trivial.
+apply NNPP.
+intro.
+apply H.
+intro.
+destruct H0.
+intro.
+generalize(H1 x).
+intro.
+contradiction.
+Qed.
+
+(*
 split.
 intro.
 apply NNPP.
@@ -101,7 +133,7 @@ destruct H.
 generalize(H0 x).
 intro.
 contradiction.
-Qed.
+*)
 
 Goal
 (~ exists x, P x)  <->  forall x, ~ P x.
@@ -111,38 +143,11 @@ intro.
 intro.
 intro.
 apply H.
-exists x;auto.
-(* Note how to do below *)
+exists x.
+trivial.
 intro.
 intro.
 destruct H0.
-generalize (H x). (* Generalize -> forall elimination ?*)
-intro.
-contradiction.
+generalize(H x).
+intro;auto.
 Qed.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

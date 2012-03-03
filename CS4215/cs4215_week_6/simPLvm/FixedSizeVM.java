@@ -4,7 +4,7 @@ public class FixedSizeVM {
 	
 	// the size of the heap is fixed
 	
-   public static int HEAP_SIZE = 100;
+   public static int HEAP_SIZE = 125;
    
 	// the size of the runtime stack is fixed, too
 
