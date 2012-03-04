@@ -23,36 +23,34 @@ convert(Board,BoardList) :-
 search(Board,CarvedPos) :-
   dim(Board,[N,N]),
   no_of_tiles(N,CarvedPos,T),
-  (foreacharg(Arg,Board), param(T,Arg)
+  (foreacharg(Arg,Board), param(T,Board)
   do
   (
-    (foreacharg(A,Arg),param(T)
+    (foreacharg(A,Arg),param(T,Board)
     do
     (
       atom(A) -> true; select_val(1,T,A)
     )) 
   )).
   
-  
 
 constraints(Board,CarvedPos) :-
   dim(Board,[N,N]),
   no_of_tiles(N,CarvedPos,T),
   length(Vars,T),
-  Vars :: 1..T, 
+  Vars :: 1..T, %flatten_array(Board,FlatBoard), distinct(T, FlatBoard),
   ( multifor([X,Y],1,N), foreach(V,Vars),param(Board,CarvedPos)
   do
     (
-      (member(X-Y, CarvedPos)) -> true;
+      subscript(Board,[X,Y],V),(\+member(X-Y, CarvedPos)) -> 
        (
-          subscript(Board,[X,Y],V),
-          (X1 $= X+1, Y1 $= Y, X1 $\= X,   X1 $\= X-1, Y1 $\= Y-1,Y1 $\= Y+1) or
-          (X1 $= X-1, Y1 $= Y, X1 $\= X,   X1 $\= X+1, Y1 $\= Y-1,Y1 $\= Y+1) or
-          (X1 $= X, Y1 $= Y+1, X1 $\= X-1, X1 $\= X+1, Y1 $\= Y-1,Y1 $\= Y  ) or
-          (X1 $= X, Y1 $= Y-1, X1 $\= X-1, X1 $\= X+1, Y1 $\= Y,  Y1 $\= Y+1)
-        )
+       ((X1 $= X+1, Y1 $= Y, X1 $\= X,   X1 $\= X-1, Y1 $\= Y-1,Y1 $\= Y+1) or
+        (X1 $= X-1, Y1 $= Y, X1 $\= X,   X1 $\= X+1, Y1 $\= Y-1,Y1 $\= Y+1) or
+        (X1 $= X, Y1 $= Y+1, X1 $\= X-1, X1 $\= X+1, Y1 $\= Y-1,Y1 $\= Y  ) or
+        (X1 $= X, Y1 $= Y-1, X1 $\= X-1, X1 $\= X+1, Y1 $\= Y,  Y1 $\= Y+1)))
+       ; true
     )
-  ),flatten_array(Board,FlatBoard), distinct(T, FlatBoard).
+  ), flatten_array(Board,FlatBoard), distinct(T, FlatBoard), writeln(FlatBoard).
   
 
 
@@ -84,6 +82,6 @@ sorted([H1,H2,H3|T]) :- H1 $= H2, H2 $< H3, sorted([H3|T]).
 
 distinct(K,L) :- 
   delete_all(L,x,NL),
-  length(M,K), sorted(M), writeln(M), memberlist(M,NL), memberlist(NL,M).
+  length(M,K), sorted(M), memberlist(M,NL), memberlist(NL,M).
 
 % solve(5,[1-5,4-5,5-1],Result).
