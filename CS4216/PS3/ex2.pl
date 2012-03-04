@@ -23,7 +23,7 @@ convert(Board,BoardList) :-
 search(Board,CarvedPos) :-
   dim(Board,[N,N]),
   no_of_tiles(N,CarvedPos,T),
-  (foreacharg(Arg,Board), param(T)
+  (foreacharg(Arg,Board), param(T,Arg)
   do
   (
     (foreacharg(A,Arg),param(T)
@@ -37,22 +37,22 @@ search(Board,CarvedPos) :-
 
 constraints(Board,CarvedPos) :-
   dim(Board,[N,N]),
-  no_of_tiles(N,CarvedPos,T), % Find num of tiles. 1..T is therefore the domain.
-  ( multifor([X,Y],1,N), param(Board,N,CarvedPos,T)
+  no_of_tiles(N,CarvedPos,T),
+  length(Vars,T),
+  Vars :: 1..T, 
+  ( multifor([X,Y],1,N), foreach(V,Vars),param(Board,CarvedPos)
   do
     (
-       
-      (not member(X-Y,CarvedPos)) ->   
+      (member(X-Y, CarvedPos)) -> true;
        (
-          V::1..T,subscript(Board,[X,Y],V),[X1,Y1]::1..N,
+          subscript(Board,[X,Y],V),
           (X1 $= X+1, Y1 $= Y, X1 $\= X,   X1 $\= X-1, Y1 $\= Y-1,Y1 $\= Y+1) or
           (X1 $= X-1, Y1 $= Y, X1 $\= X,   X1 $\= X+1, Y1 $\= Y-1,Y1 $\= Y+1) or
           (X1 $= X, Y1 $= Y+1, X1 $\= X-1, X1 $\= X+1, Y1 $\= Y-1,Y1 $\= Y  ) or
           (X1 $= X, Y1 $= Y-1, X1 $\= X-1, X1 $\= X+1, Y1 $\= Y,  Y1 $\= Y+1)
         )
-      ; true
     )
-  ). 
+  ),flatten_array(Board,FlatBoard), distinct(T, FlatBoard).
   
 
 
@@ -79,9 +79,11 @@ memberlist([],_).
 memberlist([H|T],L) :- member(H,L), memberlist(T,L).
 
 sorted([]).
-sorted([_]).
-sorted([H1,H2|T]) :- H1 $< H2, sorted([H2|T]).
+sorted([_,_]).
+sorted([H1,H2,H3|T]) :- H1 $= H2, H2 $< H3, sorted([H3|T]).
 
-distinct(K,L) :- length(M,K), sorted(M),memberlist(M,L), memberlist(L,M).
+distinct(K,L) :- 
+  delete_all(L,x,NL),
+  length(M,K), sorted(M), writeln(M), memberlist(M,NL), memberlist(NL,M).
 
 % solve(5,[1-5,4-5,5-1],Result).
