@@ -19,8 +19,7 @@ expr(E1+E2,ConE1+ConE2) :-
 expr(E=R,ConE=ConR) :-
 	expr(E,ConE),
 	expr(R,ConR),
-	(ConE) #= (ConE).
-
+	eval(ConE) #= eval(ConR).
 
 expr(Expr,sum(CExpr)) :-
 	length(Expr,LenE),
