@@ -1,14 +1,30 @@
-% L = [S,E,N,D,M,O,R,Y], 
-% L::0..9, alldifferent(L), 
-% S$\=0, M$\=0, 
-% 1000*S+100*E+10*N+D+1000*M+100*O+10*R+E $= 10000*M+1000*O+100*N+10*E+Y,
-% labeling(L).
-
-
+:- lib(ic).
 
 % crypto([G,E,R,A,L,D]+[D,O,N,A,L,D]=[R,O,B,E,R,T]).
 
-crypto(L1+L2=L3) :-
-	flatten([L1,L2,L3],L4).
+% crypto([S,E,N,D]+[M,O,R,E]=[M,O,N,E,Y]).
 
 
+crypto(Equation) :-
+	term_variables(Equation,Vars),
+	alldifferent(Vars), 
+	Vars::0..9,
+	expr(Equation,_),
+	labeling(Vars).
+
+expr(E1+E2,ConE1+ConE2) :-
+	expr(E1,ConE1),
+	expr(E2,ConE2).
+
+expr(E=R,ConE=ConR) :-
+	expr(E,ConE),
+	expr(R,ConR),
+	(ConE) #= (ConE).
+
+
+expr(Expr,sum(CExpr)) :-
+	length(Expr,LenE),
+	Expr = [EH|_], EH $\= 0,
+	(foreach(E,Expr),foreach(C,CExpr),count(I,1,LenE),param(LenE) do 
+		( C = 10^(LenE-I)*E )
+	).
