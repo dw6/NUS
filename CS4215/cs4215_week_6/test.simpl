@@ -1,5 +1,5 @@
-let {int} AboutPi = 3
-    {int -> int} Square =
-         fun {int -> int} x -> x * x end
-in  {int} 4 * AboutPi * (Square 6371)
-end
+(recfun myadd {(int * int -> int)} x y -> 
+
+if (y = 0) then 1 else (x * (myadd x (y - 1))) end
+
+end 2 230)

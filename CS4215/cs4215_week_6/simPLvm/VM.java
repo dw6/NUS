@@ -300,15 +300,7 @@ public class VM extends FixedSizeVM
 	}
 
 	private static void flip()
-	{
-		System.err.println("##########################");
-		System.err.println(" Free      : " + Free);
-		System.err.println(" Fromspace : " + Fromspace);
-		System.err.println(" Tospace   : " + Tospace);
-		System.err.println(" Topofspace: " + Topofspace);
-		System.err.println("##########################");
-		System.err.println("");
-		
+	{		
 		int temp = Fromspace;
 		Fromspace = Tospace;
 		Tospace = temp;
@@ -319,16 +311,38 @@ public class VM extends FixedSizeVM
 
 		os = copy(os);
 		e = copy(e);
+
 		for(int i=0; i< RUNTIMESTACK.length; i++)
 		{
 			RUNTIMESTACK[i] = copy(RUNTIMESTACK[i]);
 		}
-
+		
 		while (scan < Free)
-		{
-			for (int c = HEAP[scan + FIRST_CHILD_SLOT]; c <= HEAP[scan + LAST_CHILD_SLOT]; c++)
+		{			
+			switch(HEAP[scan])
 			{
-				HEAP[scan + c] = copy(HEAP[scan + c]);
+				// Depending on the kind of node, we need to handle them differently. 
+			
+				case TAGS.CLOSURE:
+					HEAP[scan + CLOSURE_ENVIRONMENT_SLOT] = copy(HEAP[scan + CLOSURE_ENVIRONMENT_SLOT]);
+					break;
+				case TAGS.STACKFRAME:
+					HEAP[scan + STACKFRAME_ENVIRONMENT_SLOT] = copy(HEAP[scan + STACKFRAME_ENVIRONMENT_SLOT]);
+					HEAP[scan + STACKFRAME_OPERANDSTACK_SLOT] = copy(HEAP[scan + STACKFRAME_OPERANDSTACK_SLOT]);
+					break;
+				case TAGS.OPERANDSTACK:
+				case TAGS.ENVIRONMENT:
+
+					for (int i = HEAP[scan + FIRST_CHILD_SLOT]; i <= HEAP[scan + LAST_CHILD_SLOT]; i++)
+					{
+						HEAP[scan+i] = copy(HEAP[scan+i]);
+					}
+					break;
+
+				case TAGS.INT:
+				case TAGS.BOOL:
+				case TAGS.ERROR:
+				break;
 			}
 			scan += HEAP[scan + SIZE_SLOT];
 		}
@@ -338,7 +352,17 @@ public class VM extends FixedSizeVM
 	{
 		for (int i = 0; i < HEAP[v + SIZE_SLOT]; i++)
 		{
-			HEAP[free + i] = HEAP[v + i];
+			
+			// Need this for edge case.
+			if ((Free + HEAP[v + SIZE_SLOT]) > Topofspace) {
+				System.err.println("Memory Exhausted");
+				System.exit(0);
+			}
+			else
+			{
+				HEAP[free + i] = HEAP[v + i];
+				
+			}			
 		}
 	}
 
@@ -351,9 +375,9 @@ public class VM extends FixedSizeVM
 		}
 		else
 		{
-			int addr = Free;
+			int addr = Free;					
 			move(v, Free);
-			
+
 			Free +=  HEAP[v + SIZE_SLOT];
 			HEAP[v + FORWARDINGADDRESS] = addr;
 			return addr;
@@ -372,14 +396,13 @@ public class VM extends FixedSizeVM
 		// We cannot fit the new node into free memory. Time to flip! 
 		if (Free + size > Topofspace)
 		{
-			System.err.println("Flipping ....");
 			flip();
-			System.err.println("Flipped");
 		}
 
 		if (Free + size > Topofspace)
 		{
 			System.err.println("Memory Exhausted");
+			System.exit(0);
 		}
 
 		// Initialize this node with tag and size.
@@ -392,7 +415,6 @@ public class VM extends FixedSizeVM
 
 	public static String run(INSTRUCTION[] INSTRUCTIONARRAY)
 	{
-
 		// Initialize the heap
 		init();
 
