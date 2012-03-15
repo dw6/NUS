@@ -1,65 +1,79 @@
-package rePLvm; 
+package rePLvm;
 
 import rVML.*;
 import rePLcompiler.*;
 import java.io.*;
 
-class repl {
+class repl
+{
 
-    static public void main(String[] args) 
-    {
-	// read name of source file from command line
-	String basename=args[0];
+	static public void main(String[] args)
+	{
+		// read name of source file from command line
+		String basename = args[0];
 
-        // like "java", the rePL VM is called on
-        // the base name of the executable.
-      
-        String rvmlname=basename+".rvml";
+		// like "java", the rePL VM is called on
+		// the base name of the executable.
 
-        ObjectInputStream ois = null;
+		String rvmlname = basename + ".rvml";
 
-        try {
-            // create object input stream
-            ois = new ObjectInputStream(new FileInputStream(rvmlname));
+		ObjectInputStream ois = null;
 
-        } catch (Exception ex) {
-            System.out.println("cannot read "+rvmlname);
-	    System.out.println("Usage: java cs3212.rvm.repl <program>");
-	    System.exit(1);
-        }
+		try
+		{
+			// create object input stream
+			ois = new ObjectInputStream(new FileInputStream(rvmlname));
 
-        // load serialized instruction array from input stream
-        // into instructions
-	CompilerResult cr;
+		}
+		catch (Exception ex)
+		{
+			System.out.println("cannot read " + rvmlname);
+			System.out.println("Usage: java cs3212.rvm.repl <program>");
+			System.exit(1);
+		}
 
-        try {
-            cr = (CompilerResult)ois.readObject();
-	    INSTRUCTION instructions[] = cr.instructionArray;
-	    int p[][] = cr.p;
+		// load serialized instruction array from input stream
+		// into instructions
+		CompilerResult cr;
 
-            // print out instructions
-	                for (int i=0; i < instructions.length; i++)
-	                   if (instructions[i] != null) 
-	                       System.out.println(i+": "+instructions[i]);
+		try
+		{
+			cr = (CompilerResult) ois.readObject();
+			INSTRUCTION instructions[] = cr.instructionArray;
+			int p[][] = cr.p;
 
-	    try {
-	    // run the instructions and print out resulting value
-	    // now, we pass both the instructions and p to the machine
-		System.out.println(VM.run(instructions,p,cr.idp,cr.divisionByZeroAddress,
-					  cr.invalidRecordAccessAddress));
-	    } catch (Exception ex) {
-		System.out.println("exception "+ex+" during execution of "+rvmlname);
-	    }
-        } catch (Exception ex) {
-            System.out.println("cannot read "+rvmlname);
-	    System.exit(1);
-        }
+			// print out instructions
+			for (int i = 0; i < instructions.length; i++)
+				if (instructions[i] != null)
+					System.out.println(i + ": " + instructions[i]);
 
-        try {
-            ois.close();
-        } catch (Exception ex) {
-            System.out.println("cannot close "+rvmlname);
-	    System.exit(1);
-	};
-    }
+			try
+			{
+				// run the instructions and print out resulting value
+				// now, we pass both the instructions and p to the machine
+				System.out.println(VM.run(instructions, p, cr.idp, cr.divisionByZeroAddress,
+						cr.invalidRecordAccessAddress));
+			}
+			catch (Exception ex)
+			{
+				System.out.println("exception " + ex + " during execution of " + rvmlname);
+			}
+		}
+		catch (Exception ex)
+		{
+			System.out.println("cannot read " + rvmlname);
+			System.exit(1);
+		}
+
+		try
+		{
+			ois.close();
+		}
+		catch (Exception ex)
+		{
+			System.out.println("cannot close " + rvmlname);
+			System.exit(1);
+		}
+		;
+	}
 }
