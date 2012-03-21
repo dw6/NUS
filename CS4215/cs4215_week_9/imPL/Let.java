@@ -2,35 +2,47 @@ package imPL;
 
 import java.util.*;
 
-public class Let implements Expression {
+public class Let implements Expression
+{
 
-    public Vector<LetDefinition> definitions;
+	public Vector<LetDefinition> definitions;
 
-    public Expression body;
+	public Expression body;
 
-    public Let(Vector<LetDefinition> ds, Expression b) {
-	definitions = ds;
-	body = b;
-    }
+	public Let(Vector<LetDefinition> ds, Expression b)
+	{
+		definitions = ds;
+		body = b;
+	}
 
-    // //////////////////////
-    // Denotational Semantics
-    // //////////////////////
+	// //////////////////////
+	// Denotational Semantics
+	// //////////////////////
 
-    // stub to be replaced by proper implementation
+	// stub to be replaced by proper implementation
 
-    public StoreAndValue eval(Store s, Environment e) {
-	return new StoreAndValue(s,new BoolValue(true));
-    }
+	public StoreAndValue eval(Store s, Environment e)
+	{
+		for(LetDefinition ld : definitions)
+		{
 
-    // //////////////////////
-    // Support Functions
-    // //////////////////////
+		}
+		
+		StoreAndValue s_and_v1 = body.eval(s, e);
+		
+		
+		return new StoreAndValue(s, new BoolValue(true));
+	}
 
-   public String toString() {
-       String s = "";
-       for (LetDefinition d : definitions)
-	   s = s + " " + d;
-       return "let " + s + " in " + body + " end";
-   }
+	// //////////////////////
+	// Support Functions
+	// //////////////////////
+
+	public String toString()
+	{
+		String s = "";
+		for (LetDefinition d : definitions)
+			s = s + " " + d;
+		return "let " + s + " in " + body + " end";
+	}
 }
