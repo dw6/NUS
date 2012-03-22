@@ -23,20 +23,21 @@ public class Application implements Expression
 
 	public StoreAndValue eval(Store s, Environment e)
 	{
-//		StoreAndValue s_and_v1 = operator.eval(s, e);
-//		StoreAndValue s_and_v2 = null;
-//		StoreAndValue prev_s_and_v = s_and_v1;
-//		
-//		for(Expression e2: operands)
-//		{
-//			s_and_v2 = e2.eval(prev_s_and_v.store, e);
-//			prev_s_and_v = s_and_v2;
-//			
-//		}
-//		
-//		FunValue f = (FunValue)s_and_v1.value;
 		
-		return new StoreAndValue(s, new BoolValue(true));
+		
+		FunValue funValue = (FunValue)s.get(e.access(operator.toString()));
+		
+		int newLoc;
+		
+		for(int i=0; i<operands.size(); i++)
+		{
+			StoreAndValue s_and_v = operands.get(i).eval(s, e);
+			newLoc = s_and_v.store.newLocation();
+			s = s_and_v.store.extend(newLoc, s_and_v.value);
+			funValue.environment = funValue.environment.extend(funValue.formals.get(i), newLoc);
+		}
+
+		return funValue.body.eval(s, funValue.environment);		
 	}
 
 	// //////////////////////

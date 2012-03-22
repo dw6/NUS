@@ -23,15 +23,17 @@ public class Let implements Expression
 
 	public StoreAndValue eval(Store s, Environment e)
 	{
+		StoreAndValue s_and_v1 = null;
 		for(LetDefinition ld : definitions)
 		{
-
+			s_and_v1 = ld.rightHandExpression.eval(s, e);
+			int oldStoreLocation = s.newLocation();
+			s = s.extend(oldStoreLocation, s_and_v1.value);
+			e = e.extend(ld.variable, oldStoreLocation);
 		}
 		
-		StoreAndValue s_and_v1 = body.eval(s, e);
-		
-		
-		return new StoreAndValue(s, new BoolValue(true));
+		StoreAndValue s_and_v2 = body.eval(s, e);
+		return new StoreAndValue(s_and_v2.store, s_and_v2.value);
 	}
 
 	// //////////////////////

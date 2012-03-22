@@ -2,12 +2,14 @@ package imPL;
 
 import java.util.*;
 
-public class RecFun extends Fun {
+public class RecFun extends Fun
+{
 
 	public String funVar;
 
-	public RecFun(String f, Vector<String> xs, Expression b) {
-		super(xs,b);
+	public RecFun(String f, Vector<String> xs, Expression b)
+	{
+		super(xs, b);
 		funVar = f;
 	}
 
@@ -17,19 +19,25 @@ public class RecFun extends Fun {
 
 	// stub to be replaced by proper implementation
 
-	public StoreAndValue eval(Store s, Environment e) {
-		return new StoreAndValue(s,new BoolValue(true));
+	public StoreAndValue eval(Store s, Environment e)
+	{
+		System.err.println("Store : " + s);
+		System.err.println("Envir : " + e);
+		System.err.println("FunVar: " + funVar);
+		System.err.println("Formal: " + formals);
+		System.err.println("Body  : " + body);
+		return new StoreAndValue(s, new BoolValue(true));
 	}
 
 	// //////////////////////
 	// Support Functions
 	// //////////////////////
 
-	public String toString() {
+	public String toString()
+	{
 		String s = "";
 		for (String f : formals)
 			s = s + " " + f;
-		return "recfun " + funVar + 
-				s + " -> " + body + " end";
+		return "recfun " + funVar + s + " -> " + body + " end";
 	}
 }

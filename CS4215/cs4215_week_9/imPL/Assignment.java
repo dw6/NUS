@@ -21,7 +21,9 @@ public class Assignment implements Expression
 	{
 		StoreAndValue s_and_v1 = rightHandSide.eval(s, e);
 		Value v = s_and_v1.value;
-		return new StoreAndValue(s.extend(e.access(leftHandSide), v), v);
+
+		assert(e.containsKey(leftHandSide));
+		return new StoreAndValue(s.extend(e.access(leftHandSide), v), v);					
 	}
 
 	// //////////////////////
