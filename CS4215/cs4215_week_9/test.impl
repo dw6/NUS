@@ -1,4 +1,1 @@
-let recurse = recfun recurse x y operation initvalue -> if y = 0 then initvalue else (operation x (recurse x y - 1 operation initvalue)) end end 
-in
-(recurse 2 3 (fun x z -> z * x end) 1)
-end
+ (recfun fib x -> if x < 2 then x else (fib x - 1) + (fib x - 2) end end 6)
