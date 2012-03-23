@@ -20,8 +20,14 @@ public class RecFun extends Fun
 	// stub to be replaced by proper implementation
 
 	public StoreAndValue eval(Store s, Environment e)
-	{						
-		return new StoreAndValue(s, new FunValue(e, super.formals, super.body));
+	{
+		StoreAndValue s_and_v = super.eval(s, e);
+		int newLoc = s_and_v.store.newLocation();
+		s_and_v.store = s_and_v.store.extend(newLoc, s_and_v.value);
+		((FunValue) s_and_v.value).environment = ((FunValue) s_and_v.value).environment.extend(
+				funVar, newLoc);
+		return new StoreAndValue(s_and_v.store, new FunValue(
+				((FunValue) s_and_v.value).environment, super.formals, super.body));
 	}
 
 	// //////////////////////

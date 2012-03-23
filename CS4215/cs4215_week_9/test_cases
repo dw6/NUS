@@ -33,3 +33,7 @@ end
  
  
  (fun x -> x end 2)
+ 
+ (recfun fib x -> if x < 2 then x else (fib x - 1) + (fib x - 2) end end 6)
+-> 8
+ 

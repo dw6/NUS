@@ -1,1 +1,4 @@
-let x = 1 in x + (fun y -> y + x end 2) end
+let recurse = recfun recurse x y operation initvalue -> if y = 0 then initvalue else (operation x (recurse x y - 1 operation initvalue)) end end 
+in
+(recurse 2 3 (fun x z -> z * x end) 1)
+end
