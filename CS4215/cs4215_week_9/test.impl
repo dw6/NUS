@@ -1,8 +1,1 @@
-let f = recfun fac  n ->
-			if n < 2 then 1
-			else n * (fac n-1)
-			end
-		end
-		in
-		(f 5)
-		end
+let x = 1 in x + (fun y -> y + x end 2) end

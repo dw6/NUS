@@ -18,12 +18,14 @@ public class Assignment implements Expression
 	// stub to be replaced by proper implementation
 
 	public StoreAndValue eval(Store s, Environment e)
-	{
+	{		
 		StoreAndValue s_and_v1 = rightHandSide.eval(s, e);
 		Value v = s_and_v1.value;
-
-		assert(e.containsKey(leftHandSide));
-		return new StoreAndValue(s.extend(e.access(leftHandSide), v), v);					
+		
+		assert(e.containsKey(leftHandSide));	
+		s.setElementAt(v, e.access(leftHandSide));
+		
+		return new StoreAndValue(s, v);							
 	}
 
 	// //////////////////////

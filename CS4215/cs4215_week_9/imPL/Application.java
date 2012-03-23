@@ -23,21 +23,58 @@ public class Application implements Expression
 
 	public StoreAndValue eval(Store s, Environment e)
 	{
-		
-		
-		FunValue funValue = (FunValue)s.get(e.access(operator.toString()));
-		
-		int newLoc;
-		
-		for(int i=0; i<operands.size(); i++)
+		assert (operator instanceof Fun);
+
+		if (operator instanceof RecFun)
 		{
-			StoreAndValue s_and_v = operands.get(i).eval(s, e);
-			newLoc = s_and_v.store.newLocation();
-			s = s_and_v.store.extend(newLoc, s_and_v.value);
-			funValue.environment = funValue.environment.extend(funValue.formals.get(i), newLoc);
+
+		}
+		else if (operator instanceof Fun)
+		{
+			// 1. Evaluate the operator.
+			StoreAndValue s_and_v1 = operator.eval(s, e);
+			FunValue funValue = (FunValue) s_and_v1.value;
+			Environment funEnv = funValue.environment;
+			
+			for (int i = 0; i < operands.size(); i++)
+			{
+				System.err.println("");
+				
+				// 2. Fill up the space with values.
+				s_and_v1.store.setElementAt(operands.get(i).eval(s, e).value, funEnv
+						.access(funValue.formals.get(i)));
+				
+			    System.err.println("Here");
+
+			}
+
+			// 3. Evaluate the function.
+						
+			// Iterate through the "Bigger" environment, 
+			// add in anything which doesn't exists in the function environment.
+		    Enumeration<String> envKeys = e.keys();
+		    		    
+		    while(envKeys.hasMoreElements()) {
+		      String elt = envKeys.nextElement().toString();
+		      if (!funEnv.containsKey(elt))
+		      {
+		    	  funEnv = funEnv.extend(elt, e.access(elt));
+		      }
+		  	}
+		    
+		    
+			return funValue.body.eval(s_and_v1.store, funEnv);
+		} 
+		else
+		{
+			// Recast everything, and call Application again
+			FunValue funValue = (FunValue)s.get(e.access(operator.toString()));
+			Fun function = new Fun(funValue.formals, funValue.body);
+			Application application = new Application(function, operands);
+			return application.eval(s, e);
 		}
 
-		return funValue.body.eval(s, funValue.environment);		
+		return null;
 	}
 
 	// //////////////////////

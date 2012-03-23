@@ -20,13 +20,8 @@ public class RecFun extends Fun
 	// stub to be replaced by proper implementation
 
 	public StoreAndValue eval(Store s, Environment e)
-	{
-		System.err.println("Store : " + s);
-		System.err.println("Envir : " + e);
-		System.err.println("FunVar: " + funVar);
-		System.err.println("Formal: " + formals);
-		System.err.println("Body  : " + body);
-		return new StoreAndValue(s, new BoolValue(true));
+	{						
+		return new StoreAndValue(s, new FunValue(e, super.formals, super.body));
 	}
 
 	// //////////////////////

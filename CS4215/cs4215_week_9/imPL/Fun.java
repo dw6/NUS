@@ -22,8 +22,20 @@ public class Fun implements Expression
 
 	public StoreAndValue eval(Store s, Environment e)
 	{
-		System.err.println("In Fun");
-		return new StoreAndValue(s, new FunValue(e, formals, body));
+		// Create the environment . Make space for the formals into this environment.
+		Environment funEnv = new Environment();
+
+		// Using the existing store, assign all the formals a location inside this store.
+		int newLoc;
+		for(String formal: formals)
+		{
+			newLoc = s.newLocation();
+			funEnv = funEnv.extend(formal, newLoc);
+			// Initialize the location to null. 
+			// This will be filled in by the Application.
+			s = s.extend(newLoc, null);
+		}	
+		return new StoreAndValue(s, new FunValue(funEnv, formals, body));
 	}
 
 	// //////////////////////
