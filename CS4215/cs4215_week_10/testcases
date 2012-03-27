@@ -1,40 +1,54 @@
-let lookupInClass = recfun lookupInClass theClass methodname ->
-						if theClass hasproperty methodname
-						then theClass.methodname
-						else (lookupInClass theClass.Parent methodname)
-						end
-					end
-					
+# Intial test for stack, without the lookup.
 
-
-
-
-
-
-
-let myVehicle = [MaxSpeed: 85] in myVehicle.MaxSize := 4; myVehicle.MaxWheels := 5; myVehicle end
-
-
-let mystack = (stack.Makeempty []) in (stack.Push mystack 1); (stack.Pop mystack) end
-	
-	
-	
-	let  new = fun theClass -> [ Class : theClass ] end 
-		in 
-			let  lookup = fun object methodName -> ((object . Class) . methodname) end 
-				in let  stack = [ Push : fun this x -> ((this).(Content) := [ First : x , Second : (this . Content) ]) end , 
-								   Pop : fun this -> 
-								   			let  top = ((this . Content) . First) 
-								   			in (((this).(Content) := ((this . Content) . Second)) ; top) 
-								   			end 
-								   		end , 
-								   Makempty : fun this -> (((this).(Content) := [  ]) ; this) end ] 
-	in let  mystack = (new  stack) in ((mystack := ((stack . Makeempty)  mystack)) ; ((stack . Pushtwice)  mystack 2))  end 
-	
-			end 
-		end 
-	end
-	
-	
-		"in ";
-	
+let stack = [ Push: fun this x -> this.Content := x :: this.Content end, 
+	     	  Pop: fun this ->  
+						let top = this.Content.First 
+						in 
+							this.Content := this.Content.Second; 
+							top 
+						end 
+					end, 
+			  Makeempty: 
+				fun this -> 
+					this.Content := []; 
+					this 
+				end 
+       		]
+ in   
+ 	let mystack = (new stack) in mystack := (stack.Makeempty mystack); 
+ 											(stack.Push mystack 2); 
+ 											(stack.Push mystack 3); 
+ 											(stack.Push mystack 4) 
+ 	end
+ end
+ 
+ # Stack example with lookup
+ 
+ let stack = [ Push: fun this x -> this.Content := x :: this.Content end, 
+	     	   Pop: fun this ->  
+						let top = this.Content.First 
+						in 
+							this.Content := this.Content.Second; 
+							top 
+						end 
+					end, 
+			   Makeempty: 
+				fun this ->
+					this.Parent := stack 
+					this.Content := []; 
+					this 
+				end,
+			   Pushtwice:
+			   	fun this x ->
+			   		((lookup this Push) this x);
+			   		((lookup this Push) this x)
+			   	end 
+       		]
+ in   
+ 	
+ 	
+ 	let mystack = (new stack) in 
+ 		mystack := (stack.Makeempty mystack); 
+ 				   (stack.Pushtwice mystack)
+ 	end
+ end

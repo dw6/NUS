@@ -1,4 +1,4 @@
-let stack = [ Push: fun this x -> this.Content := x :: this.Content end, 
+ let stack = [ Push: fun this x -> this.Content := x :: this.Content end, 
 	     	   Pop: fun this ->  
 						let top = this.Content.First 
 						in 
@@ -6,16 +6,22 @@ let stack = [ Push: fun this x -> this.Content := x :: this.Content end,
 							top 
 						end 
 					end, 
-			Makeempty: 
+			   Makeempty: 
 				fun this -> 
 					this.Content := []; 
 					this 
-				end 
+				end,
+			   Pushtwice:
+			   	fun this x ->
+			   		((lookup this Push) this x);
+			   		((lookup this Push) this x)
+			   	end 
        		]
  in   
- 	let mystack = (new stack) in mystack := (stack.Makeempty mystack); 
- 											(stack.Push mystack 2); 
- 											(stack.Push mystack 3); 
- 											(stack.Push mystack 4) 
+ 	let stackWithTop = [Parent: stack,
+ 						Top: fun this -> this.Content.First end]
+ 	in
+ 	 	let mystack = (new stack) in mystack := (stack.Makeempty mystack); (stack.Pushtwice mystack 1) end
+ 	
  	end
  end
