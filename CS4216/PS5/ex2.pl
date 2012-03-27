@@ -3,6 +3,7 @@
 % PS 5 
 %%%%%%%%%%%%%%%%%%%%%%%
 :- lib(ic).
+:- lib(ic_global).
 
 solve(L,B) :-
 	B1 is B-1,
@@ -11,12 +12,9 @@ solve(L,B) :-
 	reverse(L,LR),
 	% Speeds things up significantly
 	sum(L) #= B, 
-	(foreach(E,L), count(I,0,B1), param(L) do writeln(L), occ(L,I,E)).
+	(foreach(E,L), count(I,0,B1), param(L) do writeln(L), occurrences(I,L,E)
+), labeling(L).
 
-% Constraint version of occurs.
-occ([],_,N) :- N is 0.
-occ([H|T],X,N) :- occ(T,X,N1), H #= X,  N #= N1+1.
-occ([H|T],X,N) :- occ(T,X,N1), H #\= X, N #= N1.
 
-:- solve(L,4), write('Result: '), writeln(L).
+:- solve(L,20), write('Result: '), writeln(L).
 :- halt.
