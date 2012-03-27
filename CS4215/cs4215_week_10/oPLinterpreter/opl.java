@@ -6,25 +6,28 @@ import oPLparser.*;
 import java.util.*;
 import java.io.*;
 
-class opl {
+class opl
+{
 
-    static public void main(String[] args) 
-    {
+	static public void main(String[] args)
+	{
 
-	// read name of source file from command line
-	String oplfile=args[0];
+		// read name of source file from command line
+		String oplfile = args[0];
 
-	try {
-	    // parse oPL expression, including the "wrapper"
-	    Expression opl=Parse.fromFileName(Wrapper.prologue,Wrapper.epilogue,oplfile);
-		
-	    System.out.println("Result of evaluation:\n"+
-			       opl.eval(new Environment()));
-	    System.exit(1);
+		try
+		{
+			// parse oPL expression, including the "wrapper"
+			Expression opl = Parse.fromFileName(Wrapper.prologue, Wrapper.epilogue, oplfile);
+
+			System.err.println(opl);
+			System.out.println("Result of evaluation:\n" + opl.eval(new Environment()));
+			System.exit(1);
+		}
+
+		catch (Exception e)
+		{
+			System.out.println(e);
+		}
 	}
-
-	catch (Exception e) {
-	    System.out.println(e);
-	}
-    }
 }

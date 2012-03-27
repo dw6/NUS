@@ -1,0 +1,21 @@
+let stack = [ Push: fun this x -> this.Content := x :: this.Content end, 
+	     	   Pop: fun this ->  
+						let top = this.Content.First 
+						in 
+							this.Content := this.Content.Second; 
+							top 
+						end 
+					end, 
+			Makeempty: 
+				fun this -> 
+					this.Content := []; 
+					this 
+				end 
+       		]
+ in   
+ 	let mystack = (new stack) in mystack := (stack.Makeempty mystack); 
+ 											(stack.Push mystack 2); 
+ 											(stack.Push mystack 3); 
+ 											(stack.Push mystack 4) 
+ 	end
+ end
