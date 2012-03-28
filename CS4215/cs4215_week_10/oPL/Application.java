@@ -21,6 +21,7 @@ public class Application implements Expression
 
 	public Value eval(Environment e)
 	{
+		System.err.println(" ** Evaluating Application *** ");
 		Value operatorvalue = operator.eval(e);
 		FunValue operatorValue = (FunValue) operatorvalue;
 		Environment operatorEnv = operatorValue.environment;

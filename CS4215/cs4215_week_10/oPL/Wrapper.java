@@ -7,8 +7,10 @@ public class Wrapper
 			+ " lookupInClass = recfun lookupInClass theClass methodname ->"
 			+ " if theClass hasproperty methodname" + " then theClass.methodname"
 			+ " else (lookupInClass theClass.Parent methodname)" + " end " + " end " + " in "
-			+ " let lookup = fun object methodName -> (lookupInClass object.Class methodname) end"
+			+ " let lookup = fun object methodname -> (lookupInClass object.Class methodname) end"
 			+ " in ";
 
 	public static String epilogue = " end end";
 }
+
+
