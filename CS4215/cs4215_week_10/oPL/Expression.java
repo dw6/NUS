@@ -1,5 +1,6 @@
 package oPL;
 
-public interface Expression {
-    public Value eval(Environment e);
+public interface Expression
+{
+	public Value eval(Environment e);
 }

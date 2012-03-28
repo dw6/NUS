@@ -1,6 +1,7 @@
 package oPL;
 
-public interface Value {
+public interface Value
+{
 
-   String toString();
+	String toString();
 }

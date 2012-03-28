@@ -1,26 +1,29 @@
 package oPL;
 
-public class IntConstant implements Expression {
-    public int value;
+public class IntConstant implements Expression
+{
+	public int value;
 
-    public IntConstant(int v) {
-	value = v;
-    }
+	public IntConstant(int v)
+	{
+		value = v;
+	}
 
-    // //////////////////////
-    // Denotational Semantics
-    // //////////////////////
+	// //////////////////////
+	// Denotational Semantics
+	// //////////////////////
 
-    public Value eval(Environment e) {
-	return new IntValue(value);
-    }
+	public Value eval(Environment e)
+	{
+		return new IntValue(value);
+	}
 
-    // //////////////////////
-    // Support Functions
-    // //////////////////////
+	// //////////////////////
+	// Support Functions
+	// //////////////////////
 
-    public String toString() {
-	return Integer.toString(value);
-    }
+	public String toString()
+	{
+		return Integer.toString(value);
+	}
 }
-

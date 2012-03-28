@@ -11,7 +11,6 @@ public class Application implements Expression
 
 	public Application(Expression rator, Vector<Expression> rands)
 	{
-		System.err.println("In Application!: " + this.getClass() + " " + rator);
 		operator = rator;
 		operands = rands;
 	}

@@ -1,10 +1,12 @@
 package oPL;
 
-public class If implements Expression {
+public class If implements Expression
+{
 
-	public Expression condition,thenPart,elsePart;
+	public Expression condition, thenPart, elsePart;
 
-	public If(Expression c, Expression t, Expression e) {
+	public If(Expression c, Expression t, Expression e)
+	{
 		condition = c;
 		thenPart = t;
 		elsePart = e;
@@ -14,7 +16,8 @@ public class If implements Expression {
 	// Denotational Semantics
 	// //////////////////////
 
-	public Value eval(Environment e) {
+	public Value eval(Environment e)
+	{
 		Value tmp = condition.eval(e);
 
 		if (((BoolValue) tmp).value)
@@ -27,8 +30,8 @@ public class If implements Expression {
 	// Support Functions
 	// //////////////////////
 
-	public String toString() {
-		return " if " + condition + " then " + 
-		thenPart + " else " + elsePart + " end";
+	public String toString()
+	{
+		return " if " + condition + " then " + thenPart + " else " + elsePart + " end";
 	}
 }

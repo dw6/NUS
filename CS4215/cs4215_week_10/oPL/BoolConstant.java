@@ -1,8 +1,11 @@
 package oPL;
 
-public class BoolConstant implements Expression {
+public class BoolConstant implements Expression
+{
 	public boolean value;
-	public BoolConstant(boolean v) {
+
+	public BoolConstant(boolean v)
+	{
 		value = v;
 	}
 
@@ -10,7 +13,8 @@ public class BoolConstant implements Expression {
 	// Denotational Semantics
 	// //////////////////////
 
-	public Value eval(Environment e) {
+	public Value eval(Environment e)
+	{
 		return new BoolValue(value);
 	}
 
@@ -18,8 +22,8 @@ public class BoolConstant implements Expression {
 	// Support Functions
 	// //////////////////////
 
-	public String toString() {
+	public String toString()
+	{
 		return (new Boolean(value)).toString();
 	}
 }
-

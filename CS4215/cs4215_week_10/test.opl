@@ -1,27 +1,10 @@
- let stack = [ Push: fun this x -> this.Content := x :: this.Content end, 
-	     	   Pop: fun this ->  
-						let top = this.Content.First 
-						in 
-							this.Content := this.Content.Second; 
-							top 
-						end 
-					end, 
-			   Makeempty: 
-				fun this -> 
-					this.Content := []; 
-					this 
-				end,
-			   Pushtwice:
-			   	fun this x ->
-			   		((lookup this Push) this x);
-			   		((lookup this Push) this x)
-			   	end 
-       		]
- in   
- 	let stackWithTop = [Parent: stack,
- 						Top: fun this -> this.Content.First end]
- 	in
- 	 	let mystack = (new stack) in mystack := (stack.Makeempty mystack); (stack.Pushtwice mystack 1) end
- 	
- 	end
+let stack = 
+	class method Makeempty() -> this.Content := []; this
+    	  end
+   	end
+in
+	let mystack = (new stack)
+	in
+		mystack.Makeempty()
+  	end
  end

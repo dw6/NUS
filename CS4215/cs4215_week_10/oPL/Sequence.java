@@ -1,28 +1,33 @@
 package oPL;
 
-public class Sequence implements Expression {
-    public Expression firstPart, secondPart;
-   public Sequence(Expression f, Expression s) {
-      firstPart = f;
-      secondPart = s;
-   }
+public class Sequence implements Expression
+{
+	public Expression firstPart, secondPart;
 
-    // //////////////////////
-    // Denotational Semantics
-    // //////////////////////
+	public Sequence(Expression f, Expression s)
+	{
+		firstPart = f;
+		secondPart = s;
+	}
 
-    // stub to be replaced by proper implementation
+	// //////////////////////
+	// Denotational Semantics
+	// //////////////////////
 
-    public Value eval(Environment e) {
-    	firstPart.eval(e);
-    	return secondPart.eval(e);
-    }
+	// stub to be replaced by proper implementation
 
-    // //////////////////////
-    // Support Functions
-    // //////////////////////
+	public Value eval(Environment e)
+	{
+		firstPart.eval(e);
+		return secondPart.eval(e);
+	}
 
-   public String toString() {
-       return "(" + firstPart + " ; " + secondPart + ")";
-   }
+	// //////////////////////
+	// Support Functions
+	// //////////////////////
+
+	public String toString()
+	{
+		return "(" + firstPart + " ; " + secondPart + ")";
+	}
 }
