@@ -21,10 +21,19 @@ public class Application implements Expression
 
 	public Value eval(Environment e)
 	{
-		System.err.println(" ** Evaluating Application *** ");
+//		System.err.println(" ** Evaluating Application *** ");
 		Value operatorvalue = operator.eval(e);
+		
+//		System.err.println(operatorvalue);
+		
 		FunValue operatorValue = (FunValue) operatorvalue;
+		
+//		System.err.println(operatorValue);
+
 		Environment operatorEnv = operatorValue.environment;
+		
+//		System.err.println(operatorEnv);
+
 		Vector<Integer> locations = new Vector<Integer>();
 
 		for (Expression operand : operands)

@@ -14,6 +14,27 @@ in
 
 ###
 
+let stack = 
+	class method Makeempty() -> this.Content := []; this
+    	  end
+   	end
+in
+	let stackWithTop = 
+		class extends stack
+			method Top() -> this.Content.First
+			end
+		end
+	in
+		let mystack = (new stackWithTop)
+		in
+			mystack.Makeempty()
+		end
+  	end
+ end
+ 
+ ###
+
+
 
 let stack = [ Push: fun this x -> this.Content := x :: this.Content end, 
 	     	  Pop: fun this ->  

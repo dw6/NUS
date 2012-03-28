@@ -1,10 +1,27 @@
 let stack = 
-	class method Makeempty() -> this.Content := []; this
-    	  end
-   	end
+class method Makeempty() -> this.Content := []; this
+      end
+      method Push(x) -> this.Content := x :: this.Content
+      end
+      method Pop() -> let top = this.Content.First in
+           this.Content := this.Content.Second;
+           top
+            end
+      end
+   end
 in
-	let mystack = (new stack)
-	in
-		mystack.Makeempty()
-  	end
+let stackWithTop = 
+ class extends stack
+  method Top() -> this.Content.First
+  end
  end
+in
+ let mystack = (new stack)
+  anotherstack = (new stackWithTop)
+ in
+  anotherstack.Makeempty();
+  mystack.Makeempty()
+  
+ end
+  end
+end
