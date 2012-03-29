@@ -8,6 +8,7 @@ class method Makeempty() -> this.Content := []; this
            top
             end
       end
+      method Pushtwice(x) -> this.Push(x); this.Push(x) end
    end
 in
 let stackWithTop = 
@@ -19,9 +20,12 @@ in
  let mystack = (new stack)
   anotherstack = (new stackWithTop)
  in
+  mystack.Makeempty();
   anotherstack.Makeempty();
-  mystack.Makeempty()
-  
+  anotherstack.Makeempty();
+  anotherstack.Push(1);
+  anotherstack.Push(2);
+  anotherstack.Push(3)
  end
   end
 end

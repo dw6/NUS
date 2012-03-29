@@ -19,7 +19,7 @@ class opl
 		{
 			// parse oPL expression, including the "wrapper"
 			Expression opl = Parse.fromFileName(Wrapper.prologue, Wrapper.epilogue, oplfile);
-
+			
 			System.out.println("Result of evaluation:\n" + opl.eval(new Environment()));
 			System.exit(1);
 		}
