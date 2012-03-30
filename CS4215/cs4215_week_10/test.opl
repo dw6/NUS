@@ -19,13 +19,18 @@ let stackWithTop =
 in
  let mystack = (new stack)
   anotherstack = (new stackWithTop)
+  x = 10
  in
-  mystack.Makeempty();
   anotherstack.Makeempty();
-  anotherstack.Makeempty();
-  anotherstack.Push(1);
-  anotherstack.Push(2);
-  anotherstack.Push(3)
+  
+  while \ x = 0 do
+    anotherstack.Push(1);
+    anotherstack.Push(1);
+    x := x - 1
+  end;
+      anotherstack.Push(1)
+  
+
  end
   end
 end
