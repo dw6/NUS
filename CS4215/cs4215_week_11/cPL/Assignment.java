@@ -1,18 +1,22 @@
 package cPL;
 
-public class Assignment implements Expression {
-    public String leftHandSide;
-    public Expression rightHandSide;
-   public Assignment(String l, Expression r) {
-      leftHandSide = l;
-      rightHandSide = r;
-   }
+public class Assignment implements Expression
+{
+	public String leftHandSide;
+	public Expression rightHandSide;
 
-    // //////////////////////
-    // Support Functions
-    // //////////////////////
+	public Assignment(String l, Expression r)
+	{
+		leftHandSide = l;
+		rightHandSide = r;
+	}
 
-   public String toString() {
-       return "(" + leftHandSide + " := " + rightHandSide + ")";
-   }
+	// //////////////////////
+	// Support Functions
+	// //////////////////////
+
+	public String toString()
+	{
+		return "(" + leftHandSide + " := " + rightHandSide + ")";
+	}
 }

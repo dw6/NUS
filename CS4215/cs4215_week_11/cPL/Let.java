@@ -2,25 +2,28 @@ package cPL;
 
 import java.util.*;
 
-public class Let implements Expression {
+public class Let implements Expression
+{
 
-    public Vector<LetDefinition> definitions;
+	public Vector<LetDefinition> definitions;
 
-    public Expression body;
+	public Expression body;
 
-    public Let(Vector<LetDefinition> ds, Expression b) {
-	definitions = ds;
-	body = b;
-    }
+	public Let(Vector<LetDefinition> ds, Expression b)
+	{
+		definitions = ds;
+		body = b;
+	}
 
-    // //////////////////////
-    // Support Functions
-    // //////////////////////
+	// //////////////////////
+	// Support Functions
+	// //////////////////////
 
-   public String toString() {
-       String s = "";
-       for (LetDefinition d : definitions)
-	   s = s + " " + d;
-       return "let " + s + " in " + body + " end";
-   }
+	public String toString()
+	{
+		String s = "";
+		for (LetDefinition d : definitions)
+			s = s + " " + d;
+		return "let " + s + " in " + body + " end";
+	}
 }

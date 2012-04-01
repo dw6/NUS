@@ -1,17 +1,20 @@
 package cPL;
 
-public class PropertyConstant implements Expression {
-    public String value;
-    public PropertyConstant(String s) {
-	value = s;
-    }
+public class PropertyConstant implements Expression
+{
+	public String value;
 
-    // //////////////////////
-    // Support Functions
-    // //////////////////////
+	public PropertyConstant(String s)
+	{
+		value = s;
+	}
 
-    public String toString() {
-	return value;
-    }
+	// //////////////////////
+	// Support Functions
+	// //////////////////////
+
+	public String toString()
+	{
+		return value;
+	}
 }
-

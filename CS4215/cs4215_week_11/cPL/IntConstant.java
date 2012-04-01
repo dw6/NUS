@@ -1,18 +1,20 @@
 package cPL;
 
-public class IntConstant implements Expression {
-    public int value;
+public class IntConstant implements Expression
+{
+	public int value;
 
-    public IntConstant(int v) {
-	value = v;
-    }
+	public IntConstant(int v)
+	{
+		value = v;
+	}
 
-    // //////////////////////
-    // Support Functions
-    // //////////////////////
+	// //////////////////////
+	// Support Functions
+	// //////////////////////
 
-    public String toString() {
-	return Integer.toString(value);
-    }
+	public String toString()
+	{
+		return Integer.toString(value);
+	}
 }
-

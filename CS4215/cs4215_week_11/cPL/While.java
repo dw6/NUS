@@ -1,17 +1,21 @@
 package cPL;
 
-public class While implements Expression {
-    public Expression test, body;
-   public While(Expression t, Expression b) {
-      test = t;
-      body = b;
-   }
+public class While implements Expression
+{
+	public Expression test, body;
 
-    // //////////////////////
-    // Support Functions
-    // //////////////////////
+	public While(Expression t, Expression b)
+	{
+		test = t;
+		body = b;
+	}
 
-   public String toString() {
-       return "(while" + test + " do " + body + ")";
-   }
+	// //////////////////////
+	// Support Functions
+	// //////////////////////
+
+	public String toString()
+	{
+		return "(while" + test + " do " + body + ")";
+	}
 }

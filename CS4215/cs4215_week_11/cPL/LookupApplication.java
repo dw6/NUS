@@ -2,24 +2,28 @@ package cPL;
 
 import java.util.*;
 
-public class LookupApplication implements Expression {
+public class LookupApplication implements Expression
+{
 
-    public Expression operator;
+	public Expression operator;
 
-    public Vector<Expression> operands;
+	public Vector<Expression> operands;
 
-    public LookupApplication(Expression rator,Vector<Expression> rands) {
-	operator = rator; operands = rands;
-    }
+	public LookupApplication(Expression rator, Vector<Expression> rands)
+	{
+		operator = rator;
+		operands = rands;
+	}
 
-    // //////////////////////
-    // Support Functions
-    // //////////////////////
+	// //////////////////////
+	// Support Functions
+	// //////////////////////
 
-    public String toString() {
-	String s = "";
-	for  (Expression operand : operands) 
-	    s = s + " " + operand;
-	return "("+operator+" "+s+")";
-    }
+	public String toString()
+	{
+		String s = "";
+		for (Expression operand : operands)
+			s = s + " " + operand;
+		return "(" + operator + " " + s + ")";
+	}
 }

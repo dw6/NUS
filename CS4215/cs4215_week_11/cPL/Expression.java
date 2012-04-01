@@ -1,4 +1,5 @@
 package cPL;
 
-public interface Expression {
+public interface Expression
+{
 }

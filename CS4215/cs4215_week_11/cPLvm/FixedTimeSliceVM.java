@@ -1,7 +1,8 @@
 package cPLvm;
 
-public class FixedTimeSliceVM {
+public class FixedTimeSliceVM
+{
 
-    static final int timeSliceSize = 10;
+	static final int timeSliceSize = 10;
 
 }

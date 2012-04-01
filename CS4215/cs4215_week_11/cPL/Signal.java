@@ -1,19 +1,21 @@
 package cPL;
 
-public class Signal implements Expression {
+public class Signal implements Expression
+{
 
-   public String varname;
+	public String varname;
 
-   public Signal(String i) {
-      varname = i;
-   }
+	public Signal(String i)
+	{
+		varname = i;
+	}
 
-    // //////////////////////
-    // Support Functions
-    // //////////////////////
+	// //////////////////////
+	// Support Functions
+	// //////////////////////
 
-   public String toString() {
-       return "(signal " + varname + ")";
-   }
+	public String toString()
+	{
+		return "(signal " + varname + ")";
+	}
 }
-

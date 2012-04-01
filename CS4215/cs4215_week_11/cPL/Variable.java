@@ -1,19 +1,21 @@
 package cPL;
 
-public class Variable implements Expression {
+public class Variable implements Expression
+{
 
-   public String varname;
+	public String varname;
 
-   public Variable(String nam) {
-      varname = nam;
-   }
+	public Variable(String nam)
+	{
+		varname = nam;
+	}
 
-    // //////////////////////
-    // Support Functions
-    // //////////////////////
+	// //////////////////////
+	// Support Functions
+	// //////////////////////
 
-    public String toString() {
-	return varname;
-    }
+	public String toString()
+	{
+		return varname;
+	}
 }
-

@@ -1,18 +1,21 @@
 package cPL;
 
-public class Throw implements Expression {
+public class Throw implements Expression
+{
 
-    public Expression expression;
+	public Expression expression;
 
-    public Throw(Expression e) {
-      expression = e;
-   }
+	public Throw(Expression e)
+	{
+		expression = e;
+	}
 
-    // //////////////////////
-    // Support Functions
-    // //////////////////////
+	// //////////////////////
+	// Support Functions
+	// //////////////////////
 
-   public String toString() {
-       return "throw " + expression + " end";
-   }
+	public String toString()
+	{
+		return "throw " + expression + " end";
+	}
 }

@@ -2,8 +2,10 @@ package cVML;
 
 import java.io.*;
 
-public abstract class INSTRUCTION implements Serializable {
+public abstract class INSTRUCTION implements Serializable
+{
 
 	public int OPCODE;
-    public abstract String toXML();
+
+	public abstract String toXML();
 }

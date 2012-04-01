@@ -4,43 +4,51 @@ import cPL.*;
 
 import java.io.*;
 
-public class Parse {
-    public static Expression fromFileName(String prologue, String epilogue, String filename) {
+public class Parse
+{
+	public static Expression fromFileName(String prologue, String epilogue, String filename)
+	{
 
-       String content = "";
-       Expression result;
+		String content = "";
+		Expression result;
 
-       try {
-	   
-       FileInputStream infile = new FileInputStream(filename);
-       BufferedReader filereader
-	   = new BufferedReader(new InputStreamReader(infile));
+		try
+		{
 
-       String nextline = "";
-       while (nextline != null) {
-	    content = content + "\n" + nextline;
-            nextline = filereader.readLine();
-       }
-     }
-     catch (Exception e) {
-	System.out.println("error while reading input");
-        result = new Variable("error");
-     };
+			FileInputStream infile = new FileInputStream(filename);
+			BufferedReader filereader = new BufferedReader(new InputStreamReader(infile));
 
-     try {
-        parser p = new parser(new scanner(new StringReader(prologue+content+epilogue)));
-        result = (Expression) p.parse().value;
-     }
-     catch (Exception e) {
-	System.out.println("parse error");
-        result = new Variable("error");
-     };
-     return result;
-   }
+			String nextline = "";
+			while (nextline != null)
+			{
+				content = content + "\n" + nextline;
+				nextline = filereader.readLine();
+			}
+		}
+		catch (Exception e)
+		{
+			System.out.println("error while reading input");
+			result = new Variable("error");
+		}
+		;
 
-   public static Expression fromString(String s) 
-       throws SyntaxError,Exception {
-     parser p = new parser(new scanner(new StringReader(s)));
-     return (Expression) p.parse().value;
-   }
+		try
+		{
+			parser p = new parser(new scanner(new StringReader(prologue + content + epilogue)));
+			result = (Expression) p.parse().value;
+		}
+		catch (Exception e)
+		{
+			System.out.println("parse error");
+			result = new Variable("error");
+		}
+		;
+		return result;
+	}
+
+	public static Expression fromString(String s) throws SyntaxError, Exception
+	{
+		parser p = new parser(new scanner(new StringReader(s)));
+		return (Expression) p.parse().value;
+	}
 }

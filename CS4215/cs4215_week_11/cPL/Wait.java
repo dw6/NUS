@@ -1,19 +1,21 @@
 package cPL;
 
-public class Wait implements Expression {
+public class Wait implements Expression
+{
 
-   public String varname;
+	public String varname;
 
-   public Wait(String i) {
-      varname = i;
-   }
+	public Wait(String i)
+	{
+		varname = i;
+	}
 
-    // //////////////////////
-    // Support Functions
-    // //////////////////////
+	// //////////////////////
+	// Support Functions
+	// //////////////////////
 
-   public String toString() {
-       return "(wait " + varname + ")";
-   }
+	public String toString()
+	{
+		return "(wait " + varname + ")";
+	}
 }
-

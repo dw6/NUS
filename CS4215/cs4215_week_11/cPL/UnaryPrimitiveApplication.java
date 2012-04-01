@@ -1,22 +1,24 @@
 package cPL;
 
-public class UnaryPrimitiveApplication implements Expression {
+public class UnaryPrimitiveApplication implements Expression
+{
 
-   public String operator;
+	public String operator;
 
-   public Expression argument;
+	public Expression argument;
 
-   public UnaryPrimitiveApplication(String op, Expression a) {
-      operator = op;
-      argument = a;
-   }
+	public UnaryPrimitiveApplication(String op, Expression a)
+	{
+		operator = op;
+		argument = a;
+	}
 
-    // //////////////////////
-    // Support Functions
-    // //////////////////////
+	// //////////////////////
+	// Support Functions
+	// //////////////////////
 
-   public String toString() {
-       return operator + "(" + argument + ")";
-   }
+	public String toString()
+	{
+		return operator + "(" + argument + ")";
+	}
 }
-
