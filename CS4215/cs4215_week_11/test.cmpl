@@ -1,4 +1,7 @@
-let x = 20
+let x = 20 y = 1
 in
-wait x
+wait x;
+y := y + 1;
+print y;
+signal x
 end

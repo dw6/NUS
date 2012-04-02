@@ -333,7 +333,6 @@ public class VM extends FixedTimeSliceVM
 				// to be implemented by student
 				case OPCODES.WAIT:
 				{
-					// if deref(e, x, h) <= 0
 					int x = ((WAIT) i).INDEX;
 					IntValue deref = (IntValue) e.elementAt(x);		
 					int deref_value = deref.value;
@@ -354,7 +353,14 @@ public class VM extends FixedTimeSliceVM
 				// to be implemented by student
 				case OPCODES.SIGNAL:
 				{
+					int x = ((SIGNAL) i).INDEX;
+					IntValue deref = (IntValue) e.elementAt(x);		
+					int deref_value = deref.value;
+					
+					os.push(new IntValue(deref_value+1));
 					pc++;
+					e.setElementAt(new IntValue(deref_value+1), x);
+
 					break;
 				}
 
