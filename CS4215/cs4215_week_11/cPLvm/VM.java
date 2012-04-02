@@ -8,9 +8,6 @@ public class VM extends FixedTimeSliceVM
 
 	public static Queue<VMThread> threadQueue = new LinkedList<VMThread>();
 
-	// run:
-	// instructionArray is the usual array of instuctions
-
 	public static void run(INSTRUCTION[] instructionArray, int divisionByZeroAddress,
 			int invalidRecordAccessAddress)
 	{
@@ -21,9 +18,6 @@ public class VM extends FixedTimeSliceVM
 
 		while (threadQueue.size() != 0)
 		{
-
-			// System.out.println("outer loop");
-
 			VMThread currentThread = threadQueue.remove();
 
 			int pc = currentThread.pc;
@@ -339,7 +333,21 @@ public class VM extends FixedTimeSliceVM
 				// to be implemented by student
 				case OPCODES.WAIT:
 				{
-					pc++;
+					// if deref(e, x, h) <= 0
+					int x = ((WAIT) i).INDEX;
+					IntValue deref = (IntValue) e.elementAt(x);		
+					int deref_value = deref.value;
+					
+					if(deref_value > 0)
+					{
+						os.push(new IntValue(deref_value-1));
+						pc++;
+						e.setElementAt(new IntValue(deref_value-1), x);
+					}
+					else
+					{
+						// No need to do anything.
+					}
 					break;
 				}
 
