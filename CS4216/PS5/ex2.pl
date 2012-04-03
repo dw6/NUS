@@ -1,5 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%
 % Benjamin Tan Wei Hao
+% Shawn Tan
 % PS 5 
 %%%%%%%%%%%%%%%%%%%%%%%
 :- lib(ic).
@@ -16,5 +17,5 @@ solve(L,B) :-
 ), labeling(L).
 
 
-:- solve(L,20), write('Result: '), writeln(L).
+:- solve(L,4), write('Result: '), writeln(L).
 :- halt.
