@@ -8,17 +8,23 @@ public class VM extends FixedTimeSliceVM
 
 	public static Queue<VMThread> threadQueue = new LinkedList<VMThread>();
 
+	public static class CatchFrame extends StackFrame
+	{
+		public CatchFrame(int p, Environment e, Stack<Value> os)
+		{
+			super(p, e, os);
+		}
+	}
+
 	public static void run(INSTRUCTION[] instructionArray, int divisionByZeroAddress,
 			int invalidRecordAccessAddress)
 	{
 
-		for(int i=0; i< instructionArray.length; i++)
+		for (int i = 0; i < instructionArray.length; i++)
 		{
 			System.err.println(i + " " + instructionArray[i]);
 		}
-		
-		
-		
+
 		threadQueue.add(new VMThread(0));
 
 		// emulator loop
@@ -305,13 +311,36 @@ public class VM extends FixedTimeSliceVM
 				// to be implemented by student
 				case OPCODES.THROW:
 				{
-					pc++;
-					break;
+					if (rts.isEmpty())
+					{
+						System.out.println("Uncaught exception: ");
+						break innerloop;
+					}
+					else
+					{
+						StackFrame sf = rts.pop();
+						if (sf instanceof CatchFrame)
+						{
+							pc = ((CatchFrame) sf).pc;
+							e = ((CatchFrame) sf).environment.extend(1);
+							e.setElementAt(os.pop(), e.size() - 1);
+							os = ((CatchFrame) sf).operandStack;
+							break;
+						}
+						else
+						{
+							// do not pc++. this implements a loop
+							// for popping stack frames until a CatchFrame
+							// is found
+							break;
+						}
+					}
 				}
 
 				// to be implemented by student
 				case OPCODES.TRY:
 				{
+					rts.push(new CatchFrame(((TRY) i).ADDRESS, e, os));
 					pc++;
 					break;
 				}
@@ -319,6 +348,7 @@ public class VM extends FixedTimeSliceVM
 				// to be implemented by student
 				case OPCODES.ENDTRY:
 				{
+					rts.pop();
 					pc++;
 					break;
 				}
@@ -326,16 +356,18 @@ public class VM extends FixedTimeSliceVM
 				// to be implemented by student
 				case OPCODES.STARTTHREAD:
 				{
-										
+
 					System.err.println("STARTTHREAD");
-					// Creates a new thread, where the PC points to the address after the instruction.
-					// Sets the new thread environment to the current environment
+					// Creates a new thread, where the PC points to the address
+					// after the instruction.
+					// Sets the new thread environment to the current
+					// environment
 					// The operand stack and runtime stacks start of as empty
-					int addr = ((STARTTHREAD) i).ADDRESS;	
-					
+					int addr = ((STARTTHREAD) i).ADDRESS;
+
 					// addr-1 to get the RTN address?
-					threadQueue.add(new VMThread(addr+1, e));
-					
+					threadQueue.add(new VMThread(addr + 1, e));
+
 					os.push(new BoolValue(true));
 
 					// The old thread's PC is incremented by n but
@@ -362,14 +394,14 @@ public class VM extends FixedTimeSliceVM
 				case OPCODES.WAIT:
 				{
 					int x = ((WAIT) i).INDEX;
-					IntValue deref = (IntValue) e.elementAt(x);		
+					IntValue deref = (IntValue) e.elementAt(x);
 					int deref_value = deref.value;
-					
-					if(deref_value > 0)
+
+					if (deref_value > 0)
 					{
-						os.push(new IntValue(deref_value-1));
+						os.push(new IntValue(deref_value - 1));
 						pc++;
-						e.setElementAt(new IntValue(deref_value-1), x);
+						e.setElementAt(new IntValue(deref_value - 1), x);
 					}
 					else
 					{
@@ -382,12 +414,12 @@ public class VM extends FixedTimeSliceVM
 				case OPCODES.SIGNAL:
 				{
 					int x = ((SIGNAL) i).INDEX;
-					IntValue deref = (IntValue) e.elementAt(x);		
+					IntValue deref = (IntValue) e.elementAt(x);
 					int deref_value = deref.value;
-					
-					os.push(new IntValue(deref_value+1));
+
+					os.push(new IntValue(deref_value + 1));
 					pc++;
-					e.setElementAt(new IntValue(deref_value+1), x);
+					e.setElementAt(new IntValue(deref_value + 1), x);
 
 					break;
 				}
