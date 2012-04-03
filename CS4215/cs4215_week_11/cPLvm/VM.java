@@ -25,14 +25,17 @@ public class VM extends FixedTimeSliceVM
 			System.err.println(i + " " + instructionArray[i]);
 		}
 
+		// This is the initial thread.
 		threadQueue.add(new VMThread(0));
 
 		// emulator loop
 
 		while (threadQueue.size() != 0)
 		{
+			// Process this thread.
 			VMThread currentThread = threadQueue.remove();
-
+			
+			// Registers are reinstalled again
 			int pc = currentThread.pc;
 			Stack<Value> os = currentThread.os;
 			Stack<StackFrame> rts = currentThread.rts;
@@ -42,22 +45,26 @@ public class VM extends FixedTimeSliceVM
 
 			innerloop: while (true)
 			{
-
+				// if time slice has been exhausted.
+//				System.err.println("=================");
+//				System.err.println("Step       : " + step);
+//				System.err.println("Slice Size : " + timeSliceSize);
 				if (step > timeSliceSize)
 				{
+					System.err.println("Slice exhausted");
 					currentThread.save(pc, os, rts, e);
 					threadQueue.add(currentThread);
 					break innerloop;
 				}
 				else
-					step = step + 1;
+				{
+					step++;
+				}
+					
 
 				INSTRUCTION i = instructionArray[pc];
 
 				switch (i.OPCODE) {
-
-				// pushing constants
-
 				case OPCODES.LDCI:
 				{
 					os.push(new IntValue(((LDCI) i).VALUE));
@@ -267,11 +274,21 @@ public class VM extends FixedTimeSliceVM
 
 				// to be improved by student
 				case OPCODES.DOT:
-				{
+				{					
 					String prop = ((PropertyValue) (os.pop())).value;
 					RecordValue v = ((RecordValue) (os.pop()));
-					os.push(v.get(prop));
-					pc++;
+					
+					if(v.containsKey(prop))
+					{
+						os.push(v.get(prop));
+						pc++;
+					}
+					else
+					{
+						// We couldn't find the property.
+						// Set PC to this exception.
+						pc = invalidRecordAccessAddress;
+					}
 					break;
 				}
 
@@ -356,24 +373,11 @@ public class VM extends FixedTimeSliceVM
 				// to be implemented by student
 				case OPCODES.STARTTHREAD:
 				{
-
-					System.err.println("STARTTHREAD");
-					// Creates a new thread, where the PC points to the address
-					// after the instruction.
-					// Sets the new thread environment to the current
-					// environment
-					// The operand stack and runtime stacks start of as empty
-					int addr = ((STARTTHREAD) i).ADDRESS;
-
-					// addr-1 to get the RTN address?
-					threadQueue.add(new VMThread(addr + 1, e));
-
+					int addr = ((STARTTHREAD) i).ADDRESS;		
+					
+					threadQueue.add(new VMThread(addr, e));
 					os.push(new BoolValue(true));
-
-					// The old thread's PC is incremented by n but
-					// since we no longer store the relative address,
-					// but the absolute address
-					pc = addr;
+					pc++; 
 					break;
 				}
 
@@ -387,7 +391,7 @@ public class VM extends FixedTimeSliceVM
 					// Deallocates the thread object itself.
 					currentThread = null;
 					pc++;
-					break;
+					break innerloop;
 				}
 
 				// to be implemented by student

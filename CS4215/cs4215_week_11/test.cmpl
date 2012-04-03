@@ -1,4 +1,8 @@
-let x = 20 y = 1
-in
-	thread y := y + 1; print y end
+let a=0 b=0 c=0 syn=0 in
+a:=1;
+thread b:=2; c:=3; signal syn end;
+print a;
+wait syn;
+print b;
+print c
 end
