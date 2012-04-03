@@ -1,7 +1,4 @@
 let x = 20 y = 1
 in
-wait x;
-y := y + 1;
-print y;
-signal x
+	thread y := y + 1; print y end
 end

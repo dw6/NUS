@@ -12,6 +12,13 @@ public class VM extends FixedTimeSliceVM
 			int invalidRecordAccessAddress)
 	{
 
+		for(int i=0; i< instructionArray.length; i++)
+		{
+			System.err.println(i + " " + instructionArray[i]);
+		}
+		
+		
+		
 		threadQueue.add(new VMThread(0));
 
 		// emulator loop
@@ -319,13 +326,34 @@ public class VM extends FixedTimeSliceVM
 				// to be implemented by student
 				case OPCODES.STARTTHREAD:
 				{
-					pc++;
+										
+					System.err.println("STARTTHREAD");
+					// Creates a new thread, where the PC points to the address after the instruction.
+					// Sets the new thread environment to the current environment
+					// The operand stack and runtime stacks start of as empty
+					int addr = ((STARTTHREAD) i).ADDRESS;	
+					
+					// addr-1 to get the RTN address?
+					threadQueue.add(new VMThread(addr+1, e));
+					
+					os.push(new BoolValue(true));
+
+					// The old thread's PC is incremented by n but
+					// since we no longer store the relative address,
+					// but the absolute address
+					pc = addr;
 					break;
 				}
 
 				// to be implemented by student
 				case OPCODES.ENDTHREAD:
 				{
+					// Deallocates the currentThread's registers.
+					currentThread.e = null;
+					currentThread.os = null;
+					currentThread.rts = null;
+					// Deallocates the thread object itself.
+					currentThread = null;
 					pc++;
 					break;
 				}
