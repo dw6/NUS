@@ -1,0 +1,7 @@
+try 1
+catch e
+with if e hasproperty DivisionByZero
+		then print -1
+		else print 99999
+	 end
+end

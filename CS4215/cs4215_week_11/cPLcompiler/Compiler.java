@@ -215,11 +215,15 @@ public class Compiler
 			TRY i = new TRY();
 			instructions.add(i);
 			comp(((Try) exp).tryExpression, toInsert, funVar);
+			
+			
+
 			if (toInsert == null)
 			{
 				instructions.add(new ENDTRY());
 				toInsert = new GOTO(instructions.size());
 			}
+			
 			IndexTable newIndexTable = (IndexTable) indexTable.clone();
 			newIndexTable.extend(((Try) exp).exceptionVar);
 			toCompileStack.push(new ToCompile(i, newIndexTable, ((Try) exp).withExpression, "",

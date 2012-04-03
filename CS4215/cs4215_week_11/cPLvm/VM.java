@@ -45,13 +45,8 @@ public class VM extends FixedTimeSliceVM
 
 			innerloop: while (true)
 			{
-				// if time slice has been exhausted.
-				// System.err.println("=================");
-				// System.err.println("Step       : " + step);
-				// System.err.println("Slice Size : " + timeSliceSize);
 				if (step > timeSliceSize)
 				{
-					System.err.println("Slice exhausted");
 					currentThread.save(pc, os, rts, e);
 					threadQueue.add(currentThread);
 					break innerloop;
@@ -236,6 +231,14 @@ public class VM extends FixedTimeSliceVM
 					if (rts.empty())
 						break innerloop;
 					StackFrame f = rts.pop();
+					
+					while(f instanceof CatchFrame)
+					{
+						f = rts.pop();
+					}
+					
+					assert(f instanceof StackFrame);
+					
 					pc = f.pc;
 					e = f.environment;
 					Value returnValue = os.pop();
@@ -337,7 +340,7 @@ public class VM extends FixedTimeSliceVM
 				{
 					if (rts.isEmpty())
 					{
-						System.out.println("Uncaught exception: ");
+//						System.out.println("Uncaught exception: ");
 						break innerloop;
 					}
 					else
@@ -381,7 +384,6 @@ public class VM extends FixedTimeSliceVM
 				case OPCODES.STARTTHREAD:
 				{
 					int addr = ((STARTTHREAD) i).ADDRESS;
-
 					threadQueue.add(new VMThread(addr, e));
 					os.push(new BoolValue(true));
 					pc++;
