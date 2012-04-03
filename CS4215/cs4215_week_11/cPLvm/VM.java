@@ -34,7 +34,7 @@ public class VM extends FixedTimeSliceVM
 		{
 			// Process this thread.
 			VMThread currentThread = threadQueue.remove();
-			
+
 			// Registers are reinstalled again
 			int pc = currentThread.pc;
 			Stack<Value> os = currentThread.os;
@@ -46,9 +46,9 @@ public class VM extends FixedTimeSliceVM
 			innerloop: while (true)
 			{
 				// if time slice has been exhausted.
-//				System.err.println("=================");
-//				System.err.println("Step       : " + step);
-//				System.err.println("Slice Size : " + timeSliceSize);
+				// System.err.println("=================");
+				// System.err.println("Step       : " + step);
+				// System.err.println("Slice Size : " + timeSliceSize);
 				if (step > timeSliceSize)
 				{
 					System.err.println("Slice exhausted");
@@ -60,7 +60,6 @@ public class VM extends FixedTimeSliceVM
 				{
 					step++;
 				}
-					
 
 				INSTRUCTION i = instructionArray[pc];
 
@@ -109,9 +108,17 @@ public class VM extends FixedTimeSliceVM
 				case OPCODES.DIV:
 				{
 					int divisor = ((IntValue) os.pop()).value;
-					os.push(new IntValue(((IntValue) os.pop()).value / divisor));
-					pc++;
+					if (divisor == 0)
+					{
+						pc = divisionByZeroAddress;
+					}
+					else
+					{
+						os.push(new IntValue(((IntValue) os.pop()).value / divisor));
+						pc++;
+					}
 					break;
+
 				}
 				case OPCODES.OR:
 				{
@@ -274,11 +281,11 @@ public class VM extends FixedTimeSliceVM
 
 				// to be improved by student
 				case OPCODES.DOT:
-				{					
+				{
 					String prop = ((PropertyValue) (os.pop())).value;
 					RecordValue v = ((RecordValue) (os.pop()));
-					
-					if(v.containsKey(prop))
+
+					if (v.containsKey(prop))
 					{
 						os.push(v.get(prop));
 						pc++;
@@ -373,11 +380,11 @@ public class VM extends FixedTimeSliceVM
 				// to be implemented by student
 				case OPCODES.STARTTHREAD:
 				{
-					int addr = ((STARTTHREAD) i).ADDRESS;		
-					
+					int addr = ((STARTTHREAD) i).ADDRESS;
+
 					threadQueue.add(new VMThread(addr, e));
 					os.push(new BoolValue(true));
-					pc++; 
+					pc++;
 					break;
 				}
 
