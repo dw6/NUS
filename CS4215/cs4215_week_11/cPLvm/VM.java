@@ -20,10 +20,10 @@ public class VM extends FixedTimeSliceVM
 			int invalidRecordAccessAddress)
 	{
 
-		for (int i = 0; i < instructionArray.length; i++)
-		{
-			System.err.println(i + " " + instructionArray[i]);
-		}
+//		for (int i = 0; i < instructionArray.length; i++)
+//		{
+//			System.err.println(i + " " + instructionArray[i]);
+//		}
 
 		// This is the initial thread.
 		threadQueue.add(new VMThread(0));

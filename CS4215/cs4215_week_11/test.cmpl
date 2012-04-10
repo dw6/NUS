@@ -1,8 +1,30 @@
-try [First:1].Second
-catch e
-with if e hasproperty DivisionByZero
-	then print 1
-	else print 2
-	end
+let spaces = 4
+printsem = 1
+totalcars = 0
+in
+let car =
+class
+method Init() -> this.Id := totalcars; totalcars := totalcars + 1
 end
-
+method Arrive() -> wait printsem; print this.Id; print 1; signal printsem
+end
+method Depart() -> wait printsem; print this.Id; print 0; signal printsem
+end
+end
+in
+let numcars = 20
+in
+while numcars > 0 do
+thread
+let newcar = (new car)
+in
+newcar.Init();
+newcar.Arrive();
+newcar.Depart()
+end
+end;
+numcars := numcars - 1
+end
+end
+end
+end
